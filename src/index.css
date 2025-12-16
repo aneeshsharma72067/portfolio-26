@@ -1,0 +1,216 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 5%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 185 75% 55%;
+    --primary-foreground: 222 47% 5%;
+
+    --secondary: 260 60% 55%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 222 30% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 185 75% 55%;
+    --accent-foreground: 222 47% 5%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 30% 18%;
+    --input: 222 30% 18%;
+    --ring: 185 75% 55%;
+
+    --radius: 0.75rem;
+
+    /* Custom Design Tokens */
+    --glow-primary: 185 75% 55%;
+    --glow-secondary: 260 60% 55%;
+    --glass-bg: 222 47% 10%;
+    --glass-border: 222 30% 25%;
+
+    /* Gradient tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(185, 75%, 55%), hsl(260, 60%, 55%));
+    --gradient-text: linear-gradient(90deg, hsl(185, 75%, 55%), hsl(260, 60%, 55%));
+    --gradient-glow: radial-gradient(circle, hsl(185, 75%, 55%, 0.3), transparent 70%);
+
+    /* Shadow tokens */
+    --shadow-glow: 0 0 60px hsl(185, 75%, 55%, 0.3);
+    --shadow-glow-secondary: 0 0 60px hsl(260, 60%, 55%, 0.3);
+    --shadow-card: 0 8px 32px hsl(222, 47%, 5%, 0.5);
+
+    /* Font */
+    --font-display: 'Space Grotesk', sans-serif;
+
+    /* Ripple effect colors */
+    --color-neutral-100: hsl(0, 0%, 96%);
+    --color-neutral-300: hsl(0, 0%, 87%);
+    --color-neutral-500: hsl(0, 0%, 64%);
+    --color-neutral-600: hsl(0, 0%, 45%);
+    --color-neutral-700: hsl(0, 0%, 37%);
+    --color-neutral-800: hsl(0, 0%, 27%);
+    --color-neutral-900: hsl(0, 0%, 9%);
+    --color-neutral-950: hsl(0, 0%, 3%);
+  }
+
+  .dark {
+    --background: 222 47% 5%;
+    --foreground: 210 40% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: var(--font-display);
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-card/50 backdrop-blur-xl border border-glass rounded-2xl;
+    box-shadow: var(--shadow-card);
+  }
+
+  .glow-text {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow-border {
+    @apply border border-primary/30;
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.2);
+  }
+
+  .text-gradient {
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300;
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.4);
+  }
+
+  .orb {
+    @apply absolute rounded-full blur-3xl opacity-30;
+    animation: float 20s infinite ease-in-out;
+  }
+
+  .orb-primary {
+    background: radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%);
+  }
+
+  .orb-secondary {
+    background: radial-gradient(circle, hsl(var(--secondary)) 0%, transparent 70%);
+  }
+
+  .card-3d {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+
+  .card-3d-inner {
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .nav-link {
+    @apply relative text-muted-foreground hover:text-foreground transition-colors duration-300;
+  }
+
+  .nav-link::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300;
+  }
+
+  .nav-link:hover::after {
+    @apply w-full;
+  }
+}
+
+@layer utilities {
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+  .animation-delay-600 {
+    animation-delay: 600ms;
+  }
+
+  /* Mask utilities for ripple effect */
+  .mask-radial-from-20% {
+    mask-image: radial-gradient(ellipse 80% 50% at 50% 0%, black 20%, transparent 50%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 50% at 50% 0%, black 20%, transparent 50%);
+  }
+
+  .mask-radial-at-top {
+    mask-position: center top;
+    -webkit-mask-position: center top;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(50px, -50px) scale(1.1);
+  }
+  50% {
+    transform: translate(-30px, 30px) scale(0.95);
+  }
+  75% {
+    transform: translate(-50px, -20px) scale(1.05);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
