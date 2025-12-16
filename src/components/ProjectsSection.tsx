@@ -27,7 +27,7 @@ const projects = [
     title: 'CryptoPulse — Crypto Screener Application',
     description:
       'A modern crypto screener application built with React.js and Tailwind CSS that displays real-time cryptocurrency market data using the CoinGecko API. Features a clean UI, responsive design, and fast data updates for tracking top cryptocurrencies.',
-    image: 'https://aneesh-dev.netlify.app/assets/crypto-e693db22.png',
+    image: 'https://aneesh-dev-old.netlify.app/assets/crypto-e693db22.png',
     tags: [
       'React',
       'Tailwind CSS',
@@ -44,7 +44,7 @@ const projects = [
     title: 'Coderaven — Real-Time Collaborative Code Editor',
     description:
       'A real-time collaborative code editor supporting JavaScript and Python, enabling multiple users to write and edit code simultaneously. Built with low-latency synchronization and tested with up to 5 concurrent users to ensure stability and smooth collaboration.',
-    image: 'https://aneesh-dev.netlify.app/assets/coderaven-07cbb033.png',
+    image: 'https://aneesh-dev-old.netlify.app/assets/coderaven-07cbb033.png',
     tags: [
       'Real-Time Systems',
       'WebSockets',
@@ -61,7 +61,7 @@ const projects = [
     title: 'Sustainify — Solving Social Problems, Socially',
     description:
       'A social-impact web platform that enables users to connect, share environmental concerns, and collaborate on cleanup initiatives through image-based awareness campaigns. Built with a focus on community engagement, real-time interaction, and a clean, responsive UI.',
-    image: 'https://aneesh-dev.netlify.app/assets/sustainify-46378aa3.png',
+    image: 'https://aneesh-dev-old.netlify.app/assets/sustainify-46378aa3.png',
     tags: [
       'React',
       'Firebase',
