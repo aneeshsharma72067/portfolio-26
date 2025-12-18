@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { CardSpotlight } from './ui/card-spotlight';
+import SkillParallaxCloud from './SkillParallaxCloud';
 
 const skills = [
   { name: 'JavaScript', level: 95, color: 'from-yellow-400 to-yellow-600' },
@@ -45,7 +46,7 @@ const SkillsSection = () => {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section id='skills' className='py-32 px-6 relative' ref={ref}>
+    <section id='skills' className='px-6 relative' ref={ref}>
       <div className='max-w-6xl mx-auto'>
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -62,7 +63,7 @@ const SkillsSection = () => {
         </motion.div>
 
         {/* Skill bars */}
-        <div className='grid md:grid-cols-2 gap-6 mb-20'>
+        {/* <div className='grid md:grid-cols-2 gap-6 mb-20'>
           {skills.map((skill, index) => (
             <motion.div
               key={skill.name}
@@ -85,7 +86,8 @@ const SkillsSection = () => {
               </div>
             </motion.div>
           ))}
-        </div>
+        </div> */}
+        <SkillParallaxCloud />
 
         {/* Tech categories */}
         <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-6'>

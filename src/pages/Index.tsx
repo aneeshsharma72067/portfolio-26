@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import ArchitectureSection from '@/components/ArchitectureSection';
 import { mockArchitectureData } from '@/components/ArchitectureDiagram';
 import RevealEffect from '@/components/RevealEffect';
+import SkillParallaxCloud from '@/components/SkillParallaxCloud';
 
 const Index = () => {
   return (
