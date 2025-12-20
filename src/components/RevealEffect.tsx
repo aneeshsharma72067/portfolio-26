@@ -6,8 +6,8 @@ export default function RevealEffect() {
   const [animateLogo, setAnimateLogo] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => setAnimateLogo(true), 300); // logo animation starts
-    setTimeout(() => setShowCover(false), 1200); // cover fades out
+    setTimeout(() => setAnimateLogo(true), 500); // logo animation starts
+    setTimeout(() => setShowCover(false), 1500); // cover fades out
   }, []);
 
   return (
