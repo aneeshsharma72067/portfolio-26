@@ -11,6 +11,7 @@ export interface SkillNode {
   description: string;
   useCases: string[];
   connections: string[];
+  docs_url: string;
 }
 
 // Sample skill dataset with CDN logos
@@ -23,6 +24,7 @@ const sampleSkills: SkillNode[] = [
       'Standard markup language for creating web pages and applications.',
     useCases: ['Web structure', 'Email templates', 'Static websites'],
     connections: ['css', 'javascript'],
+    docs_url: 'https://developer.mozilla.org/en-US/docs/Web/HTML',
   },
   {
     id: 'css',
@@ -32,6 +34,7 @@ const sampleSkills: SkillNode[] = [
       'Stylesheet language for describing presentation of HTML documents.',
     useCases: ['Responsive design', 'Animations', 'Layout systems'],
     connections: ['html', 'tailwind', 'javascript'],
+    docs_url: 'https://developer.mozilla.org/en-US/docs/Web/CSS',
   },
   {
     id: 'tailwind',
@@ -40,6 +43,7 @@ const sampleSkills: SkillNode[] = [
     description: 'Utility-first CSS framework for rapid UI development.',
     useCases: ['Modern web apps', 'Component styling', 'Rapid prototyping'],
     connections: ['css', 'react', 'nextjs', 'vite'],
+    docs_url: 'https://tailwindcss.com/docs',
   },
   {
     id: 'javascript',
@@ -49,6 +53,7 @@ const sampleSkills: SkillNode[] = [
       'Dynamic programming language for web interactivity and server-side development.',
     useCases: ['Frontend logic', 'Backend services', 'Full-stack development'],
     connections: ['html', 'css', 'typescript', 'nodejs', 'react'],
+    docs_url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript',
   },
   {
     id: 'typescript',
@@ -58,6 +63,7 @@ const sampleSkills: SkillNode[] = [
       'Typed superset of JavaScript for scalable application development.',
     useCases: ['Enterprise apps', 'Type-safe codebases', 'Large teams'],
     connections: ['javascript', 'react', 'nextjs', 'nestjs', 'nodejs'],
+    docs_url: 'https://www.typescriptlang.org/docs/',
   },
   {
     id: 'react',
@@ -73,6 +79,7 @@ const sampleSkills: SkillNode[] = [
       'tailwind',
       'vite',
     ],
+    docs_url: 'https://react.dev/',
   },
   {
     id: 'reactnative',
@@ -81,6 +88,7 @@ const sampleSkills: SkillNode[] = [
     description: 'Framework for building native mobile apps using React.',
     useCases: ['iOS apps', 'Android apps', 'Cross-platform mobile'],
     connections: ['react', 'javascript', 'typescript', 'expo', 'nodejs'],
+    docs_url: 'https://reactnative.dev/docs/getting-started',
   },
   {
     id: 'nextjs',
@@ -90,6 +98,7 @@ const sampleSkills: SkillNode[] = [
       'React framework with server-side rendering and static generation.',
     useCases: ['SEO-optimized sites', 'Full-stack apps', 'Static sites'],
     connections: ['react', 'typescript', 'nodejs', 'tailwind'],
+    docs_url: 'https://nextjs.org/docs',
   },
   {
     id: 'nodejs',
@@ -106,6 +115,7 @@ const sampleSkills: SkillNode[] = [
       'mongodb',
       'postgresql',
     ],
+    docs_url: 'https://nodejs.org/en/docs',
   },
   {
     id: 'express',
@@ -120,6 +130,7 @@ const sampleSkills: SkillNode[] = [
       'mongodb',
       'postgresql',
     ],
+    docs_url: 'https://expressjs.com/',
   },
   {
     id: 'nestjs',
@@ -129,6 +140,7 @@ const sampleSkills: SkillNode[] = [
       'Progressive Node.js framework for building efficient server-side apps.',
     useCases: ['Enterprise backends', 'GraphQL APIs', 'Microservices'],
     connections: ['nodejs', 'typescript', 'mongodb', 'postgresql', 'docker'],
+    docs_url: 'https://docs.nestjs.com/',
   },
   {
     id: 'python',
@@ -138,6 +150,7 @@ const sampleSkills: SkillNode[] = [
       'High-level programming language for web, data science, and automation.',
     useCases: ['Data analysis', 'Machine learning', 'Web backends'],
     connections: ['flask', 'postgresql', 'mongodb', 'docker'],
+    docs_url: 'https://docs.python.org/3/',
   },
   {
     id: 'flask',
@@ -147,6 +160,7 @@ const sampleSkills: SkillNode[] = [
       'Lightweight Python web framework for building web applications.',
     useCases: ['REST APIs', 'Microservices', 'Web apps'],
     connections: ['python', 'postgresql', 'mongodb', 'docker'],
+    docs_url: 'https://flask.palletsprojects.com/',
   },
   {
     id: 'mongodb',
@@ -155,6 +169,7 @@ const sampleSkills: SkillNode[] = [
     description: 'NoSQL document database for flexible, scalable data storage.',
     useCases: ['Document storage', 'Real-time apps', 'Content management'],
     connections: ['nodejs', 'express', 'nestjs', 'python', 'flask', 'docker'],
+    docs_url: 'https://www.mongodb.com/docs/',
   },
   {
     id: 'postgresql',
@@ -163,6 +178,7 @@ const sampleSkills: SkillNode[] = [
     description: 'Advanced open-source relational database system.',
     useCases: ['Relational data', 'Complex queries', 'Data integrity'],
     connections: ['nodejs', 'express', 'nestjs', 'python', 'flask', 'docker'],
+    docs_url: 'https://www.postgresql.org/docs/',
   },
   {
     id: 'docker',
@@ -172,6 +188,7 @@ const sampleSkills: SkillNode[] = [
       'Platform for developing, shipping, and running applications in containers.',
     useCases: ['Containerization', 'Deployment', 'Development environments'],
     connections: ['nodejs', 'python', 'mongodb', 'postgresql', 'nestjs', 'aws'],
+    docs_url: 'https://docs.docker.com/',
   },
   {
     id: 'vite',
@@ -180,6 +197,7 @@ const sampleSkills: SkillNode[] = [
     description: 'Next-generation frontend build tool for fast development.',
     useCases: ['Build tooling', 'Dev servers', 'Frontend optimization'],
     connections: ['react', 'javascript', 'typescript', 'tailwind'],
+    docs_url: 'https://vitejs.dev/guide/',
   },
   {
     id: 'expo',
@@ -192,6 +210,7 @@ const sampleSkills: SkillNode[] = [
       'Rapid prototyping',
     ],
     connections: ['reactnative', 'javascript', 'typescript', 'nodejs'],
+    docs_url: 'https://docs.expo.dev/',
   },
   {
     id: 'aws',
@@ -200,6 +219,7 @@ const sampleSkills: SkillNode[] = [
     description: 'Comprehensive cloud computing platform by Amazon.',
     useCases: ['Cloud hosting', 'Serverless functions', 'Database services'],
     connections: ['docker', 'nodejs', 'python', 'mongodb', 'postgresql'],
+    docs_url: 'https://docs.aws.amazon.com/',
   },
 ];
 
@@ -459,7 +479,7 @@ const SkillSidebar: React.FC<SidebarProps> = ({ skill, onClose }) => {
   //         Click any skill node to view details and connections. Hover to
   //         highlight relationships in 3D space.
   //       </p>
-  //     </div>
+  //     </div>ac
   //   );
   // }
 
@@ -559,9 +579,13 @@ const SkillSidebar: React.FC<SidebarProps> = ({ skill, onClose }) => {
           </div>
 
           <div className='p-6 border-t border-slate-700/50'>
-            <button className='w-full py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg shadow-lg shadow-blue-500/20 transition-all hover:shadow-blue-500/30 hover:scale-[1.02]'>
+            <a
+              href={skill.docs_url}
+              target='_blank'
+              className='w-full block text-center py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg shadow-lg shadow-blue-500/20 transition-all hover:shadow-blue-500/30 hover:scale-[1.02]'
+            >
               Learn More
-            </button>
+            </a>
           </div>
         </>
       ) : (
