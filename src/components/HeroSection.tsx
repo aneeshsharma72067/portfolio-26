@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
-import { ArrowDown, Download, Sparkles } from 'lucide-react';
-import profileImage from '@/assets/image/profile.png';
+import { ArrowDown, Download } from 'lucide-react';
 import { BackgroundRippleEffect } from './ui/background-ripple-effect';
+import IMAGES from '@/assets/image/images';
 
 const HeroSection = () => {
   return (
@@ -132,7 +132,7 @@ const HeroSection = () => {
               transition={{ duration: 0.3 }}
             >
               <img
-                src={profileImage}
+                src={IMAGES.profile}
                 alt='Aneesh Sharma'
                 className='w-full h-full object-cover rounded-full'
               />

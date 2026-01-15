@@ -3,7 +3,7 @@ import AiGenPreview from './aigenpreview.png';
 import Github from './github.png';
 import LinkedIn from './linkedin.png';
 import Logo from './logo.png';
-import Profile from './profile.jpg';
+import Profile from './profile.png';
 import Twitter from './twitter.png';
 
 // Skill images
@@ -59,3 +59,4 @@ export const IMAGES = {
 };
 
 export default IMAGES;
+
