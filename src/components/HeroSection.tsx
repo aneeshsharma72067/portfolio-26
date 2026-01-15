@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowDown, Download, Sparkles } from 'lucide-react';
-import profileImage from '@/assets/image/profile.jpg';
+import profileImage from '@/assets/image/profile.png';
 import { BackgroundRippleEffect } from './ui/background-ripple-effect';
 
 const HeroSection = () => {
@@ -170,3 +170,4 @@ const HeroSection = () => {
 };
 
 export default HeroSection;
+
