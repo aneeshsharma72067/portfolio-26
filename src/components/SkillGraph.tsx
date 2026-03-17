@@ -17,42 +17,13 @@ export interface SkillNode {
 // Sample skill dataset with CDN logos
 const sampleSkills: SkillNode[] = [
   {
-    id: 'html',
-    name: 'HTML',
-    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',
-    description:
-      'Standard markup language for creating web pages and applications.',
-    useCases: ['Web structure', 'Email templates', 'Static websites'],
-    connections: ['css', 'javascript'],
-    docs_url: 'https://developer.mozilla.org/en-US/docs/Web/HTML',
-  },
-  {
-    id: 'css',
-    name: 'CSS',
-    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg',
-    description:
-      'Stylesheet language for describing presentation of HTML documents.',
-    useCases: ['Responsive design', 'Animations', 'Layout systems'],
-    connections: ['html', 'tailwind', 'javascript'],
-    docs_url: 'https://developer.mozilla.org/en-US/docs/Web/CSS',
-  },
-  {
-    id: 'tailwind',
-    name: 'Tailwind CSS',
-    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg',
-    description: 'Utility-first CSS framework for rapid UI development.',
-    useCases: ['Modern web apps', 'Component styling', 'Rapid prototyping'],
-    connections: ['css', 'react', 'nextjs', 'vite'],
-    docs_url: 'https://tailwindcss.com/docs',
-  },
-  {
     id: 'javascript',
     name: 'JavaScript',
     logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
     description:
       'Dynamic programming language for web interactivity and server-side development.',
     useCases: ['Frontend logic', 'Backend services', 'Full-stack development'],
-    connections: ['html', 'css', 'typescript', 'nodejs', 'react'],
+    connections: ['typescript', 'nodejs', 'react', 'fastify'],
     docs_url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript',
   },
   {
@@ -62,7 +33,14 @@ const sampleSkills: SkillNode[] = [
     description:
       'Typed superset of JavaScript for scalable application development.',
     useCases: ['Enterprise apps', 'Type-safe codebases', 'Large teams'],
-    connections: ['javascript', 'react', 'nextjs', 'nestjs', 'nodejs'],
+    connections: [
+      'javascript',
+      'react',
+      'nextjs',
+      'nestjs',
+      'nodejs',
+      'fastify',
+    ],
     docs_url: 'https://www.typescriptlang.org/docs/',
   },
   {
@@ -71,14 +49,7 @@ const sampleSkills: SkillNode[] = [
     logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
     description: 'Component-based library for building modern user interfaces.',
     useCases: ['Single-page apps', 'Dynamic UIs', 'Cross-platform apps'],
-    connections: [
-      'javascript',
-      'typescript',
-      'nextjs',
-      'reactnative',
-      'tailwind',
-      'vite',
-    ],
+    connections: ['typescript', 'nextjs', 'reactnative', 'tailwind', 'vite'],
     docs_url: 'https://react.dev/',
   },
   {
@@ -87,7 +58,7 @@ const sampleSkills: SkillNode[] = [
     logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
     description: 'Framework for building native mobile apps using React.',
     useCases: ['iOS apps', 'Android apps', 'Cross-platform mobile'],
-    connections: ['react', 'javascript', 'typescript', 'expo', 'nodejs'],
+    connections: ['react', 'typescript', 'expo', 'nodejs'],
     docs_url: 'https://reactnative.dev/docs/getting-started',
   },
   {
@@ -101,6 +72,15 @@ const sampleSkills: SkillNode[] = [
     docs_url: 'https://nextjs.org/docs',
   },
   {
+    id: 'tailwind',
+    name: 'Tailwind CSS',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg',
+    description: 'Utility-first CSS framework for rapid UI development.',
+    useCases: ['Modern web apps', 'Component styling', 'Rapid prototyping'],
+    connections: ['react', 'nextjs', 'vite'],
+    docs_url: 'https://tailwindcss.com/docs',
+  },
+  {
     id: 'nodejs',
     name: 'Node.js',
     logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
@@ -108,29 +88,24 @@ const sampleSkills: SkillNode[] = [
       'JavaScript runtime for building scalable server-side applications.',
     useCases: ['REST APIs', 'Real-time services', 'Microservices'],
     connections: [
-      'javascript',
       'typescript',
       'express',
       'nestjs',
+      'fastify',
       'mongodb',
       'postgresql',
     ],
     docs_url: 'https://nodejs.org/en/docs',
   },
   {
-    id: 'express',
-    name: 'Express',
-    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg',
-    description: 'Minimal and flexible Node.js web application framework.',
-    useCases: ['REST APIs', 'Web servers', 'Middleware services'],
-    connections: [
-      'nodejs',
-      'javascript',
-      'typescript',
-      'mongodb',
-      'postgresql',
-    ],
-    docs_url: 'https://expressjs.com/',
+    id: 'fastify',
+    name: 'Fastify',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastify/fastify-original.svg',
+    description:
+      'Extremely focused on low overhead and highest-performance Node.js framework.',
+    useCases: ['High-performance APIs', 'Microservices', 'JSON-based services'],
+    connections: ['nodejs', 'typescript', 'postgresql'],
+    docs_url: 'https://www.fastify.io/docs/latest/',
   },
   {
     id: 'nestjs',
@@ -147,28 +122,66 @@ const sampleSkills: SkillNode[] = [
     name: 'Python',
     logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',
     description:
-      'High-level programming language for web, data science, and automation.',
-    useCases: ['Data analysis', 'Machine learning', 'Web backends'],
-    connections: ['flask', 'postgresql', 'mongodb', 'docker'],
+      'High-level programming language for web, data science, and AI.',
+    useCases: ['AI/ML', 'Web backends', 'Automation'],
+    connections: ['fastapi', 'postgresql', 'mongodb', 'docker', 'claude'],
     docs_url: 'https://docs.python.org/3/',
   },
   {
-    id: 'flask',
-    name: 'Flask',
-    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flask/flask-original.svg',
+    id: 'fastapi',
+    name: 'FastAPI',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg',
     description:
-      'Lightweight Python web framework for building web applications.',
-    useCases: ['REST APIs', 'Microservices', 'Web apps'],
-    connections: ['python', 'postgresql', 'mongodb', 'docker'],
-    docs_url: 'https://flask.palletsprojects.com/',
+      'Modern, high-performance web framework for building APIs with Python.',
+    useCases: [
+      'Asynchronous APIs',
+      'Machine Learning deployment',
+      'Microservices',
+    ],
+    connections: ['python', 'postgresql', 'docker'],
+    docs_url: 'https://fastapi.tiangolo.com/',
+  },
+  {
+    id: 'claude',
+    name: 'Claude',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/b/b0/Claude_AI_symbol.svg',
+    description:
+      'Advanced AI models by Anthropic for complex reasoning and coding.',
+    useCases: ['AI integration', 'Prompt engineering', 'Agentic workflows'],
+    connections: ['python', 'mcp', 'cursor'],
+    docs_url: 'https://platform.claude.com/docs/en/intro',
+  },
+  {
+    id: 'cursor',
+    name: 'Cursor',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/Cursor_logo.png',
+    description:
+      'The AI-first code editor designed for pair programming with LLMs.',
+    useCases: [
+      'AI-native development',
+      'Rapid feature builds',
+      'Code refactoring',
+    ],
+    connections: ['claude', 'mcp', 'typescript', 'python'],
+    docs_url: 'https://docs.cursor.com/',
+  },
+  {
+    id: 'mcp',
+    name: 'MCP',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/f/fe/Model_Context_Protocol_logo.svg',
+    description:
+      'Model Context Protocol for connecting AI models to local/remote data.',
+    useCases: ['AI Agents', 'Tool use', 'Contextual data fetching'],
+    connections: ['claude', 'cursor', 'nodejs', 'python'],
+    docs_url: 'https://modelcontextprotocol.io/docs/getting-started/intro',
   },
   {
     id: 'mongodb',
     name: 'MongoDB',
     logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg',
     description: 'NoSQL document database for flexible, scalable data storage.',
-    useCases: ['Document storage', 'Real-time apps', 'Content management'],
-    connections: ['nodejs', 'express', 'nestjs', 'python', 'flask', 'docker'],
+    useCases: ['Document storage', 'Real-time apps', 'Scalable backends'],
+    connections: ['nodejs', 'nestjs', 'python', 'docker'],
     docs_url: 'https://www.mongodb.com/docs/',
   },
   {
@@ -177,7 +190,7 @@ const sampleSkills: SkillNode[] = [
     logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg',
     description: 'Advanced open-source relational database system.',
     useCases: ['Relational data', 'Complex queries', 'Data integrity'],
-    connections: ['nodejs', 'express', 'nestjs', 'python', 'flask', 'docker'],
+    connections: ['nodejs', 'fastify', 'fastapi', 'python', 'docker'],
     docs_url: 'https://www.postgresql.org/docs/',
   },
   {
@@ -186,9 +199,28 @@ const sampleSkills: SkillNode[] = [
     logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg',
     description:
       'Platform for developing, shipping, and running applications in containers.',
-    useCases: ['Containerization', 'Deployment', 'Development environments'],
-    connections: ['nodejs', 'python', 'mongodb', 'postgresql', 'nestjs', 'aws'],
+    useCases: ['Containerization', 'Deployment', 'CI/CD'],
+    connections: ['nodejs', 'python', 'postgresql', 'azure', 'aws'],
     docs_url: 'https://docs.docker.com/',
+  },
+  {
+    id: 'aws',
+    name: 'AWS',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg',
+    description: 'Comprehensive cloud computing platform by Amazon.',
+    useCases: ['Cloud hosting', 'Serverless', 'Global infrastructure'],
+    connections: ['docker', 'azure', 'nodejs', 'postgresql'],
+    docs_url: 'https://docs.aws.amazon.com/',
+  },
+  {
+    id: 'azure',
+    name: 'Azure',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg',
+    description:
+      'Microsoft’s cloud platform for building and managing applications.',
+    useCases: ['Enterprise cloud', 'Active Directory', 'Hybrid cloud'],
+    connections: ['docker', 'aws', 'python', 'typescript'],
+    docs_url: 'https://learn.microsoft.com/en-us/azure/',
   },
   {
     id: 'vite',
@@ -196,7 +228,7 @@ const sampleSkills: SkillNode[] = [
     logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg',
     description: 'Next-generation frontend build tool for fast development.',
     useCases: ['Build tooling', 'Dev servers', 'Frontend optimization'],
-    connections: ['react', 'javascript', 'typescript', 'tailwind'],
+    connections: ['react', 'typescript', 'tailwind'],
     docs_url: 'https://vitejs.dev/guide/',
   },
   {
@@ -204,22 +236,9 @@ const sampleSkills: SkillNode[] = [
     name: 'Expo',
     logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/expo/expo-original.svg',
     description: 'Framework and platform for universal React applications.',
-    useCases: [
-      'Mobile development',
-      'Cross-platform apps',
-      'Rapid prototyping',
-    ],
-    connections: ['reactnative', 'javascript', 'typescript', 'nodejs'],
+    useCases: ['Mobile development', 'Rapid prototyping'],
+    connections: ['reactnative', 'typescript'],
     docs_url: 'https://docs.expo.dev/',
-  },
-  {
-    id: 'aws',
-    name: 'AWS',
-    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg',
-    description: 'Comprehensive cloud computing platform by Amazon.',
-    useCases: ['Cloud hosting', 'Serverless functions', 'Database services'],
-    connections: ['docker', 'nodejs', 'python', 'mongodb', 'postgresql'],
-    docs_url: 'https://docs.aws.amazon.com/',
   },
 ];
 
@@ -419,7 +438,7 @@ const SkillNetworkScene: React.FC<SceneProps> = ({
               }
             />
           );
-        })
+        }),
       )}
 
       {skills.map((skill) => (
@@ -739,3 +758,4 @@ const SkillGraph: React.FC<{ skills?: SkillNode[] }> = ({
 };
 
 export default SkillGraph;
+

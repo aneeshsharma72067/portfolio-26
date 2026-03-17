@@ -3,8 +3,29 @@ import { useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { ExternalLink, Github, Layers } from 'lucide-react';
 import AiGenPreview from '@/assets/image/aigenpreview.png';
+import TraceOn from '@/assets/image/traceon.png';
 
 const projects = [
+  {
+    title: 'RepoSage — AI Workflow Analyzer',
+    description:
+      'Built an event-driven AI system that analyzes GitHub repository events and detects engineering risks such as large commits and architectural drift. Developed a serverless Fastify API on Vercel that ingests webhook events in under 100ms and publishes jobs to Redis (Upstash) using BullMQ. Implemented distributed AI workers on Azure Container Apps with Postgres + Prisma for storing analysis runs and powering a Next.js dashboard.',
+    image: TraceOn,
+    tags: [
+      'Fastify',
+      'Next.js',
+      'Redis',
+      'BullMQ',
+      'Postgres',
+      'Prisma',
+      'Azure',
+      'Vercel',
+      'AI',
+      'Serverless',
+    ],
+    github: 'https://github.com/aneeshsharma72067/reposage',
+    live: 'https://reposage-web.vercel.app/',
+  },
   {
     title: 'AI-Gen — AI Project Structure Generator',
     description:
@@ -57,23 +78,6 @@ const projects = [
     github: 'https://github.com/aneeshsharma72067/coderaven-with-js', // add live link if deployed
     live: 'https://coderaven.onrender.com/', // replace with actual repo
   },
-  {
-    title: 'Sustainify — Solving Social Problems, Socially',
-    description:
-      'A social-impact web platform that enables users to connect, share environmental concerns, and collaborate on cleanup initiatives through image-based awareness campaigns. Built with a focus on community engagement, real-time interaction, and a clean, responsive UI.',
-    image: 'https://aneesh-dev-old.netlify.app/assets/sustainify-46378aa3.png',
-    tags: [
-      'React',
-      'Firebase',
-      'Tailwind CSS',
-      'Social Platform',
-      'Environmental Tech',
-      'Full Stack',
-      'Web App',
-    ],
-    github: 'https://github.com/aneeshsharma72067/sustainify',
-    live: 'https://sustainify-web.netlify.app/',
-  },
 ];
 
 const ProjectCard = ({
@@ -124,6 +128,7 @@ const ProjectCard = ({
             transition={{ duration: 0.3 }}
           >
             <motion.a
+              target='_blank'
               href={project.github}
               className='p-3 bg-background/80 rounded-full hover:bg-background transition-colors'
               whileHover={{ scale: 1.1 }}
@@ -133,6 +138,7 @@ const ProjectCard = ({
             </motion.a>
             <motion.a
               href={project.live}
+              target='_blank'
               className='p-3 bg-background/80 rounded-full hover:bg-background transition-colors'
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
@@ -230,3 +236,4 @@ const ProjectsSection = () => {
 };
 
 export default ProjectsSection;
+

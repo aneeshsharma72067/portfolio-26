@@ -1,3 +1,5 @@
+Sitemap: https://aneesh-sharma.me/sitemap.xml
+
 User-agent: Googlebot
 Allow: /
 
