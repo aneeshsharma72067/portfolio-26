@@ -3,6 +3,7 @@ import { personal } from '@/data/content';
 import Profile from '@/assets/image/profile.png';
 import Landscape from '@/assets/image/landscape.jpeg';
 import NowPlaying from './NowPlaying';
+import GitHubContributions from './GitHubContributions';
 
 /**
  * Hero — profile-page style layout inspired by bharath.codes.
@@ -116,6 +117,9 @@ const Hero = () => {
       <div className="mt-10 max-w-sm">
         <NowPlaying />
       </div>
+
+      {/* ── GitHub contribution graph ── */}
+      <GitHubContributions />
     </section>
   );
 };
