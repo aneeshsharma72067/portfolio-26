@@ -169,9 +169,17 @@ export default function ChessProfile() {
 
   return (
     <div
-      className="flex items-center gap-4 rounded-soft border border-[#81b64c]/20 bg-[#272522] p-4 transition-all duration-300 hover:border-[#81b64c]/40"
+      className="relative flex items-center gap-4 rounded-soft border border-[#81b64c]/20 bg-[#272522] p-4 transition-all duration-300 hover:border-[#81b64c]/40 overflow-hidden"
       style={{ minHeight: '80px' }}
     >
+      {/* Watermark Chess Knight Graphic */}
+      <svg
+        viewBox="0 0 100 100"
+        className="absolute -left-4 -bottom-4 w-28 h-28 opacity-[0.07] fill-white pointer-events-none transform -rotate-12 select-none"
+      >
+        <path d="M35 15c5-4 12-5 18-2 6 3 10 9 12 16 1 4 0 9-1 13 4 1 8 4 10 8 3 5 2 12-2 16-3 3-7 5-11 5h-2c-4 0-8-2-10-5-3-4-3-9-1-13-3-4-8-7-13-7h-5c-5 0-9 4-9 9 0 3 2 6 5 8 1 1 3 1 3 3s-2 3-3 3c-4 0-8-3-9-7s1-8 4-11c3-2 6-3 9-3h2c4 0 7 2 9 5 2 3 2 7 0 10 2 0 3-1 4-2 3-3 4-8 2-12-2-3-5-5-8-5h-2c-4 0-7-2-9-5s-2-7 0-10c2-3 5-5 8-5h1c4 0 7 2 9 5 2 3 2 7 0 10 2-3 5-5 9-5h2c5 0 9 4 9 9s-4 9-9 9h-2c-4 0-7-2-9-5z" />
+      </svg>
+
       {/* Chess Stats Profile */}
       <div className="min-w-0 flex-1">
         <a
