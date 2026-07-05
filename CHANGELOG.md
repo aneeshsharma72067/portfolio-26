@@ -32,4 +32,5 @@ All notable changes to this project will be documented in this file.
 ### Removed
 - All old UI component library files (shadcn/ui, framer-motion, radix-ui-based components)
 - **src/assets/image/images.ts** — replaced with direct asset imports per component
+- **perf:** Compress profile.png from 4.4 MB → 254 KB (94% reduction, resized to 400 px max-dim via PIL)
 - All old multi-section page components from v1
