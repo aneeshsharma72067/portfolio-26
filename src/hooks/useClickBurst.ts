@@ -18,11 +18,11 @@ import { useEffect } from 'react';
 /* ── Tunables ─────────────────────────────────────────────────── */
 const COUNT_MIN   = 8;
 const COUNT_MAX   = 12;
-const TRAVEL_MIN  = 35;   // px — minimum travel distance
-const TRAVEL_MAX  = 72;   // px — maximum travel distance
-const RAY_LEN_MIN = 7;    // px — shortest ray
-const RAY_LEN_MAX = 15;   // px — longest ray
-const RAY_W       = 1.5;  // px — ray stroke width
+const TRAVEL_MIN  = 18;   // px — minimum travel distance
+const TRAVEL_MAX  = 38;   // px — maximum travel distance
+const RAY_LEN_MIN = 10;   // px — shortest ray
+const RAY_LEN_MAX = 20;   // px — longest ray
+const RAY_W       = 3;    // px — ray stroke width
 const DURATION    = 850;  // ms — total ray animation
 
 /* ── Colour pool — subtle whites / light greys on dark bg ──── */
