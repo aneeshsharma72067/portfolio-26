@@ -6,6 +6,7 @@ import Stack from '@/components/Stack';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import Preloader from '@/components/Preloader';
+import { useClickBurst } from '@/hooks/useClickBurst';
 
 /**
  * Root layout — a single centred reading column (~60 % viewport on desktop).
@@ -17,7 +18,11 @@ import Preloader from '@/components/Preloader';
  *   No opacity transition on the app itself — the pixel reveal IS the
  *   transition. <Preloader> unmounts itself when completely done.
  */
-const App = () => (
+const App = () => {
+  /* Spawn ring-particle fireworks on every click — zero re-renders */
+  useClickBurst();
+
+  return (
   <>
     {/* Pixel-dissolve preloader — self-managing, unmounts when done */}
     <Preloader />
@@ -47,5 +52,7 @@ const App = () => (
     </div>
   </>
 );
+
+};
 
 export default App;
