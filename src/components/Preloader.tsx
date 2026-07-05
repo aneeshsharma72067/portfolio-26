@@ -67,7 +67,7 @@ const Preloader = () => {
           <div
             key={i}
             style={{
-              backgroundColor: '#0e1320',
+              backgroundColor: '#55ddad', // primary green background
               opacity:    dissolving ? 0 : 1,
               transition: `opacity ${TILE_DUR}ms ease ${delay}ms`,
               willChange: dissolving ? 'opacity' : 'auto',
@@ -97,12 +97,12 @@ const Preloader = () => {
           fontFamily: 'Manrope, sans-serif',
           fontSize: 'clamp(2rem, 5vw, 2.75rem)',
           fontWeight: 900,
-          color: '#dee2f5',
+          color: '#0e1320', // dark text contrasting with green bg
           letterSpacing: '-0.025em',
           margin: 0,
           lineHeight: 1,
         }}>
-          Aneesh<span style={{ color: '#55ddad' }}>.</span>
+          Aneesh<span style={{ color: '#ffffff' }}>.</span>
         </h1>
 
         <p style={{
@@ -111,7 +111,7 @@ const Preloader = () => {
           fontWeight: 700,
           letterSpacing: '0.28em',
           textTransform: 'uppercase',
-          color: '#55ddad',
+          color: 'rgba(14, 19, 32, 0.75)', // dark muted text contrasting with green bg
           margin: 0,
         }}>
           portfolio
