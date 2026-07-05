@@ -1,23 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { links } from '@/data/content';
 
 /* ─────────────────────────────────────────────────────────────────
  * GitHubContributions
  *
- * Fetches the last-year contribution calendar from the public proxy
- * https://github-contributions-api.jogruber.de (no auth needed) and
- * renders a heatmap grid styled in the Stdout mint-green palette.
- *
- * Layout mirrors the reference (bharath.codes):
- *   • Small eyebrow: "GitHub Contributions • @username"
- *   • Month labels row
- *   • 53-col × 7-row contribution grid (one cell = one day)
- *   • Footer: total count (left) + Less/More legend (right)
+ * Features:
+ *  • Fetches live calendar from github-contributions-api.jogruber.de
+ *  • Animated tooltip on cell hover (fade + slide, 150 ms)
+ *    - Shows count + nicely-formatted date
+ *    - Downward caret arrow pointing to the hovered cell
+ *  • Clicking anywhere on the graph opens the GitHub profile
+ *  • Month labels row, total count + Less/More legend
  * ───────────────────────────────────────────────────────────────── */
 
 type Day = {
   date: string;
   count: number;
-  /** 0 = none, 1 = low, 2 = medium, 3 = high, 4 = very high */
+  /** 0 = none · 1 = low · 2 = medium · 3 = high · 4 = very high */
   level: 0 | 1 | 2 | 3 | 4;
 };
 
@@ -25,6 +24,9 @@ type ApiResponse = {
   total: Record<string, number>;
   contributions: Day[];
 };
+
+/** Tooltip anchor — page-absolute centre of the hovered cell */
+type TooltipAnchor = { day: Day; cx: number; top: number };
 
 const GITHUB_USERNAME = 'aneeshsharma72067';
 
@@ -34,37 +36,34 @@ const MONTHS = [
 ];
 
 /**
- * Stdout theme contribution-level colours.
- * 0 = empty surface, 1–4 = mint ramp from faint → primary.
+ * Contribution-level colours — Stdout mint ramp.
+ * 0 = empty surface, 1 → 4 = faint → primary accent.
  */
 const LEVEL_COLOR: Record<number, string> = {
-  0: '#1a1f2d',  // surface-container — "empty" day
+  0: '#1a1f2d',  // surface-container
   1: '#0c3124',  // very sparse
   2: '#125c3f',  // moderate
-  3: '#2ebf91',  // primary-container — active
-  4: '#55ddad',  // primary (accent) — very active
+  3: '#2ebf91',  // primary-container
+  4: '#55ddad',  // primary (full accent)
 };
 
-/** Cell size and gap in px — keeps the grid compact */
-const CELL = 11;
-const GAP  = 3;
-const WEEK_W = CELL + GAP; // 14 px per column
+/** Colour used for the tooltip card background + caret */
+const TOOLTIP_BG = '#2f3443'; // surface-container-highest
+
+const CELL   = 11; // px — cell size
+const GAP    = 3;  // px — gap between cells
+const WEEK_W = CELL + GAP; // 14 px per week column
 
 /* ── helpers ──────────────────────────────────────────────────── */
 
-/** Split a flat day array into columns of 7 (one column = one week) */
+/** Chunk a flat day array into week columns of 7 */
 function chunkWeeks(days: Day[]): Day[][] {
-  const weeks: Day[][] = [];
-  for (let i = 0; i < days.length; i += 7) {
-    weeks.push(days.slice(i, i + 7));
-  }
-  return weeks;
+  const out: Day[][] = [];
+  for (let i = 0; i < days.length; i += 7) out.push(days.slice(i, i + 7));
+  return out;
 }
 
-/**
- * Walk the weeks and emit a label whenever the month changes.
- * Returns { label, x } where x is the pixel offset of that column.
- */
+/** Return { label, x } for each month-boundary week */
 function buildMonthLabels(weeks: Day[][]): { label: string; x: number }[] {
   const labels: { label: string; x: number }[] = [];
   let lastMonth = -1;
@@ -79,13 +78,29 @@ function buildMonthLabels(weeks: Day[][]): { label: string; x: number }[] {
   return labels;
 }
 
+/** "Mon, Jul 5, 2026" */
+function fmtDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
+  });
+}
+
 /* ── component ───────────────────────────────────────────────── */
 
 const GitHubContributions = () => {
-  const [weeks, setWeeks]     = useState<Day[][]>([]);
-  const [total, setTotal]     = useState(0);
+  const [weeks,   setWeeks]   = useState<Day[][]>([]);
+  const [total,   setTotal]   = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(false);
+  const [error,   setError]   = useState(false);
+
+  /* Tooltip state:
+   *   anchor  — positional data + day; null = not hovering
+   *   visible — drives the CSS transition (true = shown) */
+  const [anchor,  setAnchor]  = useState<TooltipAnchor | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  /** Delayed clear so the exit transition plays before unmounting */
+  const hideTimer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     fetch(
@@ -97,8 +112,9 @@ const GitHubContributions = () => {
       })
       .then((json) => {
         setWeeks(chunkWeeks(json.contributions));
-        // `lastYear` is the key for the trailing-12-months total
-        const yr = json.total['lastYear'] ?? Object.values(json.total).reduce((a, b) => a + b, 0);
+        const yr =
+          json.total['lastYear'] ??
+          Object.values(json.total).reduce((a, b) => a + b, 0);
         setTotal(yr);
         setLoading(false);
       })
@@ -108,18 +124,43 @@ const GitHubContributions = () => {
       });
   }, []);
 
+  /* ── tooltip handlers ───────────────────────────────────────── */
+
+  const onEnter = (day: Day, e: React.MouseEvent<HTMLDivElement>) => {
+    clearTimeout(hideTimer.current);
+    const rect = e.currentTarget.getBoundingClientRect();
+    setAnchor({ day, cx: rect.left + rect.width / 2, top: rect.top });
+    // rAF ensures the element is in DOM before the transition starts
+    requestAnimationFrame(() => setVisible(true));
+  };
+
+  const onLeave = () => {
+    // Trigger exit transition first …
+    setVisible(false);
+    // … then remove from DOM after it completes (200 ms matches transition)
+    hideTimer.current = setTimeout(() => setAnchor(null), 200);
+  };
+
+  /* ── derived ────────────────────────────────────────────────── */
+
   const monthLabels = buildMonthLabels(weeks);
   const gridWidth   = weeks.length * WEEK_W;
 
   return (
-    <section className="mt-10 w-full">
-      {/* ── eyebrow ── */}
-      <p className="mb-4 font-label text-[11px] font-bold uppercase tracking-label text-outline">
-        GitHub Contributions{' '}
-        <span className="font-label text-[11px] normal-case tracking-normal text-primary/60">
+    <section className="relative mt-10 w-full">
+
+      {/* ── eyebrow — clicks to GitHub ── */}
+      <a
+        href={links.github}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mb-4 inline-flex items-center gap-1.5 font-label text-[11px] font-bold uppercase tracking-label text-outline transition-colors duration-200 hover:text-on-surface"
+      >
+        GitHub Contributions
+        <span className="normal-case tracking-normal text-primary/60">
           • @{GITHUB_USERNAME}
         </span>
-      </p>
+      </a>
 
       {/* ── loading ── */}
       {loading && (
@@ -139,13 +180,18 @@ const GitHubContributions = () => {
         </div>
       )}
 
-      {/* ── graph ── */}
+      {/* ── graph — clicking opens GitHub ── */}
       {!loading && !error && (
-        /* Horizontally scrollable on small screens */
-        <div className="overflow-x-auto rounded-soft">
+        <a
+          href={links.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block overflow-x-auto rounded-soft"
+          style={{ cursor: 'pointer', textDecoration: 'none' }}
+        >
           <div style={{ width: Math.max(gridWidth, 0) }}>
 
-            {/* Month label row */}
+            {/* Month labels */}
             <div className="relative mb-2" style={{ height: 16 }}>
               {monthLabels.map(({ label, x }) => (
                 <span
@@ -158,33 +204,39 @@ const GitHubContributions = () => {
               ))}
             </div>
 
-            {/* Heatmap grid — flex of week columns */}
+            {/* Heatmap grid */}
             <div className="flex" style={{ gap: GAP }}>
               {weeks.map((week, wi) => (
                 <div key={wi} className="flex flex-col" style={{ gap: GAP }}>
                   {week.map((day) => (
                     <div
                       key={day.date}
-                      title={`${day.date}: ${day.count} contribution${day.count !== 1 ? 's' : ''}`}
+                      onMouseEnter={(e) => onEnter(day, e)}
+                      onMouseLeave={onLeave}
                       style={{
                         width: CELL,
                         height: CELL,
                         borderRadius: 2,
                         backgroundColor: LEVEL_COLOR[day.level] ?? LEVEL_COLOR[0],
-                        cursor: 'default',
-                        // Subtle pop on the brightest cells for depth
+                        // Subtle glow on the most-active cells
                         boxShadow:
                           day.level === 4
-                            ? '0 0 6px rgba(85,221,173,0.4)'
+                            ? '0 0 6px rgba(85,221,173,0.45)'
                             : undefined,
+                        /* Cursor stays default — the outer <a> is what's
+                         * "clickable"; cells themselves are just visual. */
+                        cursor: 'inherit',
+                        transition: 'filter 100ms ease',
                       }}
+                      // Micro-brighten on hover via filter (no layout shift)
+                      onFocus={() => {}}
                     />
                   ))}
                 </div>
               ))}
             </div>
 
-            {/* Footer: total (left) — legend (right) */}
+            {/* Footer */}
             <div className="mt-3 flex items-center justify-between">
               <span className="font-body text-xs text-outline">
                 {total.toLocaleString()} contributions in the last year
@@ -196,9 +248,7 @@ const GitHubContributions = () => {
                   <div
                     key={l}
                     style={{
-                      width: CELL,
-                      height: CELL,
-                      borderRadius: 2,
+                      width: CELL, height: CELL, borderRadius: 2,
                       backgroundColor: LEVEL_COLOR[l],
                     }}
                   />
@@ -208,8 +258,66 @@ const GitHubContributions = () => {
             </div>
 
           </div>
+        </a>
+      )}
+
+      {/* ── Animated tooltip ─────────────────────────────────────
+       *  Fixed-position so it escapes any overflow:hidden parent.
+       *  Transitions: opacity + translateY (150 ms ease).
+       *  Downward caret aligns with the hovered cell's centre.
+       * ─────────────────────────────────────────────────────── */}
+      {anchor && (
+        <div
+          aria-hidden
+          className="pointer-events-none fixed z-[9999]"
+          style={{
+            /* Position above the cell centre */
+            left: anchor.cx,
+            top: anchor.top,
+            /* Enter: slide up 6 px + fade in | Exit: slide down + fade out */
+            opacity: visible ? 1 : 0,
+            transform: `translateX(-50%) translateY(${
+              visible ? 'calc(-100% - 10px)' : 'calc(-100% - 4px)'
+            })`,
+            transition: 'opacity 150ms ease, transform 150ms ease',
+          }}
+        >
+          {/* Card */}
+          <div
+            className="relative rounded border border-white/10 px-3 py-2 shadow-floating"
+            style={{ backgroundColor: TOOLTIP_BG, minWidth: 140 }}
+          >
+            {/* Count — prominent */}
+            <p className="whitespace-nowrap font-headline text-[12px] font-bold text-on-surface">
+              {anchor.day.count === 0
+                ? 'No contributions'
+                : `${anchor.day.count} contribution${anchor.day.count !== 1 ? 's' : ''}`}
+            </p>
+
+            {/* Date — muted italic */}
+            <p className="mt-0.5 whitespace-nowrap font-body text-[10px] italic text-on-surface-variant">
+              {fmtDate(anchor.day.date)}
+            </p>
+
+            {/* Caret pointing downward toward the cell */}
+            <span
+              aria-hidden
+              style={{
+                position: 'absolute',
+                bottom: -6,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: 0,
+                height: 0,
+                borderLeft: '6px solid transparent',
+                borderRight: '6px solid transparent',
+                borderTop: `6px solid ${TOOLTIP_BG}`,
+              }}
+            />
+          </div>
         </div>
       )}
+
     </section>
   );
 };
