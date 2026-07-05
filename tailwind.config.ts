@@ -1,138 +1,81 @@
-import type { Config } from "tailwindcss";
+import type { Config } from 'tailwindcss';
 
+/**
+ * "Stdout" design system — a dark, editorial theme.
+ * Deep navy-black canvas with a single luminous mint-green accent.
+ * Two typefaces: Manrope (structural / headings / labels) and
+ * Noto Serif (long-form reading / quotes).
+ *
+ * Colours are declared as raw hex here (not CSS vars) so utilities read
+ * directly from DESIGN.md tokens.
+ */
 export default {
-  darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
-  prefix: "",
+  darkMode: ['class'],
+  content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
-    },
     extend: {
       fontFamily: {
-        sans: ["Space Grotesk", "sans-serif"],
-        display: ["Space Grotesk", "sans-serif"],
+        // Structural chrome: titles, headings, brand, labels
+        headline: ['Manrope', 'sans-serif'],
+        label: ['Manrope', 'sans-serif'],
+        sans: ['Manrope', 'sans-serif'],
+        // The writing: body copy, quotes, descriptions
+        body: ['"Noto Serif"', 'serif'],
+        serif: ['"Noto Serif"', 'serif'],
       },
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        glass: "hsl(var(--glass-bg))",
-        "glass-border": "hsl(var(--glass-border))",
-        glow: {
-          primary: "hsl(var(--glow-primary))",
-          secondary: "hsl(var(--glow-secondary))",
-        },
+        // Accent — mint / teal green
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: '#55ddad',
+          fixed: '#75fac8',
+          container: '#2ebf91',
         },
+        'on-primary': '#003827',
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: '#a0d1ba',
+          container: '#204f3d',
         },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
+        'on-secondary-container': '#8fbfa9',
+
+        // Surfaces — dark navy ramp, lowest -> highest
+        'surface-container-lowest': '#090e1b',
+        background: '#0e1320',
+        surface: '#0e1320',
+        'surface-dim': '#0e1320',
+        'surface-container-low': '#161b29',
+        'surface-container': '#1a1f2d',
+        'surface-container-high': '#252a38',
+        'surface-container-highest': '#2f3443',
+        'surface-variant': '#2f3443',
+        'surface-bright': '#343948',
+
+        // Text & lines
+        'on-background': '#dee2f5',
+        'on-surface': '#dee2f5',
+        'on-surface-variant': '#bbcac1',
+        outline: '#86948c',
+        'outline-variant': '#3d4a43',
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        soft: '0.25rem',
+      },
+      boxShadow: {
+        soft: '0 12px 30px rgb(0 0 0 / 0.18)',
+        floating: '0 24px 48px rgb(0 0 0 / 0.24)',
+      },
+      letterSpacing: {
+        label: '0.2em',
       },
       keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-        "fade-in": {
-          "0%": { opacity: "0", transform: "translateY(20px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-        "fade-in-left": {
-          "0%": { opacity: "0", transform: "translateX(-30px)" },
-          "100%": { opacity: "1", transform: "translateX(0)" },
-        },
-        "fade-in-right": {
-          "0%": { opacity: "0", transform: "translateX(30px)" },
-          "100%": { opacity: "1", transform: "translateX(0)" },
-        },
-        "scale-in": {
-          "0%": { opacity: "0", transform: "scale(0.9)" },
-          "100%": { opacity: "1", transform: "scale(1)" },
-        },
-        float: {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-20px)" },
-        },
-        "spin-slow": {
-          from: { transform: "rotate(0deg)" },
-          to: { transform: "rotate(360deg)" },
-        },
-        shimmer: {
-          "0%": { backgroundPosition: "-200% 0" },
-          "100%": { backgroundPosition: "200% 0" },
-        },
-        "pulse-glow": {
-          "0%, 100%": { opacity: "0.4" },
-          "50%": { opacity: "0.8" },
-        },
-        "cell-ripple": {
-          "0%": {
-            transform: "scale(1)",
-            opacity: "0.4",
-          },
-          "50%": {
-            transform: "scale(0.95)",
-            opacity: "0.8",
-          },
-          "100%": {
-            transform: "scale(1)",
-            opacity: "0.4",
-          },
+        'fade-up': {
+          '0%': { opacity: '0', transform: 'translateY(16px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.6s ease-out forwards",
-        "fade-in-left": "fade-in-left 0.6s ease-out forwards",
-        "fade-in-right": "fade-in-right 0.6s ease-out forwards",
-        "scale-in": "scale-in 0.5s ease-out forwards",
-        float: "float 6s ease-in-out infinite",
-        "spin-slow": "spin-slow 20s linear infinite",
-        shimmer: "shimmer 2s linear infinite",
-        "pulse-glow": "pulse-glow 3s ease-in-out infinite",
-        "cell-ripple": "cell-ripple var(--duration, 800ms) ease-out var(--delay, 0ms)",
+        'fade-up': 'fade-up 0.6s ease-out forwards',
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [],
 } satisfies Config;
