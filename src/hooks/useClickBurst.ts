@@ -1,163 +1,161 @@
 import { useEffect } from 'react';
 
 /**
- * useClickBurst — firework ray edition
+ * useClickBurst — canvas-based firework effect
  *
- * On every click, spawns:
- *   1. A small central flash (white circle that pops and fades, 300 ms)
- *   2. 8–12 thin ray lines that shoot outward in all directions
+ * Architecture
+ * ────────────
+ * A single full-screen <canvas> (pointer-events: none) is mounted once.
+ * A requestAnimationFrame loop runs continuously; it only draws when the
+ * particle array is non-empty, otherwise it simply clears and idles.
  *
- * Each ray is a narrow rectangle rotated to face its travel direction,
- * so it reads as a streak/spark rather than a blob. The direction the
- * element points and the direction it travels are always aligned.
+ * Physics per frame (60 fps target, dt-corrected)
+ * ────────────────────────────────────────────────
+ *   velocity  × FRICTION   → natural deceleration
+ *   vy        + GRAVITY    → subtle downward arc at end of life
+ *   life      - dt/LIFESPAN → smooth opacity decay; splice when ≤ 0
  *
- * All DOM elements are created and removed imperatively — zero React
- * state, zero re-renders. Web Animations API drives the keyframes.
+ * Particle appearance
+ * ───────────────────
+ * Each particle is a filled white arc (dot), radius 1.5–2.2 px.
+ * Angles are evenly distributed across 360° with a small random jitter
+ * so the ring looks organic but not chaotic.
  */
 
 /* ── Tunables ─────────────────────────────────────────────────── */
-const COUNT_MIN   = 8;
-const COUNT_MAX   = 12;
-const TRAVEL_MIN  = 18;   // px — minimum travel distance
-const TRAVEL_MAX  = 38;   // px — maximum travel distance
-const RAY_LEN_MIN = 10;   // px — shortest ray
-const RAY_LEN_MAX = 20;   // px — longest ray
-const RAY_W       = 3;    // px — ray stroke width
-const DURATION    = 850;  // ms — total ray animation
+const COUNT_MIN  = 10;
+const COUNT_MAX  = 14;
+const SPEED_MIN  = 4.5;   // px / frame at 60 fps
+const SPEED_MAX  = 7.0;
+const FRICTION   = 0.91;  // velocity multiplier per frame
+const GRAVITY    = 0.045; // px / frame² added to vy
+const LIFESPAN   = 720;   // ms — total particle lifetime
+const RADIUS_MIN = 1.5;   // px
+const RADIUS_MAX = 2.2;   // px
 
-/* ── Colour pool — subtle whites / light greys on dark bg ──── */
-const COLORS = [
-  'rgba(255,255,255,0.92)',
-  'rgba(230,238,248,0.82)',
-  'rgba(210,225,240,0.75)',
-  'rgba(255,255,255,0.68)',
-  'rgba(200,218,232,0.60)',
-];
+/* ── Types ────────────────────────────────────────────────────── */
+interface Particle {
+  x:    number;  // current x
+  y:    number;  // current y
+  vx:   number;  // velocity x (px/frame)
+  vy:   number;  // velocity y (px/frame)
+  life: number;  // 1.0 → 0.0 remaining lifespan fraction
+  r:    number;  // draw radius
+}
 
 /* ── Hook ─────────────────────────────────────────────────────── */
-
 export function useClickBurst() {
   useEffect(() => {
+    /* ── Canvas setup ─────────────────────────────────────────── */
+    const canvas = document.createElement('canvas');
+    const ctx    = canvas.getContext('2d')!;
 
-    const spawn = (e: MouseEvent) => {
-      const cx = e.clientX;
-      const cy = e.clientY;
+    Object.assign(canvas.style, {
+      position:      'fixed',
+      inset:         '0',
+      width:         '100%',
+      height:        '100%',
+      pointerEvents: 'none',      // ← never blocks underlying clicks
+      zIndex:        '99998',
+    });
 
-      /* ── 1. Central flash — tiny circle that pops and fades ── */
-      const flash = document.createElement('div');
-      Object.assign(flash.style, {
-        position:      'fixed',
-        left:          `${cx}px`,
-        top:           `${cy}px`,
-        width:         '5px',
-        height:        '5px',
-        borderRadius:  '50%',
-        backgroundColor: 'rgba(255,255,255,0.95)',
-        boxShadow:     '0 0 6px 2px rgba(255,255,255,0.6)',
-        pointerEvents: 'none',
-        zIndex:        '99999',
-      });
-      document.body.appendChild(flash);
+    const resize = () => {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    document.body.appendChild(canvas);
+    window.addEventListener('resize', resize);
 
-      const fa = flash.animate(
-        [
-          { transform: 'translate(-50%,-50%) scale(0.4)', opacity: '1' },
-          { transform: 'translate(-50%,-50%) scale(2.5)', opacity: '0' },
-        ],
-        { duration: 320, easing: 'ease-out', fill: 'forwards' }
-      );
-      fa.onfinish = () => flash.remove();
+    /* ── Particle pool ────────────────────────────────────────── */
+    const particles: Particle[] = [];
 
-      /* ── 2. Ray particles ─────────────────────────────────── */
+    /* ── rAF loop ─────────────────────────────────────────────── */
+    let rafId   = 0;
+    let lastTs  = 0;
+
+    const loop = (ts: number) => {
+      /* dt capped at 50 ms so a tab-switch spike doesn't teleport dots */
+      const dt = Math.min(ts - lastTs, 50);
+      lastTs   = ts;
+
+      /* Always clear — even when idle, avoids ghost pixels on resize */
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      /* Walk backwards so splice() doesn't skip elements */
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+
+        /* ── Physics ──────────────────────────────────────────── */
+        /* Friction: multiply per-frame, so fast→slow naturally      */
+        p.vx *= FRICTION;
+        p.vy *= FRICTION;
+        /* Gravity: tiny constant downward pull                       */
+        p.vy += GRAVITY;
+        /* Integrate position                                         */
+        p.x  += p.vx;
+        p.y  += p.vy;
+        /* Time-based life decay (frame-rate independent)             */
+        p.life -= dt / LIFESPAN;
+
+        /* ── Garbage-collect dead particles immediately ───────────  */
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+
+        /* ── Draw — filled white circle, opacity from life ─────── */
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        /* Ease-out the opacity so the fade is graceful, not linear  */
+        ctx.fillStyle = `rgba(255,255,255,${(p.life * p.life).toFixed(3)})`;
+        ctx.fill();
+      }
+
+      rafId = requestAnimationFrame(loop);
+    };
+
+    /* Kick off loop — first frame primes lastTs with no visible dt */
+    rafId = requestAnimationFrame((ts) => {
+      lastTs = ts;
+      rafId  = requestAnimationFrame(loop);
+    });
+
+    /* ── Spawn handler ────────────────────────────────────────── */
+    const onPointerDown = (e: PointerEvent) => {
       const count =
         COUNT_MIN + Math.floor(Math.random() * (COUNT_MAX - COUNT_MIN + 1));
 
       for (let i = 0; i < count; i++) {
-        /* Evenly spread angles with a small jitter so it looks organic */
-        const baseAngleDeg = (i / count) * 360;
-        const jitter       = (Math.random() - 0.5) * (360 / count) * 0.55;
-        const angleDeg     = baseAngleDeg + jitter;
-        const angleRad     = angleDeg * (Math.PI / 180);
-
-        const travel  = TRAVEL_MIN + Math.random() * (TRAVEL_MAX - TRAVEL_MIN);
-        const rayLen  = RAY_LEN_MIN + Math.random() * (RAY_LEN_MAX - RAY_LEN_MIN);
-        const color   = COLORS[Math.floor(Math.random() * COLORS.length)];
-        /* Tiny per-particle delay for a staggered spray feel */
-        const delay   = Math.random() * 55;
-
         /*
-         * Direction math — CSS rotate convention:
-         *   0°   = up   → (sin 0°,  -cos 0°)  = (0,  -1)
-         *   90°  = right → (sin 90°, -cos 90°) = (1,   0)
-         *   180° = down  → (sin 180°,-cos 180°)= (0,   1)
-         * This keeps the element's visual axis aligned with its velocity.
+         * Evenly divide 360° then add a small random jitter (± half-slice)
+         * so the ring feels organic rather than perfectly mechanical.
          */
-        const dx = Math.sin(angleRad) * travel;
-        const dy = -Math.cos(angleRad) * travel;
+        const baseAngle = (i / count) * Math.PI * 2;
+        const jitter    = (Math.random() - 0.5) * (Math.PI / count);
+        const angle     = baseAngle + jitter;
 
-        /* Create the ray element — thin vertical rectangle, rotated */
-        const el = document.createElement('div');
-        Object.assign(el.style, {
-          position:        'fixed',
-          left:            `${cx}px`,
-          top:             `${cy}px`,
-          width:           `${RAY_W}px`,
-          height:          `${rayLen}px`,
-          borderRadius:    `${RAY_W}px`,
-          backgroundColor: color,
-          pointerEvents:   'none',
-          zIndex:          '99998',
-          willChange:      'transform, opacity',
+        const speed = SPEED_MIN + Math.random() * (SPEED_MAX - SPEED_MIN);
+
+        particles.push({
+          x:    e.clientX,
+          y:    e.clientY,
+          vx:   Math.cos(angle) * speed,
+          vy:   Math.sin(angle) * speed,
+          life: 1.0,
+          r:    RADIUS_MIN + Math.random() * (RADIUS_MAX - RADIUS_MIN),
         });
-        document.body.appendChild(el);
-
-        /*
-         * 3-keyframe burst:
-         *   0   → at origin, ray pointing in travel direction, opacity 1
-         *   20% → burst to 30% of travel, still fully opaque (fast initial pop)
-         *   100%→ reached full distance, faded out
-         *
-         * translate(-50%,-50%) centres the ray on the click point.
-         * rotate(angleDeg) points it in the travel direction.
-         * calc(-50% + Δpx) then displaces it along that direction.
-         */
-        const anim = el.animate(
-          [
-            {
-              transform: `translate(-50%, -50%) rotate(${angleDeg}deg)`,
-              opacity:   '1',
-            },
-            {
-              transform: `translate(
-                            calc(-50% + ${dx * 0.28}px),
-                            calc(-50% + ${dy * 0.28}px)
-                          ) rotate(${angleDeg}deg)`,
-              opacity:   '1',
-              offset:    0.2,
-            },
-            {
-              transform: `translate(
-                            calc(-50% + ${dx}px),
-                            calc(-50% + ${dy}px)
-                          ) rotate(${angleDeg}deg)`,
-              opacity:   '0',
-            },
-          ],
-          {
-            duration: DURATION,
-            delay,
-            /* Fast launch → gentle deceleration tail, like a real spark */
-            easing:   'cubic-bezier(0.15, 0.85, 0.2, 1)',
-            fill:     'forwards',
-          }
-        );
-
-        anim.onfinish = () => el.remove();
       }
     };
 
-    document.addEventListener('click', spawn);
-    return () => document.removeEventListener('click', spawn);
+    window.addEventListener('pointerdown', onPointerDown);
 
+    /* ── Cleanup ──────────────────────────────────────────────── */
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize',      resize);
+      window.removeEventListener('pointerdown', onPointerDown);
+      canvas.remove();
+    };
   }, []);
 }
