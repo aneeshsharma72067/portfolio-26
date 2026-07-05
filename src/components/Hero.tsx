@@ -100,7 +100,7 @@ const Hero = () => {
       </div>
 
       {/* ── Widgets (Spotify + Chess.com) ── */}
-      <div className="mt-10 grid gap-4 sm:grid-cols-2 items-start">
+      <div className="mt-10 grid gap-4 sm:grid-cols-2">
         <NowPlaying />
         <ChessProfile />
       </div>

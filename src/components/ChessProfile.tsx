@@ -91,7 +91,7 @@ export default function ChessProfile() {
           const gain = actx.createGain();
           osc.connect(gain);
           gain.connect(actx.destination);
-          
+
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(523.25, actx.currentTime); // C5 check sound
           gain.gain.setValueAtTime(0.08, actx.currentTime);
@@ -148,7 +148,7 @@ export default function ChessProfile() {
           {/* Piece */}
           {piece && (
             <span
-              className={`text-[20px] font-bold z-10 transition-all duration-300 ${
+              className={`text-[22px] leading-none font-bold z-10 transition-all duration-300 ${
                 piece.color === 'w'
                   ? 'text-white drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.85)]'
                   : 'text-[#1e1e1e] drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)]'
@@ -160,7 +160,7 @@ export default function ChessProfile() {
 
           {/* Valid move indicator dot */}
           {isLegalTarget && !piece && (
-            <div className="absolute w-3 h-3 rounded-full bg-black/15 z-20 hover:bg-black/25" />
+            <div className="absolute w-3.5 h-3.5 rounded-full bg-black/15 z-20 hover:bg-black/25" />
           )}
         </div>
       );
@@ -169,8 +169,7 @@ export default function ChessProfile() {
 
   return (
     <div
-      className="relative flex items-center gap-4 rounded-soft border border-[#81b64c]/20 bg-[#272522] p-4 transition-all duration-300 hover:border-[#81b64c]/40 overflow-hidden"
-      style={{ minHeight: '80px' }}
+      className="relative flex items-center gap-5 rounded-soft border border-[#81b64c]/20 bg-[#272522] px-5 py-3.5 transition-all duration-300 hover:border-[#81b64c]/40 overflow-hidden"
     >
       {/* Watermark Chess Knight Graphic */}
       <svg
@@ -181,47 +180,56 @@ export default function ChessProfile() {
       </svg>
 
       {/* Chess Stats Profile */}
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 relative z-10">
         <a
           href="https://www.chess.com/member/aneesh1024"
           target="_blank"
           rel="noopener noreferrer"
-          className="group/chess flex items-center gap-2"
+          className="group/chess inline-flex items-center gap-2"
         >
           <svg className="w-5 h-5 fill-[#81b64c] shrink-0" viewBox="0 0 24 24">
             <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-3.4 15.3c-.6.3-1.3.4-1.9.4-.8 0-1.5-.2-2.1-.6-.6-.4-1-1-1.2-1.7-.2-.7-.1-1.5.3-2.1.4-.6.9-1.1 1.6-1.3.7-.2 1.5-.1 2.1.3.6.4 1 1 1.2 1.7.2.7.1 1.5-.3 2.1-.4.6-1 1-1.7 1.2M12 9.7l-2.8-2.8 1.4-1.4L12 6.9l1.4-1.4 1.4 1.4L12 9.7z" />
           </svg>
-          <span className="font-headline text-sm font-bold text-white group-hover/chess:text-[#81b64c] transition-colors">
+          <span className="font-headline text-base font-bold text-white group-hover/chess:text-[#81b64c] transition-colors">
             aneesh1024
           </span>
         </a>
 
-        {/* Ratings grid */}
-        <div className="mt-2.5 grid grid-cols-3 gap-2 font-mono text-[10px] uppercase text-[#b2b1b0]">
-          <div>
-            <p className="font-semibold text-[#81b64c]">{t('chessBlitz')}</p>
-            <p className="mt-0.5 text-xs font-bold text-white">
-              {loading ? '...' : stats.blitz}
+        {/* Ratings row */}
+        <div className="mt-3 flex items-stretch divide-x divide-white/10 font-mono">
+          <div className="pr-5">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#81b64c]">
+              {t('chessBlitz')}
+            </p>
+            <p className="mt-1 text-lg font-bold leading-none text-white">
+              {loading ? '—' : stats.blitz}
             </p>
           </div>
-          <div>
-            <p className="font-semibold text-[#81b64c]">{t('chessRapid')}</p>
-            <p className="mt-0.5 text-xs font-bold text-white">
-              {loading ? '...' : stats.rapid}
+          <div className="px-5">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#81b64c]">
+              {t('chessRapid')}
+            </p>
+            <p className="mt-1 text-lg font-bold leading-none text-white">
+              {loading ? '—' : stats.rapid}
             </p>
           </div>
-          <div>
-            <p className="font-semibold text-[#81b64c]">{t('chessBullet')}</p>
-            <p className="mt-0.5 text-xs font-bold text-white">
-              {loading ? '...' : stats.bullet}
+          <div className="pl-5">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#81b64c]">
+              {t('chessBullet')}
+            </p>
+            <p className="mt-1 text-lg font-bold leading-none text-white">
+              {loading ? '—' : stats.bullet}
             </p>
           </div>
         </div>
       </div>
 
+      {/* Divider between profile and puzzle */}
+      <div className="hidden sm:block h-16 w-px bg-white/10 shrink-0 relative z-10" />
+
       {/* Mini Interactive Puzzle Grid */}
-      <div className="relative flex flex-col items-center shrink-0">
-        <div className="text-[9px] uppercase font-bold tracking-wider text-[#b2b1b0] mb-1 flex items-center gap-1.5">
+      <div className="relative z-10 flex flex-col items-center shrink-0">
+        <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#b2b1b0]">
           <span>{t('chessPuzzle')}</span>
           {solved && (
             <button
@@ -229,7 +237,7 @@ export default function ChessProfile() {
               className="text-[#81b64c] hover:text-white transition-colors"
               title={t('chessReset')}
             >
-              <RefreshCw size={10} className="animate-spin-once" />
+              <RefreshCw size={11} className="animate-spin-once" />
             </button>
           )}
         </div>
@@ -237,20 +245,20 @@ export default function ChessProfile() {
         {/* 8x8 grid layout */}
         <div
           className="relative grid grid-cols-8 grid-rows-8 border border-[#454340] rounded overflow-hidden shadow-floating"
-          style={{ width: '136px', height: '136px' }}
+          style={{ width: '152px', height: '152px' }}
         >
           {boardCells}
 
           {/* Solved overlay banner */}
           {solved && (
             <div className="absolute inset-0 bg-[#000000]/80 z-30 flex flex-col items-center justify-center p-1 animate-in fade-in zoom-in-95 duration-200">
-              <Trophy className="w-5 h-5 text-[#81b64c] mb-1 animate-bounce" />
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#81b64c]">
+              <Trophy className="w-6 h-6 text-[#81b64c] mb-1 animate-bounce" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#81b64c]">
                 {t('chessCheckmate')}
               </span>
               <button
                 onClick={handleReset}
-                className="mt-1.5 rounded bg-[#81b64c] hover:bg-[#95ca5c] text-[8px] font-bold uppercase tracking-wide text-white px-2 py-0.5 transition-colors"
+                className="mt-1.5 rounded bg-[#81b64c] hover:bg-[#95ca5c] text-[9px] font-bold uppercase tracking-wide text-white px-2.5 py-1 transition-colors"
               >
                 {t('chessReset')}
               </button>
