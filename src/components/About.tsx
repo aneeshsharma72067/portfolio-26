@@ -1,4 +1,4 @@
-import { personal } from '@/data/content';
+import { useTranslation } from '@/context/TranslationContext';
 import { useReveal } from '@/hooks/useReveal';
 import SectionHeading from './SectionHeading';
 
@@ -11,6 +11,7 @@ const values = ['Clean Code', 'Problem Solver', 'Performance', 'Team Player'];
  */
 const About = () => {
   const { ref, visible } = useReveal();
+  const { t } = useTranslation();
 
   return (
     <section
@@ -19,17 +20,18 @@ const About = () => {
         visible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
       }`}
     >
-      <SectionHeading eyebrow="Notes" title="A little" accent="about me." />
+      <SectionHeading eyebrow={t('aboutEyebrow')} title={t('aboutTitle')} accent={t('aboutAccent')} />
 
       <div className="space-y-6">
-        {personal.bio.map((para, i) => (
-          <p
-            key={i}
-            className="font-body text-lg leading-[1.8] text-on-surface-variant"
-          >
-            {para}
-          </p>
-        ))}
+        <p className="font-body text-lg leading-[1.8] text-on-surface-variant">
+          {t('bio0')}
+        </p>
+        <p className="font-body text-lg leading-[1.8] text-on-surface-variant">
+          {t('bio1')}
+        </p>
+        <p className="font-body text-lg leading-[1.8] text-on-surface-variant">
+          {t('bio2')}
+        </p>
       </div>
 
       {/* Value pills */}

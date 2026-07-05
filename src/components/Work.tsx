@@ -2,6 +2,7 @@ import { ArrowUpRight, Github } from 'lucide-react';
 import { projects, links, type Project } from '@/data/content';
 import { useReveal } from '@/hooks/useReveal';
 import SectionHeading from './SectionHeading';
+import { useTranslation } from '@/context/TranslationContext';
 
 /**
  * A single project row — editorial card with a preview image, two-tone title,
@@ -10,6 +11,17 @@ import SectionHeading from './SectionHeading';
  */
 const ProjectRow = ({ project, index }: { project: Project; index: number }) => {
   const { ref, visible } = useReveal();
+  const { t } = useTranslation();
+
+  const getProjectDescription = (title: string, defaultDesc: string) => {
+    switch (title) {
+      case 'RepoSage': return t('reposageDesc');
+      case 'AI-Gen': return t('aigenDesc');
+      case 'CryptoPulse': return t('cryptopulseDesc');
+      case 'Coderaven': return t('coderavenDesc');
+      default: return defaultDesc;
+    }
+  };
 
   return (
     <article
@@ -43,7 +55,7 @@ const ProjectRow = ({ project, index }: { project: Project; index: number }) => 
           </div>
 
           <p className="mt-3 font-body text-[15px] leading-[1.7] text-on-surface-variant">
-            {project.description}
+            {getProjectDescription(project.title, project.description)}
           </p>
 
           {/* Tags */}
@@ -66,7 +78,7 @@ const ProjectRow = ({ project, index }: { project: Project; index: number }) => 
               rel="noopener noreferrer"
               className="group/link inline-flex items-center gap-1.5 font-label text-[11px] font-bold uppercase tracking-label text-primary"
             >
-              Live
+              {t('liveDemo')}
               <ArrowUpRight
                 size={14}
                 className="transition-transform duration-300 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5"
@@ -79,7 +91,7 @@ const ProjectRow = ({ project, index }: { project: Project; index: number }) => 
               className="inline-flex items-center gap-1.5 font-label text-[11px] font-bold uppercase tracking-label text-outline transition-colors duration-300 hover:text-on-surface"
             >
               <Github size={14} />
-              Source
+              {t('sourceCode')}
             </a>
           </div>
         </div>
@@ -92,9 +104,11 @@ const ProjectRow = ({ project, index }: { project: Project; index: number }) => 
  * Work — the project feed. Items separated by generous vertical rhythm.
  */
 const Work = () => {
+  const { t } = useTranslation();
+
   return (
     <section id="work" className="mt-28">
-      <SectionHeading eyebrow="Selected Work" title="Things I've" accent="built." />
+      <SectionHeading eyebrow={t('workEyebrow')} title={t('workTitle')} accent={t('workAccent')} />
 
       <div className="flex flex-col gap-8">
         {projects.map((project, i) => (
@@ -108,7 +122,7 @@ const Work = () => {
         rel="noopener noreferrer"
         className="group mt-10 inline-flex items-center gap-1.5 font-label text-[11px] font-bold uppercase tracking-label text-primary"
       >
-        More on GitHub
+        {t('moreGithub')}
         <ArrowUpRight
           size={14}
           className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"

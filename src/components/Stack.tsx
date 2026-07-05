@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import SectionHeading from './SectionHeading';
+import { useTranslation } from '@/context/TranslationContext';
 
 /* ─────────────────────────────────────────────────────────────────
  * Stack / Skills — Interactive Neural Net Graph
@@ -118,6 +119,7 @@ const LINKS_DATA: SkillLink[] = [
 export default function Stack() {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { t } = useTranslation();
 
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
@@ -477,10 +479,10 @@ export default function Stack() {
 
   return (
     <section id="stack" className="mt-28 w-full select-none">
-      <SectionHeading eyebrow="Toolkit" title="Neural Net" accent="stack." />
+      <SectionHeading eyebrow={t('stackEyebrow')} title={t('stackTitle')} accent={t('stackAccent')} />
 
       <p className="font-body text-sm leading-relaxed text-on-surface-variant max-w-2xl mb-8">
-        Interactive visualization of my engineering toolset. Drag nodes to reshape, hover a skill to track its dependencies, and watch energy charges travel along connected pathways.
+        {t('stackDesc')}
       </p>
 
       {/* Canvas container with relative sizing */}
@@ -496,18 +498,18 @@ export default function Stack() {
 
         {/* Floating tooltip/details block */}
         <div className="absolute bottom-4 left-4 pointer-events-none bg-surface-container-high/90 border border-outline-variant/30 rounded p-4 font-mono text-[10px] text-outline shadow-floating max-w-xs transition-opacity duration-300">
-          <p className="text-white font-bold mb-1.5 uppercase tracking-wider">&gt; Network Status</p>
-          <p>Charge Flow: <span className="text-primary font-bold">Active</span></p>
-          <p>Connectivity: <span className="text-blue-300">Dense Grouping</span></p>
+          <p className="text-white font-bold mb-1.5 uppercase tracking-wider">&gt; {t('networkStatus')}</p>
+          <p>{t('chargeFlow')}: <span className="text-primary font-bold">{t('active')}</span></p>
+          <p>{t('connectivity')}: <span className="text-blue-300">{t('denseGrouping')}</span></p>
           {hoveredNodeId ? (
             <p className="mt-2 text-white">
-              Inspecting Node:{' '}
+              {t('inspectNode')}{' '}
               <span className="text-primary font-bold">
                 {NODES_DATA.find((n) => n.id === hoveredNodeId)?.label}
               </span>
             </p>
           ) : (
-            <p className="mt-2 text-outline/50 italic">Hover a node to inspect dependencies</p>
+            <p className="mt-2 text-outline/50 italic">{t('hoverToInspect')}</p>
           )}
         </div>
       </div>

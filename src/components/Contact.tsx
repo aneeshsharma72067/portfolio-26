@@ -2,6 +2,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { personal, socials, links } from '@/data/content';
 import { useReveal } from '@/hooks/useReveal';
 import SectionHeading from './SectionHeading';
+import { useTranslation } from '@/context/TranslationContext';
 
 /**
  * Contact — a closing invitation with a large primary CTA and a list of
@@ -9,6 +10,7 @@ import SectionHeading from './SectionHeading';
  */
 const Contact = () => {
   const { ref, visible } = useReveal();
+  const { t } = useTranslation();
 
   return (
     <section
@@ -18,11 +20,10 @@ const Contact = () => {
         visible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
       }`}
     >
-      <SectionHeading eyebrow="Contact" title="Let's" accent="talk." />
+      <SectionHeading eyebrow={t('contactEyebrow')} title={t('contactTitle')} accent={t('contactAccent')} />
 
       <p className="max-w-xl font-body text-lg italic leading-relaxed text-on-surface-variant">
-        Have a project in mind, or just want to say hello? My inbox is always
-        open.
+        {t('contactDesc')}
       </p>
 
       {/* Primary CTA */}

@@ -1,0 +1,332 @@
+export type Language = 'en' | 'ja' | 'es' | 'de' | 'zh';
+
+export const LANGUAGES: { code: Language; label: string }[] = [
+  { code: 'en', label: 'EN' },
+  { code: 'ja', label: 'JA' },
+  { code: 'es', label: 'ES' },
+  { code: 'de', label: 'DE' },
+  { code: 'zh', label: 'ZH' },
+];
+
+export const translations = {
+  en: {
+    // Navigation
+    navAbout: 'About',
+    navWork: 'Work',
+    navStack: 'Stack',
+    navContact: 'Contact',
+
+    // Hero / Personal info
+    role: 'Software Development Engineer',
+    headline: 'Building thoughtful software, one system at a time.',
+    location: 'Bilaspur, India',
+    nowPlaying: 'Now Playing',
+    offline: 'Offline',
+    by: 'by',
+    heroGreeting: "Hi, I'm Aneesh — I build ",
+    heroAccent: 'thoughtful software.',
+
+    // About Section
+    aboutEyebrow: 'Notes',
+    aboutTitle: 'A little',
+    aboutAccent: 'about me.',
+    bio0: "I'm a Software Development Engineer who enjoys building thoughtful, reliable digital products. I work across frontend, backend, and mobile development, focusing on experiences that are both intuitive and scalable.",
+    bio1: "Over time, I've built a strong foundation in modern technologies like React, Next.js, Python, and AWS. I enjoy breaking down complex problems, writing clean code, and constantly improving the systems I work on.",
+    bio2: 'Beyond coding, I explore machine learning, keep up with new tech trends, contribute to open-source projects, and sharpen my thinking through chess.',
+
+    // Work Section
+    workEyebrow: 'Selected Work',
+    workTitle: "Things I've",
+    workAccent: 'built.',
+    moreGithub: 'More on GitHub',
+    liveDemo: 'Live Demo',
+    sourceCode: 'Source',
+
+    // Projects
+    reposageDesc: 'Event-driven AI system that analyzes GitHub repository events and detects engineering risks such as large commits and architectural drift. A serverless Fastify API on Vercel ingests webhooks in under 100ms and queues jobs to Redis via BullMQ, while distributed AI workers on Azure store runs in Postgres and power a Next.js dashboard.',
+    aigenDesc: 'A standalone AI-powered CLI tool that generates complete project folder structures from natural language prompts. Scaffolds projects instantly with zero setup, powered by Google Gemini AI and shipped as a cross-platform executable.',
+    cryptopulseDesc: 'A modern crypto screener built with React and Tailwind CSS that displays real-time market data via the CoinGecko API. Clean UI, responsive design, and fast updates for tracking top cryptocurrencies.',
+    coderavenDesc: 'A real-time collaborative code editor supporting JavaScript and Python, letting multiple users write and edit code simultaneously. Built with low-latency synchronization and tested with up to 5 concurrent users for stability.',
+
+    // Stack Section
+    stackEyebrow: 'Toolkit',
+    stackTitle: 'Neural Net',
+    stackAccent: 'stack.',
+    stackDesc: 'Interactive visualization of my engineering toolset. Drag nodes to reshape, hover a skill to track its dependencies, and watch energy charges travel along connected pathways.',
+    networkStatus: 'Network Status',
+    chargeFlow: 'Charge Flow',
+    active: 'Active',
+    connectivity: 'Connectivity',
+    denseGrouping: 'Dense Grouping',
+    inspectNode: 'Inspecting Node:',
+    hoverToInspect: 'Hover a node to inspect dependencies',
+
+    // Contact Section
+    contactEyebrow: 'Get in Touch',
+    contactTitle: "Let's work",
+    contactAccent: 'together.',
+    contactDesc: "Let's connect. I'm always open to discussing new projects, creative ideas, or opportunities to collaborate.",
+    callMe: 'Call me',
+    emailMe: 'Email me',
+    locationLabel: 'Location',
+    resumeButton: 'Download Resume',
+    copiedText: 'Copied to clipboard',
+    copyLabel: 'Copy',
+  },
+  ja: {
+    // Navigation
+    navAbout: '自己紹介',
+    navWork: '実績',
+    navStack: 'スキル',
+    navContact: '連絡先',
+
+    // Hero / Personal info
+    role: 'ソフトウェア開発エンジニア',
+    headline: '思慮深いソフトウェアを、一つ一つのシステムに。',
+    location: 'インド、ビラスプル',
+    nowPlaying: '再生中',
+    offline: 'オフライン',
+    by: 'アーティスト:',
+    heroGreeting: 'こんにちは、アニーシュです。',
+    heroAccent: '思慮深いソフトウェアを開発しています。',
+
+    // About Section
+    aboutEyebrow: 'ノート',
+    aboutTitle: '私に',
+    aboutAccent: 'ついて。',
+    bio0: '私は、思慮深く信頼性の高いデジタル製品の開発を楽しむソフトウェアエンジニアです。フロントエンド、バックエンド、モバイル開発を担当し、直感的でスケーラブルな体験に焦点を当てています。',
+    bio1: '長年にわたり、React、Next.js、Python、AWSなどの最新技術で強固な基盤を築いてきました。複雑な問題を分解し、クリーンなコードを書き、担当するシステムを絶えず改善することが好きです。',
+    bio2: 'コーディング以外では、機械学習の探求、最新の技術トレンドのチェック、オープンソースプロジェクトへの貢献、チェスを通じた思考力の向上を楽しんでいます。',
+
+    // Work Section
+    workEyebrow: '選定プロジェクト',
+    workTitle: 'これまで',
+    workAccent: '創ったもの。',
+    moreGithub: 'GitHubでもっと見る',
+    liveDemo: 'ライブデモ',
+    sourceCode: 'ソース',
+
+    // Projects
+    reposageDesc: 'GitHubリポジトリイベントを分析し、大規模なコミットやアーキテクチャのドリフトなどのエンジニアリングリスクを検出するイベント駆動型AIシステム。Vercel上のサーバーレスFastify APIが100ミリ秒未満でウェブフックを取り込み、BullMQ経由でRedisにジョブをキューイング。Azure上の分散AIワーカーが Postgresに実行結果を保存し、Next.jsダッシュボードを提供します。',
+    aigenDesc: '自然言語プロンプトから完全なプロジェクトフォルダ構造を生成する、スタンドアロンのAI搭載CLIツール。Google Gemini AIを搭載し、クロスプラットフォーム実行ファイルとして配布され、セットアップなしで即座にプロジェクトを構築します。',
+    cryptopulseDesc: 'ReactとTailwind CSSで構築された最新の暗号資産スクリーナー。CoinGecko APIを介してリアルタイムの市場データを表示します。クリーンなUI、レスポンシブデザイン、迅速な更新により、主要な暗号資産を追跡できます。',
+    coderavenDesc: 'JavaScriptとPythonをサポートするリアルタイム共同コードエディタ。複数のユーザーが同時にコードを記述・編集できます。低遅延の同期機能で構築され、安定性のために最大5人の同時アクティブユーザーでテストされています。',
+
+    // Stack Section
+    stackEyebrow: 'ツールキット',
+    stackTitle: 'ニューラルネット',
+    stackAccent: 'スキル。',
+    stackDesc: 'エンジニアリングツールセットのインタラクティブな可視化。ノードをドラッグして変形し、スキルをホバーして依存関係を追跡し、接続された経路を流れるエネルギー電荷を観察できます。',
+    networkStatus: 'ネットワークステータス',
+    chargeFlow: '電荷フロー',
+    active: 'アクティブ',
+    connectivity: '接続性',
+    denseGrouping: '高密度グループ',
+    inspectNode: '検査中のノード:',
+    hoverToInspect: 'ノードをホバーして依存関係を検査',
+
+    // Contact Section
+    contactEyebrow: 'お問い合わせ',
+    contactTitle: '一緒に',
+    contactAccent: '働きましょう。',
+    contactDesc: 'お気軽にご連絡ください。新しいプロジェクト、クリエイティブなアイデア、またはコラボレーションの機会について話し合うことを常に歓迎しています。',
+    callMe: '電話する',
+    emailMe: 'メールを送る',
+    locationLabel: '所在地',
+    resumeButton: '履歴書をダウンロード',
+    copiedText: 'クリップボードにコピーしました',
+    copyLabel: 'コピー',
+  },
+  es: {
+    // Navigation
+    navAbout: 'Sobre mí',
+    navWork: 'Proyectos',
+    navStack: 'Habilidades',
+    navContact: 'Contacto',
+
+    // Hero / Personal info
+    role: 'Ingeniero de Desarrollo de Software',
+    headline: 'Construyendo software reflexivo, un sistema a la vez.',
+    location: 'Bilaspur, India',
+    nowPlaying: 'Reproduciendo',
+    offline: 'Desconectado',
+    by: 'de',
+    heroGreeting: 'Hola, soy Aneesh — creo ',
+    heroAccent: 'software reflexivo.',
+
+    // About Section
+    aboutEyebrow: 'Notas',
+    aboutTitle: 'Un poco',
+    aboutAccent: 'sobre mí.',
+    bio0: 'Soy un Ingeniero de Desarrollo de Software al que le apasiona crear productos digitales reflexivos y confiables. Trabajo en desarrollo frontend, backend y móvil, centrándome en experiencias intuitivas y escalables.',
+    bio1: 'Con el tiempo, he construido una base sólida en tecnologías modernas como React, Next.js, Python y AWS. Disfruto desglosar problemas complejos, escribir código limpio y mejorar constantemente los sistemas en los que trabajo.',
+    bio2: 'Más allá de la programación, exploro el aprendizaje automático, me mantengo al día con las tendencias tecnológicas, contribuyo a proyectos de código abierto y agilizo mi pensamiento a través del ajedrez.',
+
+    // Work Section
+    workEyebrow: 'Trabajo Seleccionado',
+    workTitle: 'Cosas que he',
+    workAccent: 'creado.',
+    moreGithub: 'Más en GitHub',
+    liveDemo: 'Demo en vivo',
+    sourceCode: 'Código',
+
+    // Projects
+    reposageDesc: 'Sistema de IA dirigido por eventos que analiza eventos de repositorios de GitHub y detecta riesgos de ingeniería como commits grandes y desviación arquitectónica. Una API Fastify sin servidor en Vercel ingiere webhooks en menos de 100 ms y encola trabajos en Redis a través de BullMQ, mientras trabajadores distribuidos de IA en Azure guardan ejecuciones en Postgres y alimentan un panel de control en Next.js.',
+    aigenDesc: 'Una herramienta CLI independiente impulsada por IA que genera estructuras completas de carpetas de proyectos a partir de indicaciones en lenguaje natural. Prepara proyectos al instante sin configuración previa, con Google Gemini IA y empaquetado como ejecutable multiplataforma.',
+    cryptopulseDesc: 'Un moderno evaluador de criptomonedas creado con React y Tailwind CSS que muestra datos del mercado en tiempo real a través de la API de CoinGecko. Interfaz limpia, diseño responsivo y actualizaciones rápidas para rastrear las principales criptomonedas.',
+    coderavenDesc: 'Un editor de código colaborativo en tiempo real compatible con JavaScript y Python, que permite a varios usuarios escribir y editar código simultáneamente. Diseñado con sincronización de baja latencia y probado con hasta 5 usuarios simultáneos.',
+
+    // Stack Section
+    stackEyebrow: 'Herramientas',
+    stackTitle: 'Red Neuronal',
+    stackAccent: 'habilidades.',
+    stackDesc: 'Visualización interactiva de mi conjunto de herramientas. Arrastra nodos para cambiar su forma, mantén el cursor sobre una habilidad para ver sus dependencias y observa las cargas de energía fluir por las conexiones.',
+    networkStatus: 'Estado de Red',
+    chargeFlow: 'Flujo de Carga',
+    active: 'Activo',
+    connectivity: 'Conectividad',
+    denseGrouping: 'Agrupamiento Denso',
+    inspectNode: 'Inspeccionando:',
+    hoverToInspect: 'Pasa el cursor por un nodo para ver dependencias',
+
+    // Contact Section
+    contactEyebrow: 'Contacto',
+    contactTitle: 'Trabajemos',
+    contactAccent: 'juntos.',
+    contactDesc: 'Conectemos. Siempre estoy disponible para hablar de nuevos proyectos, ideas creativas u oportunidades de colaboración.',
+    callMe: 'Llamar',
+    emailMe: 'Enviar correo',
+    locationLabel: 'Ubicación',
+    resumeButton: 'Descargar currículum',
+    copiedText: 'Copiado al portapapeles',
+    copyLabel: 'Copiar',
+  },
+  de: {
+    // Navigation
+    navAbout: 'Über mich',
+    navWork: 'Projekte',
+    navStack: 'Tech-Stack',
+    navContact: 'Kontakt',
+
+    // Hero / Personal info
+    role: 'Software-Entwicklungsingenieur',
+    headline: 'Durchdachte Software bauen, System für System.',
+    location: 'Bilaspur, Indien',
+    nowPlaying: 'Läuft gerade',
+    offline: 'Offline',
+    by: 'von',
+    heroGreeting: 'Hallo, ich bin Aneesh — ich baue ',
+    heroAccent: 'durchdachte Software.',
+
+    // About Section
+    aboutEyebrow: 'Notizen',
+    aboutTitle: 'Ein wenig',
+    aboutAccent: 'über mich.',
+    bio0: 'Ich bin ein Software-Entwicklungsingenieur, der gerne durchdachte, zuverlässige digitale Produkte entwickelt. Ich arbeite im Frontend, Backend und in der mobilen Entwicklung und konzentriere mich auf intuitive und skalierbare Erlebnisse.',
+    bio1: 'Im Laufe der Zeit habe ich ein solides Fundament in modernen Technologien wie React, Next.js, Python und AWS aufgebaut. Ich mag es, komplexe Probleme zu zerlegen, sauberen Code zu schreiben und die Systeme, an denen ich arbeite, stetig zu verbessern.',
+    bio2: 'Neben dem Programmieren beschäftige ich mich mit maschinellem Lernen, verfolge neue Technologietrends, trage zu Open-Source-Projekten bei und schärfe mein Denken beim Schachspielen.',
+
+    // Work Section
+    workEyebrow: 'Ausgewählte Arbeiten',
+    workTitle: 'Dinge, die ich',
+    workAccent: 'gebaut habe.',
+    moreGithub: 'Mehr auf GitHub',
+    liveDemo: 'Live-Demo',
+    sourceCode: 'Quellcode',
+
+    // Projects
+    reposageDesc: 'Ereignisgesteuertes KI-System, das GitHub-Repository-Ereignisse analysiert und Entwicklungsrisiken wie große Commits und Architekturabweichungen erkennt. Eine serverlose Fastify-API auf Vercel erfasst Webhooks in unter 100 ms und reiht Aufträge über BullMQ in Redis ein, während verteilte KI-Worker auf Azure die Läufe in Postgres speichern und ein Next.js-Dashboard antreiben.',
+    aigenDesc: 'Ein eigenständiges, KI-gestütztes CLI-Tool, das komplette Projektordnerstrukturen aus natürlichen Sprachanweisungen generiert. Erstellt Projekte sofort ohne Einrichtung, angetrieben von Google Gemini KI und ausgeliefert als plattformübergreifende ausführbare Datei.',
+    cryptopulseDesc: 'Ein moderner Krypto-Screener, der mit React und Tailwind CSS erstellt wurde und Echtzeit-Marktdaten über die CoinGecko-API anzeigt. Saubere Benutzeroberfläche, responsives Design und schnelle Updates zur Verfolgung von Top-Kryptowährungen.',
+    coderavenDesc: 'Ein kollaborativer Echtzeit-Code-Editor, der JavaScript und Python unterstützt und es mehreren Benutzern ermöglicht, Code gleichzeitig zu schreiben und zu bearbeiten. Entwickelt mit extrem niedriger Synchronisierungslatenz und für Stabilität mit bis zu 5 gleichzeitigen Benutzern getestet.',
+
+    // Stack Section
+    stackEyebrow: 'Tech-Stack',
+    stackTitle: 'Neuronales Netz',
+    stackAccent: 'skills.',
+    stackDesc: 'Interaktive Visualisierung meines Entwickler-Tech-Stacks. Ziehe Knoten, um die Struktur zu verändern, bewege den Mauszeiger über einen Skill, um dessen Abhängigkeiten zu sehen, und beobachte, wie Energieströme durch die Leitungen fließen.',
+    networkStatus: 'Netzwerkstatus',
+    chargeFlow: 'Ladungsfluss',
+    active: 'Aktiv',
+    connectivity: 'Konnektivität',
+    denseGrouping: 'Dichte Gruppierung',
+    inspectNode: 'Prüfe Knoten:',
+    hoverToInspect: 'Bewege den Zeiger über einen Knoten für Details',
+
+    // Contact Section
+    contactEyebrow: 'Kontakt',
+    contactTitle: 'Lass uns',
+    contactAccent: 'zusammenarbeiten.',
+    contactDesc: 'Lass uns vernetzen. Ich bin immer offen für neue Projekte, kreative Ideen oder Möglichkeiten zur Zusammenarbeit.',
+    callMe: 'Anrufen',
+    emailMe: 'E-Mail schreiben',
+    locationLabel: 'Standort',
+    resumeButton: 'Lebenslauf herunterladen',
+    copiedText: 'In Zwischenablage kopiert',
+    copyLabel: 'Kopieren',
+  },
+  zh: {
+    // Navigation
+    navAbout: '关于我',
+    navWork: '项目',
+    navStack: '技能',
+    navContact: '联系我',
+
+    // Hero / Personal info
+    role: '软件开发工程师',
+    headline: '构建用心设计的软件，专注打磨每个系统。',
+    location: '印度, 毕拉斯普尔',
+    nowPlaying: '正在播放',
+    offline: '离线',
+    by: '歌手:',
+    heroGreeting: '你好，我是 Aneesh — 我构建 ',
+    heroAccent: '用心设计的软件。',
+
+    // About Section
+    aboutEyebrow: '简记',
+    aboutTitle: '关于',
+    aboutAccent: '我的介绍。',
+    bio0: '我是一名热爱构建精致、可靠的数字化产品的软件开发工程师。我的工作跨越前端、后端和移动端开发，致力于提供直观且具备良好扩展性的用户体验。',
+    bio1: '在职业生涯中，我对 React、Next.js、Python 和 AWS 等现代技术栈建立了扎实的技术基础。我乐于剖析复杂的系统难题、编写高可读性的洁净代码，并不断迭代优化我所负责的系统。',
+    bio2: '在编程之余，我积极探索机器学习，关注最新科技前沿，参与开源社区建设，并通过下国际象棋来训练自己的系统性逻辑思维。',
+
+    // Work Section
+    workEyebrow: '精选项目',
+    workTitle: '我所',
+    workAccent: '构建的作品。',
+    moreGithub: '在 GitHub 上查看更多',
+    liveDemo: '在线演示',
+    sourceCode: '源码',
+
+    // Projects
+    reposageDesc: '基于事件驱动的 AI 系统，用于分析 GitHub 仓库事件并检测工程风险（如超大提交和架构偏移）。运行在 Vercel 上的无服务器 Fastify API 在 100 毫秒内接收 Webhook 并通过 BullMQ 将任务推送至 Redis 队列。分布在 Azure 上的 AI 计算工作节点将数据持久化至 Postgres 中并驱动 Next.js 仪表盘。',
+    aigenDesc: '一款独立的 AI 驱动命令行（CLI）工具，能够直接从自然语言描述中生成完整的项目目录结构。零配置、即开即用，由 Google Gemini AI 强力驱动，并打包成跨平台二进制文件发布。',
+    cryptopulseDesc: '一款使用 React 和 Tailwind CSS 编写的现代加密货币筛选器，通过对接 CoinGecko API 渲染实时市场报价。精美纯净的 UI 界面、自适应布局和极低延迟的数据更新帮助您轻松追踪主流加密货币。',
+    coderavenDesc: '一款支持 JavaScript 和 Python 的实时多人协作代码编辑器，允许多个用户同步撰写与编辑源码。采用极低延迟的同步算法构建，并完成了支持 5 名并发用户实时在线编辑的稳定性测试。',
+
+    // Stack Section
+    stackEyebrow: '工具栈',
+    stackTitle: '神经网络',
+    stackAccent: '技能图谱。',
+    stackDesc: '我所掌握的技术工具栈的交互式神经网络图。你可以随意拖拽节点以调整布局，将光标悬停在任意技能上即可检索其相关的依赖链路，并观察电流在相连线缆上的穿行轨迹。',
+    networkStatus: '网络运行状态',
+    chargeFlow: '电流负载',
+    active: '活跃',
+    connectivity: '连接密实度',
+    denseGrouping: '紧密网络',
+    inspectNode: '正在审查节点:',
+    hoverToInspect: '将光标移至节点上以检索关联链路',
+
+    // Contact Section
+    contactEyebrow: '保持联系',
+    contactTitle: '让我们',
+    contactAccent: '携手合作。',
+    contactDesc: '欢迎随时联系。我十分乐意探讨新的项目机会、各种奇思妙想或任何形式的战略性合作。',
+    callMe: '电话联系',
+    emailMe: '邮件咨询',
+    locationLabel: '居住地',
+    resumeButton: '下载个人简历',
+    copiedText: '已成功复制到剪贴板',
+    copyLabel: '复制',
+  },
+};

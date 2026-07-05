@@ -4,23 +4,13 @@ import Profile from '@/assets/image/profile.png';
 import Landscape from '@/assets/image/landscape.jpeg';
 import NowPlaying from './NowPlaying';
 import GitHubContributions from './GitHubContributions';
+import { useTranslation } from '@/context/TranslationContext';
 
 /**
  * Hero — profile-page style layout inspired by bharath.codes.
- *
- * Structure:
- *  ┌──────────────────────────────────────────────────────────┐
- *  │  landscape banner (full container width, ~200px tall)    │
- *  └──────────────────────────────────────────────────────────┘
- *      ◉ ← avatar, absolutely positioned so it straddles
- *           the banner bottom edge (50% inside / 50% outside)
- *
- *  Name · role · location             ← below avatar with push-down
- *  Headline · bio · CTAs
- *  NowPlaying widget
  */
 const Hero = () => {
-  /* Avatar radius in px — half of this is the overlap amount */
+  const { t } = useTranslation();
   const AVATAR_SIZE = 96; // px  (h-24 w-24)
   const OVERLAP = AVATAR_SIZE / 2; // 48px
 
@@ -32,7 +22,7 @@ const Hero = () => {
         style={{ paddingBottom: OVERLAP }}
       >
         {/* Landscape banner */}
-        <div className="relative h-48 w-full overflow-hidden rounded-soft sm:h-56">
+        <div className="relative h-44 w-full overflow-hidden rounded-soft sm:h-56">
           <img
             src={Landscape}
             alt="Banner"
@@ -57,11 +47,6 @@ const Hero = () => {
       </div>
 
       {/* ── Identity row ── */}
-      {/*
-        Push content down enough to clear the avatar fully.
-        avatar half = OVERLAP (48px) already consumed by padding-bottom above,
-        so we add a small gap from the container bottom to the text.
-      */}
       <div className="mt-4 flex items-start justify-between gap-4">
         {/* Left: name + meta */}
         <div>
@@ -70,11 +55,11 @@ const Hero = () => {
             <span className="text-primary">.</span>
           </h1>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-outline">
-            <p className="eyebrow !text-on-surface-variant">{personal.role}</p>
+            <p className="eyebrow !text-on-surface-variant">{t('role')}</p>
             <span className="meta-dot" />
             <MapPin size={12} className="text-outline" />
             <span className="font-label text-[11px] uppercase tracking-wide text-outline">
-              {personal.location}
+              {t('location')}
             </span>
           </div>
         </div>
@@ -82,13 +67,13 @@ const Hero = () => {
 
       {/* ── Headline ── */}
       <h2 className="mt-6 font-headline text-4xl font-extrabold leading-[1.1] tracking-tight text-on-surface sm:text-5xl">
-        Hi, I'm {personal.name.split(' ')[0]} — I build{' '}
-        <span className="text-primary">thoughtful software.</span>
+        {t('heroGreeting')}
+        <span className="text-primary">{t('heroAccent')}</span>
       </h2>
 
       {/* ── Serif lead ── */}
       <p className="mt-6 max-w-2xl font-body text-lg italic leading-relaxed text-on-surface-variant">
-        {personal.bio[0]}
+        {t('bio0')}
       </p>
 
       {/* ── CTAs ── */}
@@ -97,7 +82,7 @@ const Hero = () => {
           href="#work"
           className="inline-flex items-center gap-2 rounded-soft bg-gradient-to-br from-primary to-primary-container px-5 py-2.5 font-label text-[11px] font-bold uppercase tracking-label text-on-primary transition-transform duration-300 hover:scale-[0.98]"
         >
-          View Work
+          {t('navWork')}
         </a>
         <a
           href={personal.resume}
@@ -105,7 +90,7 @@ const Hero = () => {
           rel="noopener noreferrer"
           className="group inline-flex items-center gap-1.5 font-label text-[11px] font-bold uppercase tracking-label text-primary"
         >
-          Résumé
+          {t('resumeButton')}
           <ArrowUpRight
             size={15}
             className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"

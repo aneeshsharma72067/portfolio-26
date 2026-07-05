@@ -1,21 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { personal, links } from '@/data/content';
+import { useTranslation } from '@/context/TranslationContext';
+import { LANGUAGES, Language } from '@/data/translations';
+import { Globe, ChevronDown } from 'lucide-react';
 
-/** In-page anchors shown in the centre of the nav. */
 const navItems = [
-  { name: 'About', href: '#about' },
-  { name: 'Work', href: '#work' },
-  { name: 'Stack', href: '#stack' },
-  { name: 'Contact', href: '#contact' },
+  { name: 'About', href: '#about', tKey: 'navAbout' as const },
+  { name: 'Work', href: '#work', tKey: 'navWork' as const },
+  { name: 'Stack', href: '#stack', tKey: 'navStack' as const },
+  { name: 'Contact', href: '#contact', tKey: 'navContact' as const },
 ];
 
 /**
- * Fixed glass header — brand left, nav centre, external link right.
- * Follows the Stdout house style: uppercase, wide-tracked mono-ish labels,
- * with a subtle blur that intensifies once the page is scrolled.
+ * Fixed glass header — brand left, nav centre, language picker + external link right.
  */
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  const { language, setLanguage, t } = useTranslation();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -23,6 +27,22 @@ const Header = () => {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const clickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', clickOutside);
+    return () => document.removeEventListener('mousedown', clickOutside);
+  }, []);
+
+  const handleLanguageSelect = (code: Language) => {
+    setLanguage(code);
+    setDropdownOpen(false);
+  };
 
   return (
     <header
@@ -50,20 +70,60 @@ const Header = () => {
               href={item.href}
               className="font-label text-[11px] font-bold uppercase tracking-label text-outline transition-colors duration-300 hover:text-on-surface"
             >
-              {item.name}
+              {t(item.tKey)}
             </a>
           ))}
         </nav>
 
-        {/* External link */}
-        <a
-          href={links.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-label text-[11px] font-bold uppercase tracking-label text-primary transition-all duration-300 hover:drop-shadow-[0_0_12px_rgba(85,221,173,0.8)]"
-        >
-          GitHub ↗
-        </a>
+        {/* Action controls (Language Picker + GitHub Link) */}
+        <div className="flex items-center gap-6">
+          {/* Language selector button with dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-1.5 font-label text-[11px] font-bold uppercase tracking-label text-outline transition-colors duration-300 hover:text-on-surface"
+              aria-haspopup="true"
+              aria-expanded={dropdownOpen}
+            >
+              <Globe size={13} className="text-outline/80" />
+              {LANGUAGES.find((lang) => lang.code === language)?.label || 'EN'}
+              <ChevronDown size={11} className={`text-outline/60 transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Dropdown panel */}
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2.5 w-32 origin-top-right rounded border border-outline-variant/50 bg-[#0e1320] p-1 shadow-floating animate-in fade-in slide-in-from-top-1 duration-200">
+                {LANGUAGES.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => handleLanguageSelect(lang.code)}
+                    className={`w-full rounded px-3 py-2 text-left font-label text-[11px] font-bold uppercase tracking-wide transition-colors ${
+                      language === lang.code
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-outline/80 hover:bg-surface-container-high/50 hover:text-on-surface'
+                    }`}
+                  >
+                    {lang.code === 'en' && 'English'}
+                    {lang.code === 'ja' && '日本語'}
+                    {lang.code === 'es' && 'Español'}
+                    {lang.code === 'de' && 'Deutsch'}
+                    {lang.code === 'zh' && '中文'}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* External link */}
+          <a
+            href={links.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-label text-[11px] font-bold uppercase tracking-label text-primary transition-all duration-300 hover:drop-shadow-[0_0_12px_rgba(85,221,173,0.8)]"
+          >
+            GitHub ↗
+          </a>
+        </div>
       </div>
     </header>
   );

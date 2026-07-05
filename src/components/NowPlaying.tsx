@@ -1,12 +1,13 @@
 import { Music2 } from 'lucide-react';
 import { nowPlaying } from '@/data/content';
+import { useTranslation } from '@/context/TranslationContext';
 
 /**
  * Spotify "now playing" card, styled in the Stdout theme.
- * Static/mock data (no live API) — renders an equalizer animation when
- * `isPlaying` is true. The animated bars are pure CSS via inline keyframes.
  */
 const NowPlaying = () => {
+  const { t } = useTranslation();
+
   return (
     <a
       href={nowPlaying.href}
@@ -21,7 +22,7 @@ const NowPlaying = () => {
 
       <div className="min-w-0 flex-1">
         <p className="font-label text-[10px] font-bold uppercase tracking-label text-outline">
-          {nowPlaying.isPlaying ? 'Now Playing' : 'Last Played'}
+          {nowPlaying.isPlaying ? t('nowPlaying') : t('offline')}
         </p>
         <p className="truncate font-headline text-sm font-bold text-on-surface">
           {nowPlaying.track}
