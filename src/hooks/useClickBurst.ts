@@ -1,149 +1,163 @@
 import { useEffect } from 'react';
 
 /**
- * useClickBurst
+ * useClickBurst — firework ray edition
  *
- * Attaches a global click listener that spawns a mini-firework at the
- * cursor position. Each burst creates 8–12 ring-shaped particles that
- * expand outward and fade to 0 within ~1 second.
+ * On every click, spawns:
+ *   1. A small central flash (white circle that pops and fades, 300 ms)
+ *   2. 8–12 thin ray lines that shoot outward in all directions
  *
- * Implementation details
- * ──────────────────────
- * • Direct DOM manipulation — zero React state, zero re-renders.
- * • Each particle is a <div> with border-radius 50% and a dashed /
- *   dotted / solid border so it looks like a small ring.
- * • The Web Animations API drives the keyframed expand + fade so we
- *   get a proper "burst then drift" easing with a single API call.
- * • Elements are removed from the DOM as soon as their animation ends
- *   (onfinish callback), so there is no memory leak on rapid clicking.
+ * Each ray is a narrow rectangle rotated to face its travel direction,
+ * so it reads as a streak/spark rather than a blob. The direction the
+ * element points and the direction it travels are always aligned.
+ *
+ * All DOM elements are created and removed imperatively — zero React
+ * state, zero re-renders. Web Animations API drives the keyframes.
  */
 
 /* ── Tunables ─────────────────────────────────────────────────── */
+const COUNT_MIN   = 8;
+const COUNT_MAX   = 12;
+const TRAVEL_MIN  = 35;   // px — minimum travel distance
+const TRAVEL_MAX  = 72;   // px — maximum travel distance
+const RAY_LEN_MIN = 7;    // px — shortest ray
+const RAY_LEN_MAX = 15;   // px — longest ray
+const RAY_W       = 1.5;  // px — ray stroke width
+const DURATION    = 850;  // ms — total ray animation
 
-/** Min / max number of particles per burst */
-const COUNT_MIN = 8;
-const COUNT_MAX = 12;
-
-/** How far each particle travels from the origin (px) */
-const TRAVEL_MIN = 38;
-const TRAVEL_MAX = 78;
-
-/** Particle diameter range (px) — rings need to be big enough to see */
-const SIZE_MIN = 5;
-const SIZE_MAX = 9;
-
-/** Total animation duration (ms) */
-const DURATION = 950;
-
-/* ── Visual variety pools ─────────────────────────────────────── */
-
-/**
- * Border styles — mixed so different particles look subtly distinct.
- * Dashed and dotted give the "ring" texture mentioned in the spec.
- */
-const BORDER_STYLES = [
-  '1.5px dashed',
-  '1.5px dotted',
-  '1px   solid',
-  '2px   dashed',
-  '1px   dotted',
-] as const;
-
-/**
- * Subtle white / light-grey colour ramp — readable on the dark Stdout
- * background but not so bright they look out of place.
- */
+/* ── Colour pool — subtle whites / light greys on dark bg ──── */
 const COLORS = [
-  'rgba(255,255,255,0.80)',
-  'rgba(220,230,240,0.70)',
-  'rgba(210,220,230,0.65)',
-  'rgba(255,255,255,0.55)',
-  'rgba(180,200,215,0.60)',
+  'rgba(255,255,255,0.92)',
+  'rgba(230,238,248,0.82)',
+  'rgba(210,225,240,0.75)',
+  'rgba(255,255,255,0.68)',
+  'rgba(200,218,232,0.60)',
 ];
 
 /* ── Hook ─────────────────────────────────────────────────────── */
 
 export function useClickBurst() {
   useEffect(() => {
+
     const spawn = (e: MouseEvent) => {
+      const cx = e.clientX;
+      const cy = e.clientY;
+
+      /* ── 1. Central flash — tiny circle that pops and fades ── */
+      const flash = document.createElement('div');
+      Object.assign(flash.style, {
+        position:      'fixed',
+        left:          `${cx}px`,
+        top:           `${cy}px`,
+        width:         '5px',
+        height:        '5px',
+        borderRadius:  '50%',
+        backgroundColor: 'rgba(255,255,255,0.95)',
+        boxShadow:     '0 0 6px 2px rgba(255,255,255,0.6)',
+        pointerEvents: 'none',
+        zIndex:        '99999',
+      });
+      document.body.appendChild(flash);
+
+      const fa = flash.animate(
+        [
+          { transform: 'translate(-50%,-50%) scale(0.4)', opacity: '1' },
+          { transform: 'translate(-50%,-50%) scale(2.5)', opacity: '0' },
+        ],
+        { duration: 320, easing: 'ease-out', fill: 'forwards' }
+      );
+      fa.onfinish = () => flash.remove();
+
+      /* ── 2. Ray particles ─────────────────────────────────── */
       const count =
         COUNT_MIN + Math.floor(Math.random() * (COUNT_MAX - COUNT_MIN + 1));
 
       for (let i = 0; i < count; i++) {
-        /* Spread angles evenly around 360° with a small random jitter
-         * so particles aren't perfectly symmetrical (more organic look) */
-        const baseAngle  = (i / count) * 2 * Math.PI;
-        const jitter     = (Math.random() - 0.5) * (Math.PI / count);
-        const angle      = baseAngle + jitter;
+        /* Evenly spread angles with a small jitter so it looks organic */
+        const baseAngleDeg = (i / count) * 360;
+        const jitter       = (Math.random() - 0.5) * (360 / count) * 0.55;
+        const angleDeg     = baseAngleDeg + jitter;
+        const angleRad     = angleDeg * (Math.PI / 180);
 
-        const distance   = TRAVEL_MIN + Math.random() * (TRAVEL_MAX - TRAVEL_MIN);
-        const size       = SIZE_MIN  + Math.random() * (SIZE_MAX  - SIZE_MIN);
-        const borderStyle = BORDER_STYLES[Math.floor(Math.random() * BORDER_STYLES.length)];
-        const color      = COLORS[Math.floor(Math.random() * COLORS.length)];
-        /* Small per-particle delay for a staggered "spray" feel */
-        const delay      = Math.random() * 80;
+        const travel  = TRAVEL_MIN + Math.random() * (TRAVEL_MAX - TRAVEL_MIN);
+        const rayLen  = RAY_LEN_MIN + Math.random() * (RAY_LEN_MAX - RAY_LEN_MIN);
+        const color   = COLORS[Math.floor(Math.random() * COLORS.length)];
+        /* Tiny per-particle delay for a staggered spray feel */
+        const delay   = Math.random() * 55;
 
-        /* Final position relative to click origin */
-        const dx = Math.cos(angle) * distance;
-        const dy = Math.sin(angle) * distance;
+        /*
+         * Direction math — CSS rotate convention:
+         *   0°   = up   → (sin 0°,  -cos 0°)  = (0,  -1)
+         *   90°  = right → (sin 90°, -cos 90°) = (1,   0)
+         *   180° = down  → (sin 180°,-cos 180°)= (0,   1)
+         * This keeps the element's visual axis aligned with its velocity.
+         */
+        const dx = Math.sin(angleRad) * travel;
+        const dy = -Math.cos(angleRad) * travel;
 
-        /* ── Create particle element ─────────────────────────── */
+        /* Create the ray element — thin vertical rectangle, rotated */
         const el = document.createElement('div');
         Object.assign(el.style, {
-          position:      'fixed',
-          left:          `${e.clientX}px`,
-          top:           `${e.clientY}px`,
-          width:         `${size}px`,
-          height:        `${size}px`,
-          borderRadius:  '50%',
-          border:        `${borderStyle} ${color}`,
-          pointerEvents: 'none',
-          zIndex:        '99998',     // below preloader (9999) but above everything else
-          willChange:    'transform, opacity',
+          position:        'fixed',
+          left:            `${cx}px`,
+          top:             `${cy}px`,
+          width:           `${RAY_W}px`,
+          height:          `${rayLen}px`,
+          borderRadius:    `${RAY_W}px`,
+          backgroundColor: color,
+          pointerEvents:   'none',
+          zIndex:          '99998',
+          willChange:      'transform, opacity',
         });
         document.body.appendChild(el);
 
-        /* ── Web Animations API keyframes ────────────────────────
-         * Frame 0: particle appears at cursor, tiny (scale 0.3)
-         * Frame 0.25: reaches ~35% of travel, fully opaque, full size
-         * Frame 1: reaches destination, faded out, slightly shrunk
-         * This gives the "pop then drift + fade" firework feel.        */
+        /*
+         * 3-keyframe burst:
+         *   0   → at origin, ray pointing in travel direction, opacity 1
+         *   20% → burst to 30% of travel, still fully opaque (fast initial pop)
+         *   100%→ reached full distance, faded out
+         *
+         * translate(-50%,-50%) centres the ray on the click point.
+         * rotate(angleDeg) points it in the travel direction.
+         * calc(-50% + Δpx) then displaces it along that direction.
+         */
         const anim = el.animate(
           [
             {
-              transform: 'translate(-50%, -50%) scale(0.3)',
+              transform: `translate(-50%, -50%) rotate(${angleDeg}deg)`,
               opacity:   '1',
             },
             {
               transform: `translate(
-                            calc(-50% + ${dx * 0.35}px),
-                            calc(-50% + ${dy * 0.35}px)
-                          ) scale(1.15)`,
-              opacity:   '0.85',
-              offset:    0.25,
+                            calc(-50% + ${dx * 0.28}px),
+                            calc(-50% + ${dy * 0.28}px)
+                          ) rotate(${angleDeg}deg)`,
+              opacity:   '1',
+              offset:    0.2,
             },
             {
               transform: `translate(
                             calc(-50% + ${dx}px),
                             calc(-50% + ${dy}px)
-                          ) scale(0.7)`,
+                          ) rotate(${angleDeg}deg)`,
               opacity:   '0',
             },
           ],
           {
             duration: DURATION,
             delay,
-            easing:   'cubic-bezier(0.2, 0.8, 0.25, 1)', // fast-out, gentle drift
+            /* Fast launch → gentle deceleration tail, like a real spark */
+            easing:   'cubic-bezier(0.15, 0.85, 0.2, 1)',
             fill:     'forwards',
           }
         );
 
-        /* Remove from DOM as soon as the animation is done */
         anim.onfinish = () => el.remove();
       }
     };
 
     document.addEventListener('click', spawn);
     return () => document.removeEventListener('click', spawn);
+
   }, []);
 }
