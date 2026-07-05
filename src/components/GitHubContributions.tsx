@@ -63,15 +63,15 @@ function chunkWeeks(days: Day[]): Day[][] {
   return out;
 }
 
-/** Return { label, x } for each month-boundary week */
-function buildMonthLabels(weeks: Day[][]): { label: string; x: number }[] {
-  const labels: { label: string; x: number }[] = [];
+/** Return { label, pct } for each month-boundary week */
+function buildMonthLabels(weeks: Day[][]): { label: string; pct: number }[] {
+  const labels: { label: string; pct: number }[] = [];
   let lastMonth = -1;
   weeks.forEach((week, wi) => {
     if (!week[0]) return;
     const m = new Date(week[0].date).getMonth();
     if (m !== lastMonth) {
-      labels.push({ label: MONTHS[m], x: wi * WEEK_W });
+      labels.push({ label: MONTHS[m], pct: (wi / weeks.length) * 100 });
       lastMonth = m;
     }
   });
@@ -100,7 +100,7 @@ const GitHubContributions = () => {
   const [visible, setVisible] = useState(false);
 
   /** Delayed clear so the exit transition plays before unmounting */
-  const hideTimer = useRef<ReturnType<typeof setTimeout>>();
+  const hideTimer = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     fetch(
@@ -144,7 +144,6 @@ const GitHubContributions = () => {
   /* ── derived ────────────────────────────────────────────────── */
 
   const monthLabels = buildMonthLabels(weeks);
-  const gridWidth   = weeks.length * WEEK_W;
 
   return (
     <section className="relative mt-10 w-full">
@@ -186,49 +185,44 @@ const GitHubContributions = () => {
           href={links.github}
           target="_blank"
           rel="noopener noreferrer"
-          className="block overflow-x-auto rounded-soft"
+          className="block overflow-x-auto rounded-soft w-full border border-outline-variant/30 bg-surface-container-low/10 p-4"
           style={{ cursor: 'pointer', textDecoration: 'none' }}
         >
-          <div style={{ width: Math.max(gridWidth, 0) }}>
+          <div className="w-full min-w-[720px]">
 
             {/* Month labels */}
-            <div className="relative mb-2" style={{ height: 16 }}>
-              {monthLabels.map(({ label, x }) => (
+            <div className="relative mb-2 w-full" style={{ height: 16 }}>
+              {monthLabels.map(({ label, pct }) => (
                 <span
-                  key={`${label}-${x}`}
+                  key={`${label}-${pct}`}
                   className="absolute font-label text-[10px] text-outline"
-                  style={{ left: x }}
+                  style={{ left: `${pct}%` }}
                 >
                   {label}
                 </span>
               ))}
             </div>
 
-            {/* Heatmap grid */}
-            <div className="flex" style={{ gap: GAP }}>
+            {/* Heatmap grid using CSS Grid for responsive 100% container width */}
+            <div className="grid grid-cols-[repeat(53,minmax(0,1fr))] gap-[2px] sm:gap-[3px] w-full">
               {weeks.map((week, wi) => (
-                <div key={wi} className="flex flex-col" style={{ gap: GAP }}>
+                <div key={wi} className="grid grid-rows-7 gap-[2px] sm:gap-[3px]">
                   {week.map((day) => (
                     <div
                       key={day.date}
                       onMouseEnter={(e) => onEnter(day, e)}
                       onMouseLeave={onLeave}
+                      className="w-full aspect-square rounded-[1px] sm:rounded-[2px]"
                       style={{
-                        width: CELL,
-                        height: CELL,
-                        borderRadius: 2,
                         backgroundColor: LEVEL_COLOR[day.level] ?? LEVEL_COLOR[0],
                         // Subtle glow on the most-active cells
                         boxShadow:
                           day.level === 4
                             ? '0 0 6px rgba(85,221,173,0.45)'
                             : undefined,
-                        /* Cursor stays default — the outer <a> is what's
-                         * "clickable"; cells themselves are just visual. */
                         cursor: 'inherit',
                         transition: 'filter 100ms ease',
                       }}
-                      // Micro-brighten on hover via filter (no layout shift)
                       onFocus={() => {}}
                     />
                   ))}
