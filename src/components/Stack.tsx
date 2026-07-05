@@ -217,26 +217,11 @@ export default function Stack() {
         }
       }
 
-      // ── 2. Gentle Floating Physics & Hover Dragging ──
+      // ── 2. Hover Dragging (Nodes stay exactly where placed) ──
       nodes.forEach((n) => {
         if (n === draggedNode) {
-          n.x += (mouse.x - n.x) * 0.25;
-          n.y += (mouse.y - n.y) * 0.25;
-          n.vx = 0;
-          n.vy = 0;
-        } else {
-          // Gentle idle drift using trig function
-          const ox = Math.cos(time + n.phase) * 0.08;
-          const oy = Math.sin(time + n.phase) * 0.08;
-          n.vx += ox;
-          n.vy += oy;
-
-          // Damping/friction
-          n.vx *= 0.95;
-          n.vy *= 0.95;
-
-          n.x += n.vx;
-          n.y += n.vy;
+          n.x = mouse.x;
+          n.y = mouse.y;
 
           // Keep nodes within boundary safezone
           n.x = Math.max(50, Math.min(width - 50, n.x));
