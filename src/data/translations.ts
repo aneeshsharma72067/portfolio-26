@@ -72,6 +72,12 @@ export const translations = {
     resumeButton: 'Download Resume',
     copiedText: 'Copied to clipboard',
     copyLabel: 'Copy',
+    chessPuzzle: 'Mate in 1',
+    chessCheckmate: 'Checkmate!',
+    chessReset: 'Reset',
+    chessStats: 'Stats',
+    chessBlitz: 'Blitz',
+    chessRapid: 'Rapid',
   },
   ja: {
     // Navigation
@@ -136,6 +142,12 @@ export const translations = {
     resumeButton: '履歴書をダウンロード',
     copiedText: 'クリップボードにコピーしました',
     copyLabel: 'コピー',
+    chessPuzzle: '一手詰',
+    chessCheckmate: 'チェックメイト！',
+    chessReset: 'リセット',
+    chessStats: '戦績',
+    chessBlitz: 'ブリッツ',
+    chessRapid: 'ラピッド',
   },
   es: {
     // Navigation
@@ -200,6 +212,12 @@ export const translations = {
     resumeButton: 'Descargar currículum',
     copiedText: 'Copiado al portapapeles',
     copyLabel: 'Copiar',
+    chessPuzzle: 'Mate en 1',
+    chessCheckmate: '¡Jaque mate!',
+    chessReset: 'Reiniciar',
+    chessStats: 'Estadísticas',
+    chessBlitz: 'Blitz',
+    chessRapid: 'Rápida',
   },
   de: {
     // Navigation
@@ -264,6 +282,12 @@ export const translations = {
     resumeButton: 'Lebenslauf herunterladen',
     copiedText: 'In Zwischenablage kopiert',
     copyLabel: 'Kopieren',
+    chessPuzzle: 'Matt in 1',
+    chessCheckmate: 'Schachmatt!',
+    chessReset: 'Zurücksetzen',
+    chessStats: 'Statistiken',
+    chessBlitz: 'Blitz',
+    chessRapid: 'Schnellschach',
   },
   zh: {
     // Navigation
@@ -328,5 +352,11 @@ export const translations = {
     resumeButton: '下载个人简历',
     copiedText: '已成功复制到剪贴板',
     copyLabel: '复制',
+    chessPuzzle: '一步杀',
+    chessCheckmate: '将死！',
+    chessReset: '重置',
+    chessStats: '战绩数据',
+    chessBlitz: '超快棋',
+    chessRapid: '快速棋',
   },
 };

@@ -3,6 +3,7 @@ import { personal } from '@/data/content';
 import Profile from '@/assets/image/profile.png';
 import Landscape from '@/assets/image/landscape.jpeg';
 import NowPlaying from './NowPlaying';
+import ChessProfile from './ChessProfile';
 import GitHubContributions from './GitHubContributions';
 import { useTranslation } from '@/context/TranslationContext';
 
@@ -98,9 +99,10 @@ const Hero = () => {
         </a>
       </div>
 
-      {/* ── Now playing ── */}
-      <div className="mt-10 max-w-sm">
+      {/* ── Widgets (Spotify + Chess.com) ── */}
+      <div className="mt-10 grid gap-4 sm:grid-cols-2">
         <NowPlaying />
+        <ChessProfile />
       </div>
 
       {/* ── GitHub contribution graph ── */}
