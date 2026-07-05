@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.0.1] — 2026-07-05
+
+### Changed
+- **Hero:** Added full-width landscape banner image at the top of the hero section
+- **Hero:** Profile picture enlarged to 96px and repositioned to half-overlap the banner bottom edge
+- **Layout:** Main column widened from ~68% to 60% of viewport width (`max-w-5xl` on desktop)
+
 ## [2.0.0] — 2026-07-05
 
 ### Added

@@ -26,7 +26,7 @@ const App = () => {
 
       <Header />
 
-      <main className="relative z-10 mx-auto w-[90%] max-w-3xl pb-4 pt-24 md:w-[68%]">
+      <main className="relative z-10 mx-auto w-[90%] max-w-5xl pb-4 pt-24 md:w-[60%]">
         <Hero />
         <About />
         <Work />
