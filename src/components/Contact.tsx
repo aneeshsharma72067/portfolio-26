@@ -51,7 +51,7 @@ const Contact = () => {
           marqueeBgColor="#55ddad"
           marqueeTextColor="#0e1320"
           borderColor="rgba(222, 226, 245, 0.12)"
-          speed={8}
+          speed={2}
         />
       </div>
     </section>
