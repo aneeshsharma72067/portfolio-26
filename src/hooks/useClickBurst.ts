@@ -25,13 +25,15 @@ import { useEffect } from 'react';
 /* ── Tunables ─────────────────────────────────────────────────── */
 const COUNT_MIN  = 10;
 const COUNT_MAX  = 14;
-const SPEED_MIN  = 4.5;   // px / frame at 60 fps
-const SPEED_MAX  = 7.0;
-const FRICTION   = 0.91;  // velocity multiplier per frame
-const GRAVITY    = 0.045; // px / frame² added to vy
-const LIFESPAN   = 720;   // ms — total particle lifetime
-const RADIUS_MIN = 1.5;   // px
-const RADIUS_MAX = 2.2;   // px
+const SPEED_MIN  = 3.5;   // px / frame at 60 fps (slightly slower for text legibility)
+const SPEED_MAX  = 5.5;
+const FRICTION   = 0.92;  // velocity multiplier per frame
+const GRAVITY    = 0.055; // px / frame² added to vy
+const LIFESPAN   = 750;   // ms — total particle lifetime
+const RADIUS_MIN = 1.2;   // scale factor
+const RADIUS_MAX = 2.0;   // scale factor
+
+const SPARKS = ['{', '}', '(', ')', '<', '>', ';', '++', '0', '1', '=>', '&&', '||', '[', ']', '+='];
 
 /* ── Types ────────────────────────────────────────────────────── */
 interface Particle {
@@ -40,7 +42,8 @@ interface Particle {
   vx:   number;  // velocity x (px/frame)
   vy:   number;  // velocity y (px/frame)
   life: number;  // 1.0 → 0.0 remaining lifespan fraction
-  r:    number;  // draw radius
+  r:    number;  // draw scale factor
+  char: string;  // coding syntax character
 }
 
 /* ── Hook ─────────────────────────────────────────────────────── */
@@ -75,47 +78,38 @@ export function useClickBurst() {
     let lastTs  = 0;
 
     const loop = (ts: number) => {
-      /* dt capped at 50 ms so a tab-switch spike doesn't teleport dots */
       const dt = Math.min(ts - lastTs, 50);
       lastTs   = ts;
 
-      /* Always clear — even when idle, avoids ghost pixels on resize */
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      /* Walk backwards so splice() doesn't skip elements */
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
 
         /* ── Physics ──────────────────────────────────────────── */
-        /* Friction: multiply per-frame, so fast→slow naturally      */
         p.vx *= FRICTION;
         p.vy *= FRICTION;
-        /* Gravity: tiny constant downward pull                       */
         p.vy += GRAVITY;
-        /* Integrate position                                         */
         p.x  += p.vx;
         p.y  += p.vy;
-        /* Time-based life decay (frame-rate independent)             */
         p.life -= dt / LIFESPAN;
 
-        /* ── Garbage-collect dead particles immediately ───────────  */
         if (p.life <= 0) {
           particles.splice(i, 1);
           continue;
         }
 
-        /* ── Draw — filled white circle, opacity from life ─────── */
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        /* Ease-out the opacity so the fade is graceful, not linear  */
-        ctx.fillStyle = `rgba(255,255,255,${(p.life * p.life).toFixed(3)})`;
-        ctx.fill();
+        /* ── Draw — code character, opacity from life ─────────── */
+        ctx.font = `bold ${Math.round(p.r * 5 + 6)}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = `rgba(255, 255, 255, ${(p.life * p.life).toFixed(3)})`;
+        ctx.fillText(p.char, p.x, p.y);
       }
 
       rafId = requestAnimationFrame(loop);
     };
 
-    /* Kick off loop — first frame primes lastTs with no visible dt */
     rafId = requestAnimationFrame((ts) => {
       lastTs = ts;
       rafId  = requestAnimationFrame(loop);
@@ -123,19 +117,22 @@ export function useClickBurst() {
 
     /* ── Spawn handler ────────────────────────────────────────── */
     const onPointerDown = (e: PointerEvent) => {
+      // Don't spawn sparks if clicking form inputs or textareas
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+
       const count =
         COUNT_MIN + Math.floor(Math.random() * (COUNT_MAX - COUNT_MIN + 1));
 
       for (let i = 0; i < count; i++) {
-        /*
-         * Evenly divide 360° then add a small random jitter (± half-slice)
-         * so the ring feels organic rather than perfectly mechanical.
-         */
         const baseAngle = (i / count) * Math.PI * 2;
         const jitter    = (Math.random() - 0.5) * (Math.PI / count);
         const angle     = baseAngle + jitter;
 
         const speed = SPEED_MIN + Math.random() * (SPEED_MAX - SPEED_MIN);
+        const char  = SPARKS[Math.floor(Math.random() * SPARKS.length)];
 
         particles.push({
           x:    e.clientX,
@@ -144,6 +141,7 @@ export function useClickBurst() {
           vy:   Math.sin(angle) * speed,
           life: 1.0,
           r:    RADIUS_MIN + Math.random() * (RADIUS_MAX - RADIUS_MIN),
+          char,
         });
       }
     };

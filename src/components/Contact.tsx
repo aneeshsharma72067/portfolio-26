@@ -4,6 +4,8 @@ import SectionHeading from './SectionHeading';
 import { useTranslation } from '@/context/TranslationContext';
 import FlowingMenu from './FlowingMenu';
 
+import Magnetic from './Magnetic';
+
 /**
  * Contact — a closing invitation with a large primary CTA and a list of
  * social handles rendered as interactive flowing menus.
@@ -35,12 +37,16 @@ const Contact = () => {
       </p>
 
       {/* Primary CTA */}
-      <a
-        href={links.email}
-        className="mt-8 inline-flex items-center gap-2 rounded-soft bg-gradient-to-br from-primary to-primary-container px-6 py-3 font-label text-xs font-bold uppercase tracking-label text-on-primary transition-transform duration-300 hover:scale-[0.98]"
-      >
-        {personal.email}
-      </a>
+      <div className="mt-8">
+        <Magnetic strength={0.12}>
+          <a
+            href={links.email}
+            className="inline-flex items-center gap-2 rounded-soft bg-gradient-to-br from-primary to-primary-container px-6 py-3 font-label text-xs font-bold uppercase tracking-label text-on-primary transition-transform duration-300 hover:scale-[0.98]"
+          >
+            {personal.email}
+          </a>
+        </Magnetic>
+      </div>
 
       {/* Social rows using interactive FlowingMenu */}
       <div className="mt-12 border-y border-outline-variant/40 overflow-hidden" style={{ height: '260px', position: 'relative' }}>

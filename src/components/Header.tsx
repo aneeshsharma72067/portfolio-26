@@ -58,17 +58,16 @@ const Header = () => {
           href="#top"
           className="font-headline text-lg font-black tracking-tight text-on-surface"
         >
-          {personal.name.split(' ')[0]}
-          <span className="text-primary">.</span>
+          Aneesh<span className="text-primary">.</span>
         </a>
 
-        {/* Centre nav */}
-        <nav className="hidden items-center gap-8 md:flex">
+        {/* Navigation links */}
+        <nav className="hidden items-center gap-6 md:flex">
           {navItems.map((item) => (
             <a
               key={item.name}
               href={item.href}
-              className="font-label text-[11px] font-bold uppercase tracking-label text-outline transition-colors duration-300 hover:text-on-surface"
+              className="font-label text-[11px] font-bold uppercase tracking-label text-on-surface-variant transition-colors hover:text-white"
             >
               {t(item.tKey)}
             </a>
@@ -76,32 +75,25 @@ const Header = () => {
         </nav>
 
         {/* Action controls (Language Picker + GitHub Link) */}
-        <div className="flex items-center gap-6">
-          {/* Language selector button with dropdown */}
+        <div className="flex items-center gap-4">
+          {/* Language selector */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center gap-1.5 font-label text-[11px] font-bold uppercase tracking-label text-outline transition-colors duration-300 hover:text-on-surface"
-              aria-haspopup="true"
-              aria-expanded={dropdownOpen}
+              className="flex items-center gap-1 rounded border border-outline-variant/30 bg-surface-container-low/40 px-2 py-1 font-mono text-[10px] text-on-surface-variant hover:border-primary/50 hover:text-white"
             >
-              <Globe size={13} className="text-outline/80" />
-              {LANGUAGES.find((lang) => lang.code === language)?.label || 'EN'}
-              <ChevronDown size={11} className={`text-outline/60 transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`} />
+              <Globe size={12} className="text-primary" />
+              <span>{LANGUAGES.find((l) => l.code === language)?.label || 'EN'}</span>
+              <ChevronDown size={10} className="opacity-60" />
             </button>
 
-            {/* Dropdown panel */}
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2.5 w-32 origin-top-right rounded border border-outline-variant/50 bg-[#0e1320] p-1 shadow-floating animate-in fade-in slide-in-from-top-1 duration-200">
+              <div className="absolute right-0 mt-1.5 w-24 rounded border border-outline-variant/30 bg-surface-container-high p-1 shadow-floating">
                 {LANGUAGES.map((lang) => (
                   <button
                     key={lang.code}
                     onClick={() => handleLanguageSelect(lang.code)}
-                    className={`w-full rounded px-3 py-2 text-left font-label text-[11px] font-bold uppercase tracking-wide transition-colors ${
-                      language === lang.code
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-outline/80 hover:bg-surface-container-high/50 hover:text-on-surface'
-                    }`}
+                    className="w-full rounded px-2 py-1 text-left font-mono text-[10px] text-on-surface-variant hover:bg-white/5 hover:text-white"
                   >
                     {lang.code === 'en' && 'English'}
                     {lang.code === 'ja' && '日本語'}
@@ -115,14 +107,16 @@ const Header = () => {
           </div>
 
           {/* External link */}
-          <a
-            href={links.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-label text-[11px] font-bold uppercase tracking-label text-primary transition-all duration-300 hover:drop-shadow-[0_0_12px_rgba(85,221,173,0.8)]"
-          >
-            GitHub ↗
-          </a>
+          <Magnetic strength={0.12}>
+            <a
+              href={links.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-label text-[11px] font-bold uppercase tracking-label text-primary transition-all duration-300 hover:drop-shadow-[0_0_12px_rgba(85,221,173,0.8)]"
+            >
+              GitHub ↗
+            </a>
+          </Magnetic>
         </div>
       </div>
     </header>

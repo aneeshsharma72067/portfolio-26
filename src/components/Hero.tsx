@@ -8,6 +8,7 @@ import ChessProfile from './ChessProfile';
 import GitHubContributions from './GitHubContributions';
 import { useTranslation } from '@/context/TranslationContext';
 import GalleryOverlay from './GalleryOverlay';
+import Magnetic from './Magnetic';
 
 /**
  * Hero — profile-page style layout inspired by bharath.codes.
@@ -63,10 +64,10 @@ const Hero = () => {
           <div className="mt-1 flex flex-wrap items-center gap-2 text-outline">
             <p className="eyebrow !text-on-surface-variant">{t('role')}</p>
             <span className="meta-dot" />
-            <MapPin size={12} className="text-outline" />
-            <span className="font-label text-[11px] uppercase tracking-wide text-outline">
-              {t('location')}
-            </span>
+            <div className="flex items-center gap-1">
+              <MapPin size={12} className="text-primary" />
+              <span className="font-mono text-xs text-on-surface-variant">{t('location')}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -84,24 +85,28 @@ const Hero = () => {
 
       {/* ── CTAs ── */}
       <div className="mt-8 flex flex-wrap items-center gap-4">
-        <a
-          href="#work"
-          className="inline-flex items-center gap-2 rounded-soft bg-gradient-to-br from-primary to-primary-container px-5 py-2.5 font-label text-[11px] font-bold uppercase tracking-label text-on-primary transition-transform duration-300 hover:scale-[0.98]"
-        >
-          {t('navWork')}
-        </a>
-        <a
-          href={personal.resume}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group inline-flex items-center gap-1.5 font-label text-[11px] font-bold uppercase tracking-label text-primary"
-        >
-          {t('resumeButton')}
-          <ArrowUpRight
-            size={15}
-            className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-          />
-        </a>
+        <Magnetic strength={0.12}>
+          <a
+            href="#work"
+            className="inline-flex items-center gap-2 rounded-soft bg-gradient-to-br from-primary to-primary-container px-5 py-2.5 font-label text-[11px] font-bold uppercase tracking-label text-on-primary transition-transform duration-300 hover:scale-[0.98]"
+          >
+            {t('navWork')}
+          </a>
+        </Magnetic>
+        <Magnetic strength={0.12}>
+          <a
+            href={personal.resume}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-1.5 font-label text-[11px] font-bold uppercase tracking-label text-primary"
+          >
+            {t('resumeButton')}
+            <ArrowUpRight
+              size={15}
+              className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            />
+          </a>
+        </Magnetic>
       </div>
 
       {/* ── Widgets (Spotify + Chess.com) ── */}

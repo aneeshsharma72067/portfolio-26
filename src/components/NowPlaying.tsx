@@ -19,14 +19,16 @@ const NowPlaying = () => {
   const [liked, setLiked] = useState(false);
   const [progress, setProgress] = useState(38); // percentage
 
-  // Simulate progress bar movement when playing
+  const [isScratching, setIsScratching] = useState(false);
+
+  // Simulate progress bar movement when playing (unless scratching)
   useEffect(() => {
-    if (!playing) return;
+    if (!playing || isScratching) return;
     const interval = setInterval(() => {
       setProgress((prev) => (prev >= 100 ? 0 : prev + 0.2));
     }, 1000);
     return () => clearInterval(interval);
-  }, [playing]);
+  }, [playing, isScratching]);
 
   // Format time based on progress percentage (mocking a 3:45 song length)
   const getFmtTime = (pct: number) => {
@@ -57,10 +59,22 @@ const NowPlaying = () => {
       {/* Top Section: Vinyl + Track Details */}
       <div className="flex gap-4 items-start">
         {/* Large Vinyl Record Disc Container */}
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#121212] border border-white/5 flex items-center justify-center shadow-inner">
+        <div
+          onMouseDown={() => setIsScratching(true)}
+          onMouseUp={() => setIsScratching(false)}
+          onMouseLeave={() => setIsScratching(false)}
+          onTouchStart={() => setIsScratching(true)}
+          onTouchEnd={() => setIsScratching(false)}
+          className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#121212] border border-white/5 flex items-center justify-center shadow-inner cursor-grab active:cursor-grabbing"
+          title="Click and hold to scratch!"
+        >
           {playing ? (
             // Spinning vinyl record
-            <div className="relative h-18 w-18 rounded-full bg-[#181818] border-2 border-[#ff0000]/40 flex items-center justify-center animate-[spin_6s_linear_infinite] shadow-floating">
+            <div
+              className={`relative h-18 w-18 rounded-full bg-[#181818] border-2 flex items-center justify-center shadow-floating transition-all duration-300
+                ${isScratching ? 'rotate-[45deg] skew-x-3 scale-[0.92] border-red-500' : 'border-[#ff0000]/40 animate-[spin_6s_linear_infinite]'}
+              `}
+            >
               {/* Center label */}
               <div className="h-6 w-6 rounded-full bg-[#ff0000] flex items-center justify-center border border-black/20">
                 <div className="h-1.5 w-1.5 rounded-full bg-white" />

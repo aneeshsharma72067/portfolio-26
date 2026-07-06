@@ -150,6 +150,25 @@ export default function ChessPuzzleModal({ open, onClose }: Props) {
     }
   };
 
+  const [particles, setParticles] = useState<{ id: number; char: string; left: number; delay: number; scale: number }[]>([]);
+
+  // Generate ASCII chess confetti particles when solved
+  useEffect(() => {
+    if (status === 'solved') {
+      const chars = ['♞', '♝', '♜', '♟', '♛', '♚'];
+      const pArr = Array.from({ length: 24 }).map((_, i) => ({
+        id: i,
+        char: chars[Math.floor(Math.random() * chars.length)],
+        left: Math.random() * 92, // pad horizontal bounds
+        delay: Math.random() * 1.5,
+        scale: 0.6 + Math.random() * 0.8,
+      }));
+      setParticles(pArr);
+    } else {
+      setParticles([]);
+    }
+  }, [status]);
+
   if (!mounted) return null;
 
   const blackInCheck = isInCheck(board, 'b');
@@ -231,22 +250,48 @@ export default function ChessPuzzleModal({ open, onClose }: Props) {
             )}
           </div>
 
-          {/* Solved overlay */}
+          {/* Solved overlay with floating ASCII chess confetti */}
           {status === 'solved' && (
-            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/80 animate-pop-in">
-              <Trophy className="mb-2 h-9 w-9 animate-bounce text-[#81b64c]" />
-              <span className="text-sm font-bold uppercase tracking-wider text-[#81b64c]">
+            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/80 animate-pop-in overflow-hidden">
+              {particles.map((p) => (
+                <span
+                  key={p.id}
+                  className="absolute pointer-events-none select-none text-[#81b64c]/20"
+                  style={{
+                    left: `${p.left}%`,
+                    bottom: '-20px',
+                    fontSize: `${Math.round(p.scale * 20)}px`,
+                    animation: `chessFloatUp 2.5s ease-in-out ${p.delay}s infinite`,
+                    willChange: 'transform',
+                  }}
+                >
+                  {p.char}
+                </span>
+              ))}
+
+              <Trophy className="mb-2 h-9 w-9 animate-bounce text-[#81b64c] z-10" />
+              <span className="text-sm font-bold uppercase tracking-wider text-[#81b64c] z-10">
                 {t('chessCheckmate')}
               </span>
               <button
                 onClick={() => loadPuzzle(randomPuzzle(puzzle.id))}
-                className="mt-3 rounded bg-[#81b64c] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#95ca5c]"
+                className="mt-3 rounded bg-[#81b64c] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#95ca5c] z-10"
               >
                 {t('chessNext')}
               </button>
             </div>
           )}
         </div>
+
+        {/* CSS Confetti keyframes */}
+        <style>{`
+          @keyframes chessFloatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            15% { opacity: 0.8; }
+            85% { opacity: 0.8; }
+            100% { transform: translateY(-380px) rotate(360deg); opacity: 0; }
+          }
+        `}</style>
 
         {/* Status line */}
         <p className="mt-3 h-4 text-center text-[11px] font-medium">
