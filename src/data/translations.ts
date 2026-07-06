@@ -32,7 +32,7 @@ export const translations = {
     aboutAccent: 'about me.',
     bio0: "I'm a software developer who builds products, mobile apps, backend systems, and CLI tools. I write code, break things, and occasionally fix them.",
     bio1: "My stack revolves around React, Next.js, Hono, Python, Rust, and Cloudflare Workers. I'm a big fan of lightweight, high-performance setups that just work.",
-    bio2: "When I'm not fighting git merge conflicts or optimizing database queries, you can find me solving mate-in-1 chess puzzles or exploring AI models.",
+    bio2: "When I'm not fighting git merge conflicts or optimizing database queries, you can find me reading manhwas or playing chess. Favorite games are Persona and Fire Emblem",
 
     // Work Section
     workEyebrow: 'Selected Work',
@@ -114,7 +114,7 @@ export const translations = {
     aboutAccent: 'ついて。',
     bio0: '私はプロダクト、モバイルアプリ、バックエンドシステム、CLIツールを開発するソフトウェア開発者です。コードを書き、バグを生み出し、たまに修正しています。',
     bio1: '主にReact、Next.js、Hono、Python、Rust、Cloudflare Workersを使っています。シンプルでパフォーマンスの高い開発環境が大好きです。',
-    bio2: 'マージコンフリクトと戦ったりデータベースのクエリを最適化していない時は、一手詰のチェスを解くか、AIモデルを触っています。',
+    bio2: 'マージコンフリクトと戦ったりデータベースのクエリを最適化していない時は、マンファ（韓国漫画）を読んでいるか、チェスをしています。お気に入りのゲームは「ペルソナ」と「ファイアーエムブレム」です。',
 
     // Work Section
     workEyebrow: '選定プロジェクト',
@@ -196,7 +196,7 @@ export const translations = {
     aboutAccent: 'sobre mí.',
     bio0: 'Soy un desarrollador de software que crea productos, apps móviles, sistemas backend y herramientas CLI. Escribo código, rompo cosas y, a veces, las arreglo.',
     bio1: 'Mi stack gira en torno a React, Next.js, Hono, Python, Rust y Cloudflare Workers. Soy fan de las configuraciones ligeras y de alto rendimiento.',
-    bio2: 'Cuando no estoy luchando contra conflictos de git o depurando consultas de bases de datos, me encontrarás resolviendo problemas de ajedrez o explorando modelos de IA.',
+    bio2: 'Cuando no estoy luchando contra conflictos de git o depurando consultas de bases de datos, me encontrarás leyendo manhwas o jugando al ajedrez. Mis juegos favoritos son Persona y Fire Emblem.',
 
     // Work Section
     workEyebrow: 'Trabajo Seleccionado',
@@ -278,7 +278,7 @@ export const translations = {
     aboutAccent: 'über mich.',
     bio0: 'Ich bin ein Softwareentwickler, der Produkte, mobile Apps, Backend-Systeme und CLI-Tools baut. Ich schreibe Code, mache Dinge kaputt und repariere sie manchmal auch.',
     bio1: 'Mein Stack dreht sich um React, Next.js, Hono, Python, Rust und Cloudflare Workers. Ich stehe auf schlanke, performante Setups, die einfach funktionieren.',
-    bio2: 'Wenn ich nicht gerade mit Git-Merge-Konflikten kämpfe oder Datenbankabfragen optimiere, löse ich Schachrätsel oder experimentiere mit KI-Modellen.',
+    bio2: 'Wenn ich nicht gerade mit Git-Merge-Konflikten kämpfe oder Datenbankabfragen optimiere, lese ich Manhwas oder spiele Schach. Meine Lieblingsspiele sind Persona und Fire Emblem.',
 
     // Work Section
     workEyebrow: 'Ausgewählte Arbeiten',
@@ -360,7 +360,7 @@ export const translations = {
     aboutAccent: '我的介绍。',
     bio0: '我是一个喜欢开发产品、移动应用、后端系统和命令行工具的软件开发仔。日常就是写写代码、搞点破坏，偶尔顺手把它们修复一下。',
     bio1: '我的核心技术栈围绕 React、Next.js、Hono、Python、Rust 和 Cloudflare Workers 展开。非常热衷于搭建那些轻量、高效且够稳的轮子。',
-    bio2: '在没有跟 Git 冲突死磕或优化数据库查询的时候，我通常在解一步杀的残局棋，或者把玩最新的 AI 模型。',
+    bio2: '在没有跟 Git 冲突死磕或优化数据库查询的时候，我通常在看韩漫或下国际象棋。最喜欢的游戏是《女神异闻录》和《火焰之纹章》。',
 
     // Work Section
     workEyebrow: '精选项目',

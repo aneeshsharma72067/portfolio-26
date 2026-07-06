@@ -22,7 +22,7 @@ export const personal = {
   bio: [
     "I'm a software developer who builds products, mobile apps, backend systems, and CLI tools. I write code, break things, and occasionally fix them.",
     "My stack revolves around React, Next.js, Hono, Python, Rust, and Cloudflare Workers. I'm a big fan of lightweight, high-performance setups that just work.",
-    "When I'm not fighting git merge conflicts or optimizing database queries, you can find me solving mate-in-1 chess puzzles or exploring AI models.",
+    "When I'm not fighting git merge conflicts or optimizing database queries, you can find me reading manhwas or playing chess. Favorite games are Persona and Fire Emblem",
   ],
 };
 
