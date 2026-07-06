@@ -1,11 +1,12 @@
-import { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
+import { Github, Linkedin, Twitter, Mail, ArrowUpRight } from 'lucide-react';
 import './FlowingMenu.css';
 
 interface FlowingMenuItem {
   link: string;
   text: string;
-  image: string;
+  handle: string;
 }
 
 interface FlowingMenuProps {
@@ -57,7 +58,7 @@ interface MenuItemProps extends FlowingMenuItem {
 function MenuItem({
   link,
   text,
-  image,
+  handle,
   speed,
   textColor,
   marqueeBgColor,
@@ -91,7 +92,7 @@ function MenuItem({
     const marqueeContent = marqueeInnerRef.current.querySelector('.marquee__part') as HTMLElement;
     if (!marqueeContent) return;
 
-    const contentWidth = marqueeContent.offsetWidth || (text.length * 12 + 200);
+    const contentWidth = marqueeContent.offsetWidth || (text.length * 12 + 100);
 
     if (animationRef.current) {
       animationRef.current.kill();
@@ -112,7 +113,7 @@ function MenuItem({
       const marqueeContent = marqueeInnerRef.current.querySelector('.marquee__part') as HTMLElement;
       if (!marqueeContent) return;
 
-      const contentWidth = marqueeContent.offsetWidth || (text.length * 12 + 200);
+      const contentWidth = marqueeContent.offsetWidth || (text.length * 12 + 100);
       const viewportWidth = window.innerWidth;
 
       const needed = Math.ceil(viewportWidth / contentWidth) + 2;
@@ -165,6 +166,15 @@ function MenuItem({
       .to(marqueeInnerWrapRef.current, { y: edge === 'top' ? '101%' : '-101%' }, 0);
   };
 
+  const getSocialIcon = (label: string) => {
+    const name = label.toLowerCase();
+    if (name.includes('github')) return <Github size={20} className="mx-4 text-current shrink-0" />;
+    if (name.includes('linkedin')) return <Linkedin size={20} className="mx-4 text-current shrink-0" />;
+    if (name.includes('twitter') || name.includes('x')) return <Twitter size={20} className="mx-4 text-current shrink-0" />;
+    if (name.includes('email') || name.includes('mail')) return <Mail size={20} className="mx-4 text-current shrink-0" />;
+    return null;
+  };
+
   return (
     <div className="menu__item" ref={itemRef} style={{ borderColor }}>
       <a
@@ -176,15 +186,26 @@ function MenuItem({
         onMouseLeave={handleMouseLeave}
         style={{ color: textColor }}
       >
-        {text}
+        <span className="font-headline text-lg font-bold text-on-surface">
+          {text}
+        </span>
+        <span className="flex items-center gap-3">
+          <span className="font-body text-sm italic text-outline">
+            {handle}
+          </span>
+          <ArrowUpRight
+            size={16}
+            className="text-primary transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          />
+        </span>
       </a>
       <div className="marquee" ref={marqueeRef} style={{ backgroundColor: marqueeBgColor }}>
         <div className="marquee__inner-wrap" ref={marqueeInnerWrapRef}>
           <div className="marquee__inner" ref={marqueeInnerRef} aria-hidden="true">
             {Array.from({ length: repetitions }).map((_, idx) => (
               <div className="marquee__part" key={idx} style={{ color: marqueeTextColor }}>
-                <span>{text}</span>
-                <div className="marquee__img" style={{ backgroundImage: `url(${image})` }} />
+                <span className="font-headline text-base font-black tracking-wider">{text}</span>
+                {getSocialIcon(text)}
               </div>
             ))}
           </div>

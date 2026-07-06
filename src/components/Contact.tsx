@@ -13,21 +13,10 @@ const Contact = () => {
   const { t } = useTranslation();
 
   const flowingItems = socials.map((s) => {
-    let image = 'https://images.unsplash.com/photo-1618401471353-b98aedd07871?w=600&q=80'; // default github
-    const label = s.label.toLowerCase();
-    
-    if (label.includes('linkedin')) {
-      image = 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=600&q=80';
-    } else if (label.includes('twitter') || label.includes('x')) {
-      image = 'https://images.unsplash.com/photo-1611605698335-8b15d27e03f9?w=600&q=80';
-    } else if (label.includes('email')) {
-      image = 'https://images.unsplash.com/photo-1557200134-90327ee9fafa?w=600&q=80';
-    }
-
     return {
       link: s.href,
       text: s.label,
-      image,
+      handle: s.handle,
     };
   });
 
@@ -54,7 +43,7 @@ const Contact = () => {
       </a>
 
       {/* Social rows using interactive FlowingMenu */}
-      <div className="mt-12 border-y border-outline-variant/40 overflow-hidden" style={{ height: '320px', position: 'relative' }}>
+      <div className="mt-12 border-y border-outline-variant/40 overflow-hidden" style={{ height: '260px', position: 'relative' }}>
         <FlowingMenu
           items={flowingItems}
           textColor="#dee2f5"
@@ -62,7 +51,7 @@ const Contact = () => {
           marqueeBgColor="#55ddad"
           marqueeTextColor="#0e1320"
           borderColor="rgba(222, 226, 245, 0.12)"
-          speed={15}
+          speed={12}
         />
       </div>
     </section>
