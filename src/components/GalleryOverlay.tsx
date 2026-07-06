@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import img1 from '../assets/image/gallery/1.png';
 import img2 from '../assets/image/gallery/2.jpg';
 import img3 from '../assets/image/gallery/3.jpg';
@@ -18,6 +18,7 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
   const [isMobile, setIsMobile] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [dragStart, setDragStart] = useState<number | null>(null);
+  const [imagesRendered, setImagesRendered] = useState(false);
 
   // Track screen size for dynamic 3D translations
   useEffect(() => {
@@ -29,12 +30,25 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Defer image loading to keep modal open transition perfectly smooth (no CPU thread lock)
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      const timer = setTimeout(() => {
+        setImagesRendered(true);
+      }, 150);
+      return () => {
+        clearTimeout(timer);
+      };
+    } else {
+      setImagesRendered(false);
+      document.body.style.overflow = '';
+    }
+  }, [isOpen]);
+
   // Listen for keyboard arrows & escape
   useEffect(() => {
     if (!isOpen) return;
-
-    // Prevent background scrolling while open
-    document.body.style.overflow = 'hidden';
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') handleNext();
@@ -45,7 +59,6 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
     };
   }, [isOpen, activeIndex]);
 
@@ -89,10 +102,16 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[10000] flex flex-col items-center justify-between bg-[#07090e]/95 p-6 backdrop-blur-md select-none animate-[fadeIn_0.25s_ease-out]">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[10000] flex flex-col items-center justify-between bg-[#07090e]/95 p-6 backdrop-blur-md select-none animate-[fadeIn_0.2s_ease-out] cursor-zoom-out"
+    >
       
       {/* ── Header ── */}
-      <div className="flex w-full max-w-5xl items-center justify-between">
+      <div 
+        onClick={(e) => e.stopPropagation()} 
+        className="flex w-full max-w-5xl items-center justify-between cursor-default"
+      >
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-[#55ddad] animate-pulse" />
           <span className="font-mono text-[10px] uppercase tracking-widest text-[#55ddad]">
@@ -102,8 +121,8 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
         
         <button
           onClick={onClose}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 transition-all hover:border-[#55ddad]/50 hover:bg-[#55ddad]/10 hover:text-[#55ddad]"
-          title="Close (Esc)"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 transition-all hover:border-[#55ddad]/50 hover:bg-[#55ddad]/10 hover:text-[#55ddad] cursor-pointer"
+          title="Close (Esc or click outside)"
         >
           <X size={18} />
         </button>
@@ -117,13 +136,13 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
       >
-        {/* Left Arrow Button (Hidden on pure mobile to keep screen clean) */}
+        {/* Left Arrow Button */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             handlePrev();
           }}
-          className="absolute left-4 z-50 hidden sm:flex h-12 w-12 items-center justify-center rounded-full border border-white/5 bg-black/40 text-white/60 backdrop-blur-sm transition-all hover:border-[#55ddad]/30 hover:bg-[#55ddad]/10 hover:text-white"
+          className="absolute left-4 z-50 hidden sm:flex h-12 w-12 items-center justify-center rounded-full border border-white/5 bg-black/40 text-white/60 backdrop-blur-sm transition-all hover:border-[#55ddad]/30 hover:bg-[#55ddad]/10 hover:text-white cursor-pointer"
         >
           <ChevronLeft size={24} />
         </button>
@@ -142,7 +161,7 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
             if (diff < -2) diff += IMAGES.length;
             if (diff > 2) diff -= IMAGES.length;
 
-            const xOffset = isMobile ? 130 : 280;
+            const xOffset = isMobile ? 120 : 280;
             const zOffset = isMobile ? -100 : -180;
             const rotateAngle = isMobile ? 38 : 35;
 
@@ -161,28 +180,39 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
               transformStr = `translate3d(${xOffset}px, 0, ${zOffset}px) rotateY(-${rotateAngle}deg) scale(0.82)`;
               opacityVal = 0.65;
               zIndexVal = 8;
-              filterVal = 'brightness(0.6) blur(0.5px)';
+              filterVal = 'brightness(0.55) blur(0.5px)';
             } else if (diff === -1) {
               transformStr = `translate3d(-${xOffset}px, 0, ${zOffset}px) rotateY(${rotateAngle}deg) scale(0.82)`;
               opacityVal = 0.65;
               zIndexVal = 8;
-              filterVal = 'brightness(0.6) blur(0.5px)';
+              filterVal = 'brightness(0.55) blur(0.5px)';
             } else if (diff === 2) {
               transformStr = `translate3d(${xOffset * 1.6}px, 0, ${zOffset * 2.2}px) rotateY(-${rotateAngle * 1.3}deg) scale(0.65)`;
               opacityVal = 0.2;
               zIndexVal = 4;
-              filterVal = 'brightness(0.4) blur(1.5px)';
+              filterVal = 'brightness(0.35) blur(1.5px)';
             } else if (diff === -2) {
               transformStr = `translate3d(-${xOffset * 1.6}px, 0, ${zOffset * 2.2}px) rotateY(${rotateAngle * 1.3}deg) scale(0.65)`;
               opacityVal = 0.2;
               zIndexVal = 4;
-              filterVal = 'brightness(0.4) blur(1.5px)';
+              filterVal = 'brightness(0.35) blur(1.5px)';
             }
+
+            // Lazy-loading helper: Only mount images if close to active frame
+            const isNearActive = Math.abs(diff) <= 1;
+            const shouldRenderImage = imagesRendered && isNearActive;
 
             return (
               <div
                 key={idx}
-                className="absolute w-[240px] h-[340px] sm:w-[320px] sm:h-[440px] rounded-2xl overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.8)] border border-white/10 select-none cursor-grab active:cursor-grabbing transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (diff === 1) handleNext();
+                  if (diff === -1) handlePrev();
+                }}
+                className={`absolute w-[240px] h-[340px] sm:w-[320px] sm:h-[440px] rounded-2xl overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.8)] border border-white/10 select-none transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                  diff === 0 ? 'cursor-default' : 'cursor-pointer'
+                }`}
                 style={{
                   transform: transformStr,
                   opacity: opacityVal,
@@ -194,31 +224,46 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
               >
                 {/* 3D Curving reflection shine */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 pointer-events-none z-10" />
-                <img
-                  src={img}
-                  alt={`Gallery Image ${idx + 1}`}
-                  className="h-full w-full object-cover pointer-events-none"
-                  draggable={false}
-                />
+                
+                {shouldRenderImage ? (
+                  <img
+                    src={img}
+                    alt={`Gallery Image ${idx + 1}`}
+                    className="h-full w-full object-cover pointer-events-none animate-[fadeInImage_0.4s_ease-out]"
+                    draggable={false}
+                  />
+                ) : (
+                  // Sleek skeleton loading placeholder to prevent layout freeze
+                  <div className="flex h-full w-full flex-col items-center justify-center bg-white/5 text-white/20">
+                    {isNearActive ? (
+                      <Loader2 className="animate-spin" size={24} />
+                    ) : (
+                      <div className="h-1.5 w-12 rounded-full bg-white/10" />
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
 
-        {/* Right Arrow Button (Hidden on pure mobile to keep screen clean) */}
+        {/* Right Arrow Button */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             handleNext();
           }}
-          className="absolute right-4 z-50 hidden sm:flex h-12 w-12 items-center justify-center rounded-full border border-white/5 bg-black/40 text-white/60 backdrop-blur-sm transition-all hover:border-[#55ddad]/30 hover:bg-[#55ddad]/10 hover:text-white"
+          className="absolute right-4 z-50 hidden sm:flex h-12 w-12 items-center justify-center rounded-full border border-white/5 bg-black/40 text-white/60 backdrop-blur-sm transition-all hover:border-[#55ddad]/30 hover:bg-[#55ddad]/10 hover:text-white cursor-pointer"
         >
           <ChevronRight size={24} />
         </button>
       </div>
 
       {/* ── Footer / Dots Controls ── */}
-      <div className="flex flex-col items-center gap-4">
+      <div 
+        onClick={(e) => e.stopPropagation()} 
+        className="flex flex-col items-center gap-4 cursor-default"
+      >
         {/* Count */}
         <span className="font-mono text-xs tracking-widest text-white/40">
           <span className="text-white font-bold">{String(activeIndex + 1).padStart(2, '0')}</span> / {String(IMAGES.length).padStart(2, '0')}
@@ -230,7 +275,7 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
             <button
               key={idx}
               onClick={() => setActiveIndex(idx)}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
+              className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                 idx === activeIndex
                   ? 'bg-[#55ddad] w-6'
                   : 'bg-white/10 w-1.5 hover:bg-white/30'
@@ -240,11 +285,15 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
         </div>
       </div>
 
-      {/* Fade-in keyframe helper style */}
+      {/* CSS Easing Helpers */}
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
+        }
+        @keyframes fadeInImage {
+          from { opacity: 0; transform: scale(1.05); }
+          to { opacity: 1; transform: scale(1); }
         }
       `}</style>
     </div>
