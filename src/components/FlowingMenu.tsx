@@ -85,6 +85,27 @@ function MenuItem({
     return xDiff * xDiff + yDiff * yDiff;
   };
 
+  const setupMarquee = () => {
+    if (!marqueeInnerRef.current) return;
+
+    const marqueeContent = marqueeInnerRef.current.querySelector('.marquee__part') as HTMLElement;
+    if (!marqueeContent) return;
+
+    // Use fallback estimate if offsetWidth is 0 during initial render/font-load
+    const contentWidth = marqueeContent.offsetWidth || (text.length * 12 + 60);
+
+    if (animationRef.current) {
+      animationRef.current.kill();
+    }
+
+    animationRef.current = gsap.to(marqueeInnerRef.current, {
+      x: -contentWidth,
+      duration: speed,
+      ease: 'none',
+      repeat: -1
+    });
+  };
+
   useEffect(() => {
     const calculateRepetitions = () => {
       if (!marqueeInnerRef.current) return;
@@ -92,7 +113,7 @@ function MenuItem({
       const marqueeContent = marqueeInnerRef.current.querySelector('.marquee__part') as HTMLElement;
       if (!marqueeContent) return;
 
-      const contentWidth = marqueeContent.offsetWidth;
+      const contentWidth = marqueeContent.offsetWidth || (text.length * 12 + 60);
       const viewportWidth = window.innerWidth;
 
       const needed = Math.ceil(viewportWidth / contentWidth) + 2;
@@ -105,28 +126,7 @@ function MenuItem({
   }, [text]);
 
   useEffect(() => {
-    const setupMarquee = () => {
-      if (!marqueeInnerRef.current) return;
-
-      const marqueeContent = marqueeInnerRef.current.querySelector('.marquee__part') as HTMLElement;
-      if (!marqueeContent) return;
-
-      const contentWidth = marqueeContent.offsetWidth;
-      if (contentWidth === 0) return;
-
-      if (animationRef.current) {
-        animationRef.current.kill();
-      }
-
-      animationRef.current = gsap.to(marqueeInnerRef.current, {
-        x: -contentWidth,
-        duration: speed,
-        ease: 'none',
-        repeat: -1
-      });
-    };
-
-    const timer = setTimeout(setupMarquee, 50);
+    const timer = setTimeout(setupMarquee, 100);
 
     return () => {
       clearTimeout(timer);
@@ -138,6 +138,10 @@ function MenuItem({
 
   const handleMouseEnter = (ev: React.MouseEvent) => {
     if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return;
+    
+    // Recalculate size and restart animation on hover to guarantee accurate scroll bounds
+    setupMarquee();
+
     const rect = itemRef.current.getBoundingClientRect();
     const x = ev.clientX - rect.left;
     const y = ev.clientY - rect.top;
