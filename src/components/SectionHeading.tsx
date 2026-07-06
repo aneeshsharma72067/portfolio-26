@@ -3,30 +3,40 @@ import { useState, useEffect, useRef } from 'react';
 /**
  * Reusable text-scrambling component.
  * Decrypts text using binary/ASCII noise characters when hovered.
+ * Supports cycling through a list of alternative words on successive hovers.
  */
-export const ScrambleText = ({ text }: { text: string }) => {
+export const ScrambleText = ({ text, cycleWords }: { text: string; cycleWords?: string[] }) => {
   const [displayText, setDisplayText] = useState(text);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     setDisplayText(text);
+    setCurrentIndex(0);
   }, [text]);
 
   const startScramble = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
-    
+
+    let targetText = text;
+    if (cycleWords && cycleWords.length > 0) {
+      const nextIdx = (currentIndex + 1) % cycleWords.length;
+      setCurrentIndex(nextIdx);
+      targetText = cycleWords[nextIdx];
+    }
+
     let iteration = 0;
-    const maxIterations = text.length;
+    const maxIterations = targetText.length;
     const chars = '01$#_[]{}<>/\\+*!%@&';
 
     intervalRef.current = window.setInterval(() => {
       setDisplayText(() =>
-        text
+        targetText
           .split('')
           .map((char, index) => {
             if (char === ' ') return ' ';
             if (index < iteration) {
-              return text[index];
+              return targetText[index];
             }
             return chars[Math.floor(Math.random() * chars.length)];
           })
@@ -41,8 +51,10 @@ export const ScrambleText = ({ text }: { text: string }) => {
   };
 
   const resetScramble = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    setDisplayText(text);
+    if (!cycleWords || cycleWords.length === 0) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      setDisplayText(text);
+    }
   };
 
   useEffect(() => {
@@ -66,6 +78,7 @@ type Props = {
   eyebrow: string;
   title: string;
   accent?: string;
+  accentWords?: string[];
 };
 
 /**
@@ -73,14 +86,14 @@ type Props = {
  * title, per the Stdout house style. Keeps every section visually consistent.
  * Incorporates text scramble microinteractions on hover of headings.
  */
-const SectionHeading = ({ eyebrow, title, accent }: Props) => (
+const SectionHeading = ({ eyebrow, title, accent, accentWords }: Props) => (
   <div className="mb-10 select-none">
     <p className="eyebrow mb-3">{eyebrow}</p>
     <h2 className="font-headline text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl">
       <ScrambleText text={title} />{' '}
       {accent && (
         <span className="text-primary">
-          <ScrambleText text={accent} />
+          <ScrambleText text={accent} cycleWords={accentWords} />
         </span>
       )}
     </h2>

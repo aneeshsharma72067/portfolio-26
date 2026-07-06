@@ -70,6 +70,7 @@ const NODES_DATA = [
   { id: 'python', label: 'Python', group: 'Backend', px: 0.50, py: 0.65 },
   { id: 'django', label: 'Django', group: 'Backend', px: 0.42, py: 0.82 },
   { id: 'flask', label: 'Flask', group: 'Backend', px: 0.58, py: 0.80 },
+  { id: 'rust', label: 'Rust', group: 'Backend', px: 0.64, py: 0.55 },
 
   // Data (Top/Mid Right)
   { id: 'mongo', label: 'MongoDB', group: 'Data', px: 0.74, py: 0.22 },
@@ -112,14 +113,19 @@ const LINKS_DATA: SkillLink[] = [
   // Cloud
   { source: 'docker', target: 'node' },
   { source: 'docker', target: 'python' },
+  { source: 'docker', target: 'rust' },
   { source: 'aws', target: 'docker' },
   { source: 'azure', target: 'docker' },
+  // Rust integrations
+  { source: 'rust', target: 'node' },
+  { source: 'rust', target: 'python' },
+  { source: 'postgres', target: 'rust' },
 ];
 
 export default function Stack() {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { t } = useTranslation();
+  const { t, tArray } = useTranslation();
 
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
@@ -481,7 +487,12 @@ export default function Stack() {
 
   return (
     <section id="stack" className="mt-28 w-full select-none">
-      <SectionHeading eyebrow={t('stackEyebrow')} title={t('stackTitle')} accent={t('stackAccent')} />
+      <SectionHeading
+        eyebrow={t('stackEyebrow')}
+        title={t('stackTitle')}
+        accent={t('stackAccent')}
+        accentWords={tArray('stackAccentWords')}
+      />
 
       <p className="font-body text-sm leading-relaxed text-on-surface-variant max-w-2xl mb-8">
         {t('stackDesc')}

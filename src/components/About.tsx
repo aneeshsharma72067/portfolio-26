@@ -11,7 +11,7 @@ const values = ['Clean Code', 'Problem Solver', 'Performance', 'Team Player'];
  */
 const About = () => {
   const { ref, visible } = useReveal();
-  const { t } = useTranslation();
+  const { t, tArray } = useTranslation();
 
   return (
     <section
@@ -20,7 +20,12 @@ const About = () => {
         visible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
       }`}
     >
-      <SectionHeading eyebrow={t('aboutEyebrow')} title={t('aboutTitle')} accent={t('aboutAccent')} />
+      <SectionHeading
+        eyebrow={t('aboutEyebrow')}
+        title={t('aboutTitle')}
+        accent={t('aboutAccent')}
+        accentWords={tArray('aboutAccentWords')}
+      />
 
       <div className="space-y-6">
         <p className="font-body text-lg leading-[1.8] text-on-surface-variant">

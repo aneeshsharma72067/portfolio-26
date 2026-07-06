@@ -104,11 +104,16 @@ const ProjectRow = ({ project, index }: { project: Project; index: number }) => 
  * Work — the project feed. Items separated by generous vertical rhythm.
  */
 const Work = () => {
-  const { t } = useTranslation();
+  const { t, tArray } = useTranslation();
 
   return (
     <section id="work" className="mt-28">
-      <SectionHeading eyebrow={t('workEyebrow')} title={t('workTitle')} accent={t('workAccent')} />
+      <SectionHeading
+        eyebrow={t('workEyebrow')}
+        title={t('workTitle')}
+        accent={t('workAccent')}
+        accentWords={tArray('workAccentWords')}
+      />
 
       <div className="flex flex-col gap-8">
         {projects.map((project, i) => (

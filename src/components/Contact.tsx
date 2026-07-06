@@ -12,7 +12,7 @@ import Magnetic from './Magnetic';
  */
 const Contact = () => {
   const { ref, visible } = useReveal();
-  const { t } = useTranslation();
+  const { t, tArray } = useTranslation();
 
   const flowingItems = socials.map((s) => {
     return {
@@ -30,7 +30,12 @@ const Contact = () => {
         visible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
       }`}
     >
-      <SectionHeading eyebrow={t('contactEyebrow')} title={t('contactTitle')} accent={t('contactAccent')} />
+      <SectionHeading
+        eyebrow={t('contactEyebrow')}
+        title={t('contactTitle')}
+        accent={t('contactAccent')}
+        accentWords={tArray('contactAccentWords')}
+      />
 
       <p className="max-w-xl font-body text-lg italic leading-relaxed text-on-surface-variant">
         {t('contactDesc')}

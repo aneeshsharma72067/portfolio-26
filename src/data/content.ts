@@ -20,9 +20,9 @@ export const personal = {
   resume: '/pdf/Aneesh_Sharma-4.pdf',
   domain: 'https://aneesh-sharma.me',
   bio: [
-    "I'm a Software Development Engineer who enjoys building thoughtful, reliable digital products. I work across frontend, backend, and mobile development, focusing on experiences that are both intuitive and scalable.",
-    "Over time, I've built a strong foundation in modern technologies like React, Next.js, Python, and AWS. I enjoy breaking down complex problems, writing clean code, and constantly improving the systems I work on.",
-    'Beyond coding, I explore machine learning, keep up with new tech trends, contribute to open-source projects, and sharpen my thinking through chess.',
+    "I'm a software developer who builds products, mobile apps, backend systems, and CLI tools. I write code, break things, and occasionally fix them.",
+    "My stack revolves around React, Next.js, Hono, Python, Rust, and Cloudflare Workers. I'm a big fan of lightweight, high-performance setups that just work.",
+    "When I'm not fighting git merge conflicts or optimizing database queries, you can find me solving mate-in-1 chess puzzles or exploring AI models.",
   ],
 };
 
@@ -114,7 +114,7 @@ export const skillGroups: SkillGroup[] = [
   { title: 'Mobile', items: ['React Native', 'Expo'] },
   {
     title: 'Backend',
-    items: ['Node.js', 'Express', 'NestJS', 'Python', 'Django', 'Flask'],
+    items: ['Node.js', 'Express', 'NestJS', 'Python', 'Django', 'Flask', 'Rust'],
   },
   { title: 'Data', items: ['MongoDB', 'PostgreSQL', 'Firestore'] },
   { title: 'Cloud', items: ['AWS', 'Docker', 'Azure'] },

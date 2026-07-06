@@ -30,9 +30,9 @@ export const translations = {
     aboutEyebrow: 'Notes',
     aboutTitle: 'A little',
     aboutAccent: 'about me.',
-    bio0: "I'm a Software Development Engineer who enjoys building thoughtful, reliable digital products. I work across frontend, backend, and mobile development, focusing on experiences that are both intuitive and scalable.",
-    bio1: "Over time, I've built a strong foundation in modern technologies like React, Next.js, Python, and AWS. I enjoy breaking down complex problems, writing clean code, and constantly improving the systems I work on.",
-    bio2: 'Beyond coding, I explore machine learning, keep up with new tech trends, contribute to open-source projects, and sharpen my thinking through chess.',
+    bio0: "I'm a software developer who builds products, mobile apps, backend systems, and CLI tools. I write code, break things, and occasionally fix them.",
+    bio1: "My stack revolves around React, Next.js, Hono, Python, Rust, and Cloudflare Workers. I'm a big fan of lightweight, high-performance setups that just work.",
+    bio2: "When I'm not fighting git merge conflicts or optimizing database queries, you can find me solving mate-in-1 chess puzzles or exploring AI models.",
 
     // Work Section
     workEyebrow: 'Selected Work',
@@ -86,6 +86,10 @@ export const translations = {
     chessFindMate: 'White to move · mate in 1',
     chessSolve: 'Solve',
     viewGallery: 'View Gallery',
+    aboutAccentWords: ['about me.', 'my story.', 'who I am.', 'my path.'],
+    workAccentWords: ['built.', 'crafted.', 'assembled.', 'coded.', 'forged.'],
+    stackAccentWords: ['stack.', 'skills.', 'tools.', 'ecosystem.', 'dev setup.'],
+    contactAccentWords: ['together.', 'collaborate.', 'partner up.', 'create.'],
   },
   ja: {
     // Navigation
@@ -108,9 +112,9 @@ export const translations = {
     aboutEyebrow: 'ノート',
     aboutTitle: '私に',
     aboutAccent: 'ついて。',
-    bio0: '私は、思慮深く信頼性の高いデジタル製品の開発を楽しむソフトウェアエンジニアです。フロントエンド、バックエンド、モバイル開発を担当し、直感的でスケーラブルな体験に焦点を当てています。',
-    bio1: '長年にわたり、React、Next.js、Python、AWSなどの最新技術で強固な基盤を築いてきました。複雑な問題を分解し、クリーンなコードを書き、担当するシステムを絶えず改善することが好きです。',
-    bio2: 'コーディング以外では、機械学習の探求、最新の技術トレンドのチェック、オープンソースプロジェクトへの貢献、チェスを通じた思考力の向上を楽しんでいます。',
+    bio0: '私はプロダクト、モバイルアプリ、バックエンドシステム、CLIツールを開発するソフトウェア開発者です。コードを書き、バグを生み出し、たまに修正しています。',
+    bio1: '主にReact、Next.js、Hono、Python、Rust、Cloudflare Workersを使っています。シンプルでパフォーマンスの高い開発環境が大好きです。',
+    bio2: 'マージコンフリクトと戦ったりデータベースのクエリを最適化していない時は、一手詰のチェスを解くか、AIモデルを触っています。',
 
     // Work Section
     workEyebrow: '選定プロジェクト',
@@ -164,6 +168,10 @@ export const translations = {
     chessFindMate: '白番 · 一手詰',
     chessSolve: '解く',
     viewGallery: 'ギャラリーを見る',
+    aboutAccentWords: ['ついて。', 'ストーリー。', '人物像。', '経歴。'],
+    workAccentWords: ['創ったもの。', '開発したもの。', '構築したもの。', 'コード。'],
+    stackAccentWords: ['スキル。', '技術。', 'ツール。', '環境。'],
+    contactAccentWords: ['一緒に。', 'コラボ。', '創りましょう。', '連携して。'],
   },
   es: {
     // Navigation
@@ -186,9 +194,9 @@ export const translations = {
     aboutEyebrow: 'Notas',
     aboutTitle: 'Un poco',
     aboutAccent: 'sobre mí.',
-    bio0: 'Soy un Ingeniero de Desarrollo de Software al que le apasiona crear productos digitales reflexivos y confiables. Trabajo en desarrollo frontend, backend y móvil, centrándome en experiencias intuitivas y escalables.',
-    bio1: 'Con el tiempo, he construido una base sólida en tecnologías modernas como React, Next.js, Python y AWS. Disfruto desglosar problemas complejos, escribir código limpio y mejorar constantemente los sistemas en los que trabajo.',
-    bio2: 'Más allá de la programación, exploro el aprendizaje automático, me mantengo al día con las tendencias tecnológicas, contribuyo a proyectos de código abierto y agilizo mi pensamiento a través del ajedrez.',
+    bio0: 'Soy un desarrollador de software que crea productos, apps móviles, sistemas backend y herramientas CLI. Escribo código, rompo cosas y, a veces, las arreglo.',
+    bio1: 'Mi stack gira en torno a React, Next.js, Hono, Python, Rust y Cloudflare Workers. Soy fan de las configuraciones ligeras y de alto rendimiento.',
+    bio2: 'Cuando no estoy luchando contra conflictos de git o depurando consultas de bases de datos, me encontrarás resolviendo problemas de ajedrez o explorando modelos de IA.',
 
     // Work Section
     workEyebrow: 'Trabajo Seleccionado',
@@ -242,6 +250,10 @@ export const translations = {
     chessFindMate: 'Juegan blancas · mate en 1',
     chessSolve: 'Resolver',
     viewGallery: 'Ver galería',
+    aboutAccentWords: ['sobre mí.', 'mi historia.', 'quién soy.', 'mi camino.'],
+    workAccentWords: ['creado.', 'diseñado.', 'programado.', 'forjado.'],
+    stackAccentWords: ['habilidades.', 'herramientas.', 'tecnologías.', 'entorno.'],
+    contactAccentWords: ['juntos.', 'colaborar.', 'crear algo.', 'asociarnos.'],
   },
   de: {
     // Navigation
@@ -264,9 +276,9 @@ export const translations = {
     aboutEyebrow: 'Notizen',
     aboutTitle: 'Ein wenig',
     aboutAccent: 'über mich.',
-    bio0: 'Ich bin ein Software-Entwicklungsingenieur, der gerne durchdachte, zuverlässige digitale Produkte entwickelt. Ich arbeite im Frontend, Backend und in der mobilen Entwicklung und konzentriere mich auf intuitive und skalierbare Erlebnisse.',
-    bio1: 'Im Laufe der Zeit habe ich ein solides Fundament in modernen Technologien wie React, Next.js, Python und AWS aufgebaut. Ich mag es, komplexe Probleme zu zerlegen, sauberen Code zu schreiben und die Systeme, an denen ich arbeite, stetig zu verbessern.',
-    bio2: 'Neben dem Programmieren beschäftige ich mich mit maschinellem Lernen, verfolge neue Technologietrends, trage zu Open-Source-Projekten bei und schärfe mein Denken beim Schachspielen.',
+    bio0: 'Ich bin ein Softwareentwickler, der Produkte, mobile Apps, Backend-Systeme und CLI-Tools baut. Ich schreibe Code, mache Dinge kaputt und repariere sie manchmal auch.',
+    bio1: 'Mein Stack dreht sich um React, Next.js, Hono, Python, Rust und Cloudflare Workers. Ich stehe auf schlanke, performante Setups, die einfach funktionieren.',
+    bio2: 'Wenn ich nicht gerade mit Git-Merge-Konflikten kämpfe oder Datenbankabfragen optimiere, löse ich Schachrätsel oder experimentiere mit KI-Modellen.',
 
     // Work Section
     workEyebrow: 'Ausgewählte Arbeiten',
@@ -320,6 +332,10 @@ export const translations = {
     chessFindMate: 'Weiß am Zug · Matt in 1',
     chessSolve: 'Lösen',
     viewGallery: 'Galerie ansehen',
+    aboutAccentWords: ['über mich.', 'meine Story.', 'wer ich bin.', 'mein Weg.'],
+    workAccentWords: ['gebaut.', 'entwickelt.', 'codiert.', 'erschaffen.'],
+    stackAccentWords: ['Stack.', 'Skills.', 'Tools.', 'Ecosystem.'],
+    contactAccentWords: ['zusammen.', 'kollaborieren.', 'partnern.'],
   },
   zh: {
     // Navigation
@@ -342,9 +358,9 @@ export const translations = {
     aboutEyebrow: '简记',
     aboutTitle: '关于',
     aboutAccent: '我的介绍。',
-    bio0: '我是一名热爱构建精致、可靠的数字化产品的软件开发工程师。我的工作跨越前端、后端和移动端开发，致力于提供直观且具备良好扩展性的用户体验。',
-    bio1: '在职业生涯中，我对 React、Next.js、Python 和 AWS 等现代技术栈建立了扎实的技术基础。我乐于剖析复杂的系统难题、编写高可读性的洁净代码，并不断迭代优化我所负责的系统。',
-    bio2: '在编程之余，我积极探索机器学习，关注最新科技前沿，参与开源社区建设，并通过下国际象棋来训练自己的系统性逻辑思维。',
+    bio0: '我是一个喜欢开发产品、移动应用、后端系统和命令行工具的软件开发仔。日常就是写写代码、搞点破坏，偶尔顺手把它们修复一下。',
+    bio1: '我的核心技术栈围绕 React、Next.js、Hono、Python、Rust 和 Cloudflare Workers 展开。非常热衷于搭建那些轻量、高效且够稳的轮子。',
+    bio2: '在没有跟 Git 冲突死磕或优化数据库查询的时候，我通常在解一步杀的残局棋，或者把玩最新的 AI 模型。',
 
     // Work Section
     workEyebrow: '精选项目',
@@ -398,5 +414,9 @@ export const translations = {
     chessFindMate: '白方走 · 一步杀',
     chessSolve: '解题',
     viewGallery: '查看相册',
+    aboutAccentWords: ['关于我。', '我的故事', '我是谁。', '我的经历。'],
+    workAccentWords: ['一些项目。', '一些杰作。', '一些轮子。', '一些代码。'],
+    stackAccentWords: ['技能图。', '工具箱。', '技术栈。', '编程语言。'],
+    contactAccentWords: ['奋斗。', '合作。', '共赢。', '创造。'],
   },
 };

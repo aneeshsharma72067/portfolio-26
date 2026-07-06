@@ -7,6 +7,7 @@ interface TranslationContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: TranslationKey) => string;
+  tArray: (key: TranslationKey) => string[];
 }
 
 const TranslationContext = createContext<TranslationContextType | undefined>(undefined);
@@ -26,11 +27,18 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
 
   const t = (key: TranslationKey): string => {
     const dict = translations[language] || translations['en'];
-    return dict[key] || translations['en'][key] || '';
+    const val = dict[key] || translations['en'][key] || '';
+    return typeof val === 'string' ? val : '';
+  };
+
+  const tArray = (key: TranslationKey): string[] => {
+    const dict = translations[language] || translations['en'];
+    const val = dict[key] || translations['en'][key];
+    return Array.isArray(val) ? val : [];
   };
 
   return (
-    <TranslationContext.Provider value={{ language, setLanguage, t }}>
+    <TranslationContext.Provider value={{ language, setLanguage, t, tArray }}>
       {children}
     </TranslationContext.Provider>
   );
