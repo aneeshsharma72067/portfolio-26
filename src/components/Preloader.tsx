@@ -104,7 +104,8 @@ const Preloader = ({ mode = 'boot', onMidpoint, onComplete }: PreloaderProps) =>
           <div
             key={i}
             style={{
-              backgroundColor: '#55ddad', // primary green background
+              backgroundColor: '#40a07e', // dulled green background
+              border: '1px solid rgba(255, 255, 255, 0.18)', // lighter grid lines
               opacity:    isCovered ? 1 : 0,
               transition: `opacity ${TILE_DUR}ms ease ${delay}ms`,
               willChange: 'opacity',
