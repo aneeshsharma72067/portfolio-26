@@ -11,11 +11,11 @@ import { useEffect, useMemo, useState } from 'react';
  *   2 200 ms → component unmounts
  * ───────────────────────────────────────────────────────────────── */
 
-const TILE        = 40;   // px — pixel square side
-const SPREAD      = 800;  // ms — stagger window  ┐ together ≈ 1 s dissolve
-const TILE_DUR    = 200;  // ms — per-tile fade   ┘
-const DISSOLVE_AT = 1000; // ms — when reveal begins
-const UNMOUNT_AT  = DISSOLVE_AT + SPREAD + TILE_DUR + 200; // ≈ 2 200 ms
+const TILE        = 80;   // px — pixel square side (increased for larger pixels)
+const SPREAD      = 400;  // ms — stagger window (reduced for faster dissolve)
+const TILE_DUR    = 150;  // ms — per-tile fade duration (reduced for snappier fade)
+const DISSOLVE_AT = 800;  // ms — when reveal begins (starts slightly earlier)
+const UNMOUNT_AT  = DISSOLVE_AT + SPREAD + TILE_DUR + 150; // ≈ 1 500 ms
 
 function shuffle<T>(arr: T[]): T[] {
   for (let i = arr.length - 1; i > 0; i--) {
