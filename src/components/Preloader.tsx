@@ -2,20 +2,24 @@ import { useEffect, useMemo, useState } from 'react';
 
 /* ─────────────────────────────────────────────────────────────────
  * Preloader — Stdout theme · Pixelated dissolve reveal
- *
- * Lifecycle
- * ─────────
- *   0 ms    → mount; content shows immediately (no entry animation)
- *   1 000 ms → dissolve starts: all tiles fade with random delays
- *              spread over 800 ms, each tile 200 ms → ~1 s total
- *   2 200 ms → component unmounts
+ * Supports two modes:
+ *  1. 'boot': Renders immediately covered (opaque green screen),
+ *     holds for 800ms, then dissolves randomly over 550ms.
+ *  2. 'transition': Intermediate transition for routing.
+ *     Starts fully transparent, pixel-fades IN (covers screen),
+ *     fires onMidpoint callback, then pixel-fades OUT (uncovers).
  * ───────────────────────────────────────────────────────────────── */
 
 const TILE        = 80;   // px — pixel square side (increased for larger pixels)
 const SPREAD      = 400;  // ms — stagger window (reduced for faster dissolve)
 const TILE_DUR    = 150;  // ms — per-tile fade duration (reduced for snappier fade)
 const DISSOLVE_AT = 800;  // ms — when reveal begins (starts slightly earlier)
-const UNMOUNT_AT  = DISSOLVE_AT + SPREAD + TILE_DUR + 150; // ≈ 1 500 ms
+
+interface PreloaderProps {
+  mode?: 'boot' | 'transition';
+  onMidpoint?: () => void;
+  onComplete?: () => void;
+}
 
 function shuffle<T>(arr: T[]): T[] {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -25,9 +29,9 @@ function shuffle<T>(arr: T[]): T[] {
   return arr;
 }
 
-const Preloader = () => {
-  const [dissolving, setDissolving] = useState(false);
-  const [gone,       setGone]       = useState(false);
+const Preloader = ({ mode = 'boot', onMidpoint, onComplete }: PreloaderProps) => {
+  // Opaque by default on boot, transparent by default on routing transition
+  const [isCovered, setIsCovered] = useState(mode === 'boot');
 
   const { cols, rows } = useMemo(() => ({
     cols: Math.ceil(window.innerWidth  / TILE) + 1,
@@ -42,17 +46,50 @@ const Preloader = () => {
   }, [cols, rows]);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setDissolving(true), DISSOLVE_AT);
-    const t2 = setTimeout(() => setGone(true),       UNMOUNT_AT);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
+    if (mode === 'boot') {
+      // Boot flow: opaque -> wait -> dissolve
+      const t1 = setTimeout(() => {
+        setIsCovered(false);
+      }, DISSOLVE_AT);
 
-  if (gone) return null;
+      const t2 = setTimeout(() => {
+        if (onComplete) onComplete();
+      }, DISSOLVE_AT + SPREAD + TILE_DUR + 100);
+
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
+    } else {
+      // Transition flow: transparent -> cover -> midpoint -> dissolve -> complete
+      // Trigger cover animation almost immediately on mount
+      const t1 = setTimeout(() => {
+        setIsCovered(true);
+      }, 30);
+
+      // Wait for cover animation (550ms from start) to fire midpoint and start dissolving
+      const t2 = setTimeout(() => {
+        if (onMidpoint) onMidpoint();
+        setIsCovered(false);
+      }, 30 + SPREAD + TILE_DUR + 50); // ~630ms
+
+      // Wait for dissolve animation to complete before removing
+      const t3 = setTimeout(() => {
+        if (onComplete) onComplete();
+      }, 30 + (SPREAD + TILE_DUR) * 2 + 150); // ~1300ms
+
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
+      };
+    }
+  }, [mode]);
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, overflow: 'hidden' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, overflow: 'hidden', pointerEvents: 'none' }}>
 
-      {/* Pixel tile grid — same colour as BG, dissolves to reveal the app */}
+      {/* Pixel tile grid — covers or uncovers viewport dynamically */}
       <div
         aria-hidden
         style={{
@@ -68,55 +105,58 @@ const Preloader = () => {
             key={i}
             style={{
               backgroundColor: '#55ddad', // primary green background
-              opacity:    dissolving ? 0 : 1,
+              opacity:    isCovered ? 1 : 0,
               transition: `opacity ${TILE_DUR}ms ease ${delay}ms`,
-              willChange: dissolving ? 'opacity' : 'auto',
+              willChange: 'opacity',
+              pointerEvents: 'auto', // tiles block clicks while they exist
             }}
           />
         ))}
       </div>
 
-      {/* Static content — no entry animation, just centred text */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.5rem',
-          opacity: dissolving ? 0 : 1,
-          transition: 'opacity 120ms ease',
-          pointerEvents: 'none',
-          userSelect: 'none',
-        }}
-      >
-        <h1 style={{
-          fontFamily: 'Manrope, sans-serif',
-          fontSize: 'clamp(2rem, 5vw, 2.75rem)',
-          fontWeight: 900,
-          color: '#0e1320', // dark text contrasting with green bg
-          letterSpacing: '-0.025em',
-          margin: 0,
-          lineHeight: 1,
-        }}>
-          Aneesh<span style={{ color: '#ffffff' }}>.</span>
-        </h1>
+      {/* Static content — only rendered during initial boot sequence */}
+      {mode === 'boot' && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            opacity: isCovered ? 1 : 0,
+            transition: 'opacity 120ms ease',
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        >
+          <h1 style={{
+            fontFamily: 'Manrope, sans-serif',
+            fontSize: 'clamp(2rem, 5vw, 2.75rem)',
+            fontWeight: 900,
+            color: '#0e1320', // dark text contrasting with green bg
+            letterSpacing: '-0.025em',
+            margin: 0,
+            lineHeight: 1,
+          }}>
+            Aneesh<span style={{ color: '#ffffff' }}>.</span>
+          </h1>
 
-        <p style={{
-          fontFamily: 'Manrope, sans-serif',
-          fontSize: '0.6rem',
-          fontWeight: 700,
-          letterSpacing: '0.28em',
-          textTransform: 'uppercase',
-          color: 'rgba(14, 19, 32, 0.75)', // dark muted text contrasting with green bg
-          margin: 0,
-        }}>
-          portfolio
-        </p>
-      </div>
+          <p style={{
+            fontFamily: 'Manrope, sans-serif',
+            fontSize: '0.6rem',
+            fontWeight: 700,
+            letterSpacing: '0.28em',
+            textTransform: 'uppercase',
+            color: 'rgba(14, 19, 32, 0.75)', // dark muted text contrasting with green bg
+            margin: 0,
+          }}>
+            portfolio
+          </p>
+        </div>
+      )}
 
     </div>
   );

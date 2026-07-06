@@ -13,45 +13,65 @@ import { useClickBurst } from '@/hooks/useClickBurst';
 
 /**
  * Root layout — supports client-side pathname-based routing for '/cli' vs '/'.
- * Sinks click burst fireworks on click, shows pixel-dissolve preloader on mount.
+ * Runs an intermediate pixelated preloader transition during transitions:
+ * 1. Preloader pixels up (covers screen with green grid).
+ * 2. Midpoint callback swaps the route state.
+ * 3. Preloader pixels down (dissolves to reveal the new page).
  */
 const App = () => {
   const [route, setRoute] = useState(window.location.pathname);
+  const [preloaderMode, setPreloaderMode] = useState<'boot' | 'transition'>('boot');
+  const [showPreloader, setShowPreloader] = useState(true);
+  const [pendingRoute, setPendingRoute] = useState<string | null>(null);
 
   /* Spawn ring-particle fireworks on every click — zero re-renders */
   useClickBurst();
 
   useEffect(() => {
     const handleLocationChange = () => {
-      setRoute(window.location.pathname);
+      const targetPath = window.location.pathname;
+      if (targetPath !== route) {
+        setPendingRoute(targetPath);
+        setPreloaderMode('transition');
+        setShowPreloader(true);
+      }
     };
 
     window.addEventListener('popstate', handleLocationChange);
-    // Listen for custom routing events in case pushState is triggered manually
     window.addEventListener('pushstate_change', handleLocationChange);
 
     return () => {
       window.removeEventListener('popstate', handleLocationChange);
       window.removeEventListener('pushstate_change', handleLocationChange);
     };
-  }, []);
+  }, [route]);
 
   const navigateTo = (path: string) => {
-    window.history.pushState({}, '', path);
-    setRoute(path);
+    if (path === route) return;
+    setPendingRoute(path);
+    setPreloaderMode('transition');
+    setShowPreloader(true);
+  };
+
+  const handleMidpoint = () => {
+    if (pendingRoute) {
+      window.history.pushState({}, '', pendingRoute);
+      setRoute(pendingRoute);
+    }
+  };
+
+  const handleComplete = () => {
+    setShowPreloader(false);
+    setPendingRoute(null);
   };
 
   // Render terminal interface directly if pathname is /cli
-  if (route === '/cli') {
-    return <Terminal onNavigate={navigateTo} />;
-  }
+  const renderView = () => {
+    if (route === '/cli') {
+      return <Terminal onNavigate={navigateTo} />;
+    }
 
-  return (
-    <>
-      {/* Pixel-dissolve preloader — self-managing, unmounts when done */}
-      <Preloader />
-
-      {/* Main app — always visible; preloader tiles cover it until reveal */}
+    return (
       <div id="top" className="relative min-h-screen overflow-x-hidden">
         {/* Ambient glow — restrained green bloom near the top */}
         <div
@@ -77,6 +97,21 @@ const App = () => {
         {/* Easter egg in bottom right corner triggers the popup to /cli */}
         <EasterEgg onNavigate={navigateTo} />
       </div>
+    );
+  };
+
+  return (
+    <>
+      {/* Intermediate preloader transition screen */}
+      {showPreloader && (
+        <Preloader
+          mode={preloaderMode}
+          onMidpoint={handleMidpoint}
+          onComplete={handleComplete}
+        />
+      )}
+
+      {renderView()}
     </>
   );
 };
