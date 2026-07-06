@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ArrowUpRight, MapPin } from 'lucide-react';
 import { personal } from '@/data/content';
 import Profile from '@/assets/image/profile.png';
@@ -6,12 +7,14 @@ import NowPlaying from './NowPlaying';
 import ChessProfile from './ChessProfile';
 import GitHubContributions from './GitHubContributions';
 import { useTranslation } from '@/context/TranslationContext';
+import GalleryOverlay from './GalleryOverlay';
 
 /**
  * Hero — profile-page style layout inspired by bharath.codes.
  */
 const Hero = () => {
   const { t } = useTranslation();
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const AVATAR_SIZE = 96; // px  (h-24 w-24)
   const OVERLAP = AVATAR_SIZE / 2; // 48px
 
@@ -33,16 +36,18 @@ const Hero = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
         </div>
 
-        {/* Avatar — half overlapping the banner bottom */}
+        {/* Avatar — half overlapping the banner bottom (clickable gallery trigger) */}
         <div
-          className="absolute left-6"
+          className="absolute left-6 cursor-pointer"
           style={{ bottom: 0 }}
+          onClick={() => setIsGalleryOpen(true)}
+          title={t('viewGallery') || 'View Gallery'}
         >
           <img
             src={Profile}
             alt={personal.name}
             style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
-            className="rounded-full border-4 border-background object-cover shadow-floating grayscale transition-all duration-700 hover:grayscale-0"
+            className="rounded-full border-4 border-background object-cover shadow-floating grayscale transition-all duration-700 hover:scale-[1.03] hover:grayscale-0"
           />
         </div>
       </div>
@@ -107,6 +112,12 @@ const Hero = () => {
 
       {/* ── GitHub contribution graph ── */}
       <GitHubContributions />
+
+      {/* ── 3D Gallery Overlay ── */}
+      <GalleryOverlay
+        isOpen={isGalleryOpen}
+        onClose={() => setIsGalleryOpen(false)}
+      />
     </section>
   );
 };

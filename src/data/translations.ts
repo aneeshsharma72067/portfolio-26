@@ -85,6 +85,7 @@ export const translations = {
     chessNotMate: 'Not mate — try again',
     chessFindMate: 'White to move · mate in 1',
     chessSolve: 'Solve',
+    viewGallery: 'View Gallery',
   },
   ja: {
     // Navigation
@@ -162,6 +163,7 @@ export const translations = {
     chessNotMate: '詰みではない — もう一度',
     chessFindMate: '白番 · 一手詰',
     chessSolve: '解く',
+    viewGallery: 'ギャラリーを見る',
   },
   es: {
     // Navigation
@@ -239,6 +241,7 @@ export const translations = {
     chessNotMate: 'No es mate — inténtalo de nuevo',
     chessFindMate: 'Juegan blancas · mate en 1',
     chessSolve: 'Resolver',
+    viewGallery: 'Ver galería',
   },
   de: {
     // Navigation
@@ -316,6 +319,7 @@ export const translations = {
     chessNotMate: 'Kein Matt — versuch es erneut',
     chessFindMate: 'Weiß am Zug · Matt in 1',
     chessSolve: 'Lösen',
+    viewGallery: 'Galerie ansehen',
   },
   zh: {
     // Navigation
@@ -393,5 +397,6 @@ export const translations = {
     chessNotMate: '未将死 — 再试一次',
     chessFindMate: '白方走 · 一步杀',
     chessSolve: '解题',
+    viewGallery: '查看相册',
   },
 };
