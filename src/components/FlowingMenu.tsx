@@ -68,6 +68,7 @@ function MenuItem({
   const itemRef = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeInnerRef = useRef<HTMLDivElement>(null);
+  const marqueeInnerWrapRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<gsap.core.Tween | null>(null);
   const [repetitions, setRepetitions] = useState(4);
 
@@ -137,7 +138,7 @@ function MenuItem({
   }, [text, repetitions, speed]);
 
   const handleMouseEnter = (ev: React.MouseEvent) => {
-    if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return;
+    if (!itemRef.current || !marqueeRef.current || !marqueeInnerWrapRef.current) return;
     
     // Recalculate size and restart animation on hover to guarantee accurate scroll bounds
     setupMarquee();
@@ -150,12 +151,12 @@ function MenuItem({
     gsap
       .timeline({ defaults: animationDefaults })
       .set(marqueeRef.current, { y: edge === 'top' ? '-101%' : '101%' }, 0)
-      .set(marqueeInnerRef.current, { y: edge === 'top' ? '101%' : '-101%' }, 0)
-      .to([marqueeRef.current, marqueeInnerRef.current], { y: '0%' }, 0);
+      .set(marqueeInnerWrapRef.current, { y: edge === 'top' ? '101%' : '-101%' }, 0)
+      .to([marqueeRef.current, marqueeInnerWrapRef.current], { y: '0%' }, 0);
   };
 
   const handleMouseLeave = (ev: React.MouseEvent) => {
-    if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return;
+    if (!itemRef.current || !marqueeRef.current || !marqueeInnerWrapRef.current) return;
     const rect = itemRef.current.getBoundingClientRect();
     const x = ev.clientX - rect.left;
     const y = ev.clientY - rect.top;
@@ -164,7 +165,7 @@ function MenuItem({
     gsap
       .timeline({ defaults: animationDefaults })
       .to(marqueeRef.current, { y: edge === 'top' ? '-101%' : '101%' }, 0)
-      .to(marqueeInnerRef.current, { y: edge === 'top' ? '101%' : '-101%' }, 0);
+      .to(marqueeInnerWrapRef.current, { y: edge === 'top' ? '101%' : '-101%' }, 0);
   };
 
   const getSocialIcon = (label: string) => {
@@ -201,7 +202,7 @@ function MenuItem({
         </span>
       </a>
       <div className="marquee" ref={marqueeRef} style={{ backgroundColor: marqueeBgColor }}>
-        <div className="marquee__inner-wrap">
+        <div className="marquee__inner-wrap" ref={marqueeInnerWrapRef}>
           <div className="marquee__inner" ref={marqueeInnerRef} aria-hidden="true">
             {Array.from({ length: repetitions }).map((_, idx) => (
               <div className="marquee__part" key={idx} style={{ color: marqueeTextColor }}>
