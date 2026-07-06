@@ -212,10 +212,12 @@ export default function Stack() {
 
       // ── 1. Draw Dot Grid Background ──
       const gridSpacing = 28;
-      ctx.fillStyle = 'rgba(85, 221, 173, 0.06)'; // very faint mint dots
+      ctx.fillStyle = 'rgba(85, 221, 173, 0.18)'; // increased visibility
       for (let x = gridSpacing / 2; x < width; x += gridSpacing) {
         for (let y = gridSpacing / 2; y < height; y += gridSpacing) {
-          ctx.fillRect(x - 0.75, y - 0.75, 1.5, 1.5);
+          ctx.beginPath();
+          ctx.arc(x, y, 1.1, 0, Math.PI * 2); // crisp circular dots
+          ctx.fill();
         }
       }
 
@@ -488,7 +490,7 @@ export default function Stack() {
       {/* Canvas container with relative sizing */}
       <div
         ref={containerRef}
-        className="w-full relative rounded-soft border border-outline-variant/30 bg-surface-container-low/20 overflow-hidden"
+        className="w-full relative overflow-hidden"
         style={{ height: '540px' }}
       >
         <canvas
