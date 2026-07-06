@@ -97,7 +97,7 @@ export const projects: Project[] = [
       'Leetcode POTD email sender, custom time, no friction, no signup, built with Hono, React, Supabase, Cloudflare Workers. Real production tool with over 100 users.',
     tags: ['Hono', 'React', 'Supabase', 'Cloudflare Workers', 'Cron'],
     github: 'https://github.com/aneeshsharma72067/repeto',
-    live: 'https://github.com/aneeshsharma72067/repeto',
+    live: 'https://repeto.dev',
     image: RepetoPreview,
   },
 ];
