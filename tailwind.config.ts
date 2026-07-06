@@ -71,9 +71,21 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(16px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        // Pop-in used by the puzzle "solved" overlay and hint text.
+        'pop-in': {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        // Single 360° spin for the "new puzzle" refresh icon.
+        'spin-once': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
       },
       animation: {
         'fade-up': 'fade-up 0.6s ease-out forwards',
+        'pop-in': 'pop-in 0.2s ease-out forwards',
+        'spin-once': 'spin-once 0.5s ease-out',
       },
     },
   },

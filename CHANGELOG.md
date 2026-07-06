@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Chess engine** (`src/lib/chessEngine.ts`) — dependency-free move generation, check/checkmate detection, and legal-move filtering for all six piece types
+- **Chess puzzles** (`src/lib/chessPuzzles.ts`) — three verified "mate in 1" positions (back-rank, queen & king, smothered), each serving a random puzzle
+- **ChessPuzzleModal** — animated pop-in puzzle window opened from the chess card; players move pieces with rule-checked legality, win condition decided by the engine, with hint and "new puzzle" controls
+- Tailwind `pop-in` and `spin-once` keyframes/animations
+
+### Changed
+- **ChessProfile:** replaced the hand-drawn knight watermark SVG with the `chess-pieces.svg` vector art, tinted as subtle light background art via CSS mask
+- **ChessProfile:** the mini board is now a clickable preview that opens the full interactive puzzle window instead of an inline mate-in-1
+- **Translations:** added `chessBullet` (was missing), `chessSolve`, `chessNext`, `chessHint`, `chessCheck`, `chessNotMate`, `chessFindMate` across all five languages
+
 ## [2.0.1] — 2026-07-05
 
 ### Changed

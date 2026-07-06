@@ -78,6 +78,13 @@ export const translations = {
     chessStats: 'Stats',
     chessBlitz: 'Blitz',
     chessRapid: 'Rapid',
+    chessBullet: 'Bullet',
+    chessNext: 'New puzzle',
+    chessHint: 'Hint',
+    chessCheck: 'Check!',
+    chessNotMate: 'Not mate — try again',
+    chessFindMate: 'White to move · mate in 1',
+    chessSolve: 'Solve',
   },
   ja: {
     // Navigation
@@ -148,6 +155,13 @@ export const translations = {
     chessStats: '戦績',
     chessBlitz: 'ブリッツ',
     chessRapid: 'ラピッド',
+    chessBullet: 'バレット',
+    chessNext: '次の問題',
+    chessHint: 'ヒント',
+    chessCheck: '王手！',
+    chessNotMate: '詰みではない — もう一度',
+    chessFindMate: '白番 · 一手詰',
+    chessSolve: '解く',
   },
   es: {
     // Navigation
@@ -218,6 +232,13 @@ export const translations = {
     chessStats: 'Estadísticas',
     chessBlitz: 'Blitz',
     chessRapid: 'Rápida',
+    chessBullet: 'Bullet',
+    chessNext: 'Nuevo puzzle',
+    chessHint: 'Pista',
+    chessCheck: '¡Jaque!',
+    chessNotMate: 'No es mate — inténtalo de nuevo',
+    chessFindMate: 'Juegan blancas · mate en 1',
+    chessSolve: 'Resolver',
   },
   de: {
     // Navigation
@@ -288,6 +309,13 @@ export const translations = {
     chessStats: 'Statistiken',
     chessBlitz: 'Blitz',
     chessRapid: 'Schnellschach',
+    chessBullet: 'Bullet',
+    chessNext: 'Neues Rätsel',
+    chessHint: 'Tipp',
+    chessCheck: 'Schach!',
+    chessNotMate: 'Kein Matt — versuch es erneut',
+    chessFindMate: 'Weiß am Zug · Matt in 1',
+    chessSolve: 'Lösen',
   },
   zh: {
     // Navigation
@@ -358,5 +386,12 @@ export const translations = {
     chessStats: '战绩数据',
     chessBlitz: '超快棋',
     chessRapid: '快速棋',
+    chessBullet: '子弹棋',
+    chessNext: '下一题',
+    chessHint: '提示',
+    chessCheck: '将军！',
+    chessNotMate: '未将死 — 再试一次',
+    chessFindMate: '白方走 · 一步杀',
+    chessSolve: '解题',
   },
 };
