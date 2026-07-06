@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowUpRight, MapPin } from 'lucide-react';
 import { personal } from '@/data/content';
-import Profile from '@/assets/image/profile.png';
+import Profile from '@/assets/image/gallery/1.png';
 import Landscape from '@/assets/image/landscape.jpeg';
 import NowPlaying from './NowPlaying';
 import ChessProfile from './ChessProfile';
@@ -15,8 +15,8 @@ import GalleryOverlay from './GalleryOverlay';
 const Hero = () => {
   const { t } = useTranslation();
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const AVATAR_SIZE = 96; // px  (h-24 w-24)
-  const OVERLAP = AVATAR_SIZE / 2; // 48px
+  const AVATAR_SIZE = 112; // px  (increased size)
+  const OVERLAP = AVATAR_SIZE / 2; // 56px
 
   return (
     <section id="about" className="pt-10">

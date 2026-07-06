@@ -16,9 +16,11 @@ const IMAGES = [img1, img2, img3, img4, img5];
 const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [dragStart, setDragStart] = useState<number | null>(null);
   const [imagesRendered, setImagesRendered] = useState(false);
+
+  // Drag coordinates
+  const [mouseDownCoords, setMouseDownCoords] = useState<{ x: number; y: number } | null>(null);
+  const [touchStartCoords, setTouchStartCoords] = useState<{ x: number; y: number } | null>(null);
 
   // Track screen size for dynamic 3D translations
   useEffect(() => {
@@ -72,39 +74,64 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
     setActiveIndex((prev) => (prev - 1 + IMAGES.length) % IMAGES.length);
   };
 
-  // Swipe/Drag controls
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStart === null) return;
-    const touchEnd = e.changedTouches[0].clientX;
-    const diff = touchStart - touchEnd;
-
-    if (diff > 50) handleNext();
-    else if (diff < -50) handlePrev();
-    setTouchStart(null);
-  };
-
+  // Unified Mouse Drag Handling
   const handleMouseDown = (e: React.MouseEvent) => {
-    setDragStart(e.clientX);
+    // Avoid default image ghost dragging
+    if ((e.target as HTMLElement).tagName === 'IMG') {
+      e.preventDefault();
+    }
+    setMouseDownCoords({ x: e.clientX, y: e.clientY });
   };
 
   const handleMouseUp = (e: React.MouseEvent) => {
-    if (dragStart === null) return;
-    const dragEnd = e.clientX;
-    const diff = dragStart - dragEnd;
+    if (!mouseDownCoords) return;
+    
+    const diffX = e.clientX - mouseDownCoords.x;
+    const diffY = e.clientY - mouseDownCoords.y;
+    const distance = Math.sqrt(diffX * diffX + diffY * diffY);
 
-    if (diff > 50) handleNext();
-    else if (diff < -50) handlePrev();
-    setDragStart(null);
+    if (distance > 30) {
+      // It's a drag slide!
+      if (diffX > 50) handlePrev(); // Drag right -> Prev
+      else if (diffX < -50) handleNext(); // Drag left -> Next
+    } else {
+      // It's a click! Close if clicking outside the elements
+      const target = e.target as HTMLElement;
+      if (target === e.currentTarget) {
+        onClose();
+      }
+    }
+    setMouseDownCoords(null);
+  };
+
+  // Unified Touch Drag Handling
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartCoords({
+      x: e.targetTouches[0].clientX,
+      y: e.targetTouches[0].clientY,
+    });
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartCoords) return;
+
+    const touchEnd = e.changedTouches[0].clientX;
+    const diffX = touchStartCoords.x - touchEnd;
+
+    if (Math.abs(diffX) > 40) {
+      if (diffX > 50) handleNext(); // Swipe left -> Next
+      else if (diffX < -50) handlePrev(); // Swipe right -> Prev
+    }
+    setTouchStartCoords(null);
   };
 
   return (
     <div
-      onClick={onClose}
-      className="fixed inset-0 z-[10000] flex flex-col items-center justify-between bg-[#07090e]/95 p-6 backdrop-blur-md select-none animate-[fadeIn_0.2s_ease-out] cursor-zoom-out"
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className="fixed inset-0 z-[10000] flex flex-col items-center justify-between bg-[#07090e]/95 p-6 backdrop-blur-md select-none cursor-zoom-out animate-[fadeIn_0.2s_ease-out]"
     >
       
       {/* ── Header ── */}
@@ -130,11 +157,8 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
 
       {/* ── Main Interactive 3D Cylindrical Carousel ── */}
       <div
-        className="relative flex w-full max-w-6xl flex-1 items-center justify-between overflow-hidden"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
+        onClick={(e) => e.stopPropagation()}
+        className="relative flex w-full max-w-6xl flex-1 items-center justify-between overflow-hidden cursor-default"
       >
         {/* Left Arrow Button */}
         <button
@@ -210,7 +234,7 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
                   if (diff === 1) handleNext();
                   if (diff === -1) handlePrev();
                 }}
-                className={`absolute w-[240px] h-[340px] sm:w-[320px] sm:h-[440px] rounded-2xl overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.8)] border border-white/10 select-none transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                className={`absolute w-[240px] h-[340px] sm:w-[320px] sm:h-[440px] rounded-2xl overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.8)] border border-white/10 select-none transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
                   diff === 0 ? 'cursor-default' : 'cursor-pointer'
                 }`}
                 style={{
