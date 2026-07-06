@@ -13,21 +13,10 @@ const Contact = () => {
   const { t } = useTranslation();
 
   const flowingItems = socials.map((s) => {
-    let image = 'https://images.unsplash.com/photo-1618401471353-b98aedd07871?w=400&q=80'; // default github
-    const label = s.label.toLowerCase();
-    
-    if (label.includes('linkedin')) {
-      image = 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=400&q=80';
-    } else if (label.includes('twitter') || label.includes('x')) {
-      image = 'https://images.unsplash.com/photo-1611605698335-8b15d27e03f9?w=400&q=80';
-    } else if (label.includes('email')) {
-      image = 'https://images.unsplash.com/photo-1557200134-90327ee9fafa?w=400&q=80';
-    }
-
     return {
       link: s.href,
       text: s.label,
-      image,
+      handle: s.handle,
     };
   });
 
