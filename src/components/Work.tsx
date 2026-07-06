@@ -17,8 +17,8 @@ const ProjectRow = ({ project, index }: { project: Project; index: number }) => 
     switch (title) {
       case 'RepoSage': return t('reposageDesc');
       case 'AI-Gen': return t('aigenDesc');
-      case 'CryptoPulse': return t('cryptopulseDesc');
-      case 'Coderaven': return t('coderavenDesc');
+      case 'Folio': return t('folioDesc');
+      case 'Repeto': return t('repetoDesc');
       default: return defaultDesc;
     }
   };

@@ -4,6 +4,8 @@
  */
 import Traceon from '@/assets/image/traceon.png';
 import AiGenPreview from '@/assets/image/aigenpreview.png';
+import FolioPreview from '@/assets/image/folio.jpeg';
+import RepetoPreview from '@/assets/image/repeto.jpeg';
 
 /* ---------------------------------------------------------------- personal */
 
@@ -79,24 +81,24 @@ export const projects: Project[] = [
     image: AiGenPreview,
   },
   {
-    title: 'CryptoPulse',
-    year: '2024',
+    title: 'Folio',
+    year: '2025',
     description:
-      'A modern crypto screener built with React and Tailwind CSS that displays real-time market data via the CoinGecko API. Clean UI, responsive design, and fast updates for tracking top cryptocurrencies.',
-    tags: ['React', 'Tailwind', 'CoinGecko API', 'JavaScript'],
-    github: 'https://github.com/aneeshsharma72067/cryptopulse',
-    live: 'https://cryptopulse1.vercel.app/',
-    image: 'https://aneesh-dev-old.netlify.app/assets/crypto-e693db22.png',
+      'Browser-based PDF reader with note-taking built in, highly optimized, built with Svelte 5, SvelteKit, PDF.js, IndexedDB, can load 1000 pages without any lag or performance issue even on low end device.',
+    tags: ['Svelte 5', 'SvelteKit', 'PDF.js', 'IndexedDB', 'Vite'],
+    github: 'https://github.com/aneeshsharma72067/folio',
+    live: 'https://folioapp.pages.dev/',
+    image: FolioPreview,
   },
   {
-    title: 'Coderaven',
-    year: '2024',
+    title: 'Repeto',
+    year: '2025',
     description:
-      'A real-time collaborative code editor supporting JavaScript and Python, letting multiple users write and edit code simultaneously. Built with low-latency synchronization and tested with up to 5 concurrent users for stability.',
-    tags: ['WebSockets', 'JavaScript', 'Python', 'Real-Time', 'Full Stack'],
-    github: 'https://github.com/aneeshsharma72067/coderaven-with-js',
-    live: 'https://coderaven.onrender.com/',
-    image: 'https://aneesh-dev-old.netlify.app/assets/coderaven-07cbb033.png',
+      'Leetcode POTD email sender, custom time, no friction, no signup, built with Hono, React, Supabase, Cloudflare Workers. Real production tool with over 100 users.',
+    tags: ['Hono', 'React', 'Supabase', 'Cloudflare Workers', 'Cron'],
+    github: 'https://github.com/aneeshsharma72067/repeto',
+    live: 'https://github.com/aneeshsharma72067/repeto',
+    image: RepetoPreview,
   },
 ];
 

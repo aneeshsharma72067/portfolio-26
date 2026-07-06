@@ -45,8 +45,8 @@ export const translations = {
     // Projects
     reposageDesc: 'Event-driven AI system that analyzes GitHub repository events and detects engineering risks such as large commits and architectural drift. A serverless Fastify API on Vercel ingests webhooks in under 100ms and queues jobs to Redis via BullMQ, while distributed AI workers on Azure store runs in Postgres and power a Next.js dashboard.',
     aigenDesc: 'A standalone AI-powered CLI tool that generates complete project folder structures from natural language prompts. Scaffolds projects instantly with zero setup, powered by Google Gemini AI and shipped as a cross-platform executable.',
-    cryptopulseDesc: 'A modern crypto screener built with React and Tailwind CSS that displays real-time market data via the CoinGecko API. Clean UI, responsive design, and fast updates for tracking top cryptocurrencies.',
-    coderavenDesc: 'A real-time collaborative code editor supporting JavaScript and Python, letting multiple users write and edit code simultaneously. Built with low-latency synchronization and tested with up to 5 concurrent users for stability.',
+    folioDesc: 'Browser-based PDF reader with note-taking built in, highly optimized, built with Svelte 5, SvelteKit, PDF.js, IndexedDB, can load 1000 pages without any lag or performance issue even on low end device.',
+    repetoDesc: 'Leetcode POTD email sender, custom time, no friction, no signup, built with Hono, React, Supabase, Cloudflare Workers. Real production tool with over 100 users.',
 
     // Stack Section
     stackEyebrow: 'Toolkit',
@@ -123,8 +123,8 @@ export const translations = {
     // Projects
     reposageDesc: 'GitHubリポジトリイベントを分析し、大規模なコミットやアーキテクチャのドリフトなどのエンジニアリングリスクを検出するイベント駆動型AIシステム。Vercel上のサーバーレスFastify APIが100ミリ秒未満でウェブフックを取り込み、BullMQ経由でRedisにジョブをキューイング。Azure上の分散AIワーカーが Postgresに実行結果を保存し、Next.jsダッシュボードを提供します。',
     aigenDesc: '自然言語プロンプトから完全なプロジェクトフォルダ構造を生成する、スタンドアロンのAI搭載CLIツール。Google Gemini AIを搭載し、クロスプラットフォーム実行ファイルとして配布され、セットアップなしで即座にプロジェクトを構築します。',
-    cryptopulseDesc: 'ReactとTailwind CSSで構築された最新の暗号資産スクリーナー。CoinGecko APIを介してリアルタイムの市場データを表示します。クリーンなUI、レスポンシブデザイン、迅速な更新により、主要な暗号資産を追跡できます。',
-    coderavenDesc: 'JavaScriptとPythonをサポートするリアルタイム共同コードエディタ。複数のユーザーが同時にコードを記述・編集できます。低遅延の同期機能で構築され、安定性のために最大5人の同時アクティブユーザーでテストされています。',
+    folioDesc: 'Svelte 5、SvelteKit、PDF.js、IndexedDBで構築された、メモ機能付きのブラウザベースの高度に最適化されたPDFリーダー。低スペック端末でも1000ページをラグなしで軽快に読み込めます。',
+    repetoDesc: 'Hono、React、Supabase、Cloudflare Workersで構築された、サインアップ不要・摩擦なしのLeetcode POTD（今日のお題）メール送信サービス。100人以上のユーザーを抱える本番環境稼働ツール。',
 
     // Stack Section
     stackEyebrow: 'ツールキット',
@@ -201,8 +201,8 @@ export const translations = {
     // Projects
     reposageDesc: 'Sistema de IA dirigido por eventos que analiza eventos de repositorios de GitHub y detecta riesgos de ingeniería como commits grandes y desviación arquitectónica. Una API Fastify sin servidor en Vercel ingiere webhooks en menos de 100 ms y encola trabajos en Redis a través de BullMQ, mientras trabajadores distribuidos de IA en Azure guardan ejecuciones en Postgres y alimentan un panel de control en Next.js.',
     aigenDesc: 'Una herramienta CLI independiente impulsada por IA que genera estructuras completas de carpetas de proyectos a partir de indicaciones en lenguaje natural. Prepara proyectos al instante sin configuración previa, con Google Gemini IA y empaquetado como ejecutable multiplataforma.',
-    cryptopulseDesc: 'Un moderno evaluador de criptomonedas creado con React y Tailwind CSS que muestra datos del mercado en tiempo real a través de la API de CoinGecko. Interfaz limpia, diseño responsivo y actualizaciones rápidas para rastrear las principales criptomonedas.',
-    coderavenDesc: 'Un editor de código colaborativo en tiempo real compatible con JavaScript y Python, que permite a varios usuarios escribir y editar código simultáneamente. Diseñado con sincronización de baja latencia y probado con hasta 5 usuarios simultáneos.',
+    folioDesc: 'Lector de PDF en navegador con toma de notas integrada, altamente optimizado, desarrollado con Svelte 5, SvelteKit, PDF.js e IndexedDB. Capaz de cargar 1000 páginas sin retardo ni problemas de rendimiento incluso en dispositivos de gama baja.',
+    repetoDesc: 'Servicio de envío de correos de Leetcode POTD sin fricción ni registro, con horario personalizado. Desarrollado con Hono, React, Supabase y Cloudflare Workers. Herramienta de producción real con más de 100 usuarios.',
 
     // Stack Section
     stackEyebrow: 'Herramientas',
@@ -279,8 +279,8 @@ export const translations = {
     // Projects
     reposageDesc: 'Ereignisgesteuertes KI-System, das GitHub-Repository-Ereignisse analysiert und Entwicklungsrisiken wie große Commits und Architekturabweichungen erkennt. Eine serverlose Fastify-API auf Vercel erfasst Webhooks in unter 100 ms und reiht Aufträge über BullMQ in Redis ein, während verteilte KI-Worker auf Azure die Läufe in Postgres speichern und ein Next.js-Dashboard antreiben.',
     aigenDesc: 'Ein eigenständiges, KI-gestütztes CLI-Tool, das komplette Projektordnerstrukturen aus natürlichen Sprachanweisungen generiert. Erstellt Projekte sofort ohne Einrichtung, angetrieben von Google Gemini KI und ausgeliefert als plattformübergreifende ausführbare Datei.',
-    cryptopulseDesc: 'Ein moderner Krypto-Screener, der mit React und Tailwind CSS erstellt wurde und Echtzeit-Marktdaten über die CoinGecko-API anzeigt. Saubere Benutzeroberfläche, responsives Design und schnelle Updates zur Verfolgung von Top-Kryptowährungen.',
-    coderavenDesc: 'Ein kollaborativer Echtzeit-Code-Editor, der JavaScript und Python unterstützt und es mehreren Benutzern ermöglicht, Code gleichzeitig zu schreiben und zu bearbeiten. Entwickelt mit extrem niedriger Synchronisierungslatenz und für Stabilität mit bis zu 5 gleichzeitigen Benutzern getestet.',
+    folioDesc: 'Browserbasierter PDF-Reader mit integrierter Notizfunktion, hochgradig optimiert, entwickelt mit Svelte 5, SvelteKit, PDF.js und IndexedDB. Kann selbst auf leistungsschwachen Geräten 1000 Seiten verzögerungsfrei laden.',
+    repetoDesc: 'Ein Leetcode POTD-E-Mail-Sender mit benutzerdefinierter Zeit, ohne Registrierung, entwickelt mit Hono, React, Supabase und Cloudflare Workers. Echtes Produktivwerkzeug mit über 100 aktiven Nutzern.',
 
     // Stack Section
     stackEyebrow: 'Tech-Stack',
@@ -357,8 +357,8 @@ export const translations = {
     // Projects
     reposageDesc: '基于事件驱动的 AI 系统，用于分析 GitHub 仓库事件并检测工程风险（如超大提交和架构偏移）。运行在 Vercel 上的无服务器 Fastify API 在 100 毫秒内接收 Webhook 并通过 BullMQ 将任务推送至 Redis 队列。分布在 Azure 上的 AI 计算工作节点将数据持久化至 Postgres 中并驱动 Next.js 仪表盘。',
     aigenDesc: '一款独立的 AI 驱动命令行（CLI）工具，能够直接从自然语言描述中生成完整的项目目录结构。零配置、即开即用，由 Google Gemini AI 强力驱动，并打包成跨平台二进制文件发布。',
-    cryptopulseDesc: '一款使用 React 和 Tailwind CSS 编写的现代加密货币筛选器，通过对接 CoinGecko API 渲染实时市场报价。精美纯净的 UI 界面、自适应布局和极低延迟的数据更新帮助您轻松追踪主流加密货币。',
-    coderavenDesc: '一款支持 JavaScript 和 Python 的实时多人协作代码编辑器，允许多个用户同步撰写与编辑源码。采用极低延迟的同步算法构建，并完成了支持 5 名并发用户实时在线编辑的稳定性测试。',
+    folioDesc: '基于浏览器的内置笔记功能、高度优化的 PDF 阅读器，采用 Svelte 5、SvelteKit、PDF.js 和 IndexedDB 构建，即使在低端设备上也能无延迟流畅加载上千页文档。',
+    repetoDesc: '无需注册、无感体验的 Leetcode 每日一题（POTD）邮件自动发送工具，支持自定义发送时间。由 Hono、React、Supabase 和 Cloudflare Workers 构建，拥有超百名用户的实际生产工具。',
 
     // Stack Section
     stackEyebrow: '工具栈',
