@@ -3,6 +3,7 @@ import { personal, links } from '@/data/content';
 import { useTranslation } from '@/context/TranslationContext';
 import { LANGUAGES, Language } from '@/data/translations';
 import { Globe, ChevronDown } from 'lucide-react';
+import Magnetic from './Magnetic';
 
 const navItems = [
   { name: 'About', href: '#about', tKey: 'navAbout' as const },
