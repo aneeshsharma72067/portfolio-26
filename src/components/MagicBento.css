@@ -1,0 +1,274 @@
+/*
+ * MagicBento — interactive project grid.
+ * Adapted from React Bits to the "Stdout" theme: dark navy surfaces with a
+ * single luminous mint accent (rgb 85 221 173) instead of the original purple.
+ * All glow/particle/spotlight colours are driven by the --glow-color CSS var
+ * set per-card from JS, so the effect stays theme-consistent.
+ */
+
+.card-grid {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.magic-bento-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  min-height: 220px;
+  width: 100%;
+  max-width: 100%;
+  padding: 1.25rem;
+  border-radius: 0.25rem; /* matches theme `rounded-soft` */
+  border: 1px solid rgba(61, 74, 67, 0.4); /* outline-variant/40 */
+  background: #161b29; /* surface-container-low */
+  overflow: hidden;
+  transition: border-color 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --glow-intensity: 0;
+  --glow-radius: 200px;
+}
+
+.magic-bento-card:hover {
+  border-color: rgba(85, 221, 173, 0.2);
+  background: #1a1f2d; /* surface-container */
+}
+
+/* Preview image sits behind the content, dimmed and gently zooming on hover */
+.magic-bento-card__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.28;
+  transition: transform 0.5s ease, opacity 0.3s ease;
+  z-index: 0;
+}
+
+.magic-bento-card:hover .magic-bento-card__image {
+  transform: scale(1.05);
+  opacity: 0.4;
+}
+
+/* Bottom-up scrim keeps text legible over any image */
+.magic-bento-card__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(14, 19, 32, 0.96) 0%,
+    rgba(14, 19, 32, 0.7) 45%,
+    rgba(14, 19, 32, 0.25) 100%
+  );
+  z-index: 0;
+}
+
+.magic-bento-card__header {
+  display: flex;
+  position: relative;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: baseline;
+  color: #dee2f5; /* on-surface */
+  z-index: 2;
+}
+
+.magic-bento-card__content {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  color: #dee2f5;
+  margin-top: 0.75rem;
+  z-index: 2;
+}
+
+.magic-bento-card__label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #55ddad; /* primary */
+}
+
+.magic-bento-card__year {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #86948c; /* outline */
+}
+
+.magic-bento-card__title {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.35rem;
+  color: #dee2f5;
+}
+
+.magic-bento-card__description {
+  font-family: 'Noto Serif', serif;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #bbcac1; /* on-surface-variant */
+  margin: 0;
+}
+
+/* Tag row */
+.magic-bento-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.magic-bento-card__tag {
+  font-family: 'Manrope', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #86948c;
+  border: 1px solid rgba(61, 74, 67, 0.5);
+  border-radius: 9999px;
+  padding: 0.2rem 0.55rem;
+}
+
+/* Link row */
+.magic-bento-card__links {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.magic-bento-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #55ddad;
+  transition: color 0.3s ease;
+}
+
+.magic-bento-card__link--muted {
+  color: #86948c;
+}
+
+.magic-bento-card__link--muted:hover {
+  color: #dee2f5;
+}
+
+/* Auto-hide text collapses long descriptions to keep tiles even */
+.magic-bento-card--text-autohide .magic-bento-card__description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+/* ---------------------------------------------------------------- layout */
+
+/* Single column on phones */
+.card-grid {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop bento: 4-col grid with two feature tiles spanning 2 columns.
+   Order: RepoSage, AI-Gen, [Folio wide], [Repeto wide], MyBase, CryptoPulse. */
+@media (min-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .magic-bento-card:nth-child(3) {
+    grid-column: span 2;
+  }
+
+  .magic-bento-card:nth-child(4) {
+    grid-column: span 2;
+  }
+}
+
+/* ---------------------------------------------------------- border glow */
+
+.magic-bento-card--border-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 5px;
+  background: radial-gradient(
+    var(--glow-radius) circle at var(--glow-x) var(--glow-y),
+    rgba(var(--glow-color, 85, 221, 173), calc(var(--glow-intensity) * 0.8)) 0%,
+    rgba(var(--glow-color, 85, 221, 173), calc(var(--glow-intensity) * 0.4)) 30%,
+    transparent 60%
+  );
+  border-radius: inherit;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 3;
+}
+
+.magic-bento-card--border-glow:hover {
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.35),
+    0 0 30px rgba(85, 221, 173, 0.12);
+}
+
+.particle-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.particle::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: rgba(85, 221, 173, 0.2);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+/* Global spotlight overlay */
+.global-spotlight {
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+  z-index: 200 !important;
+  pointer-events: none;
+}
+
+.bento-section {
+  position: relative;
+  user-select: none;
+}

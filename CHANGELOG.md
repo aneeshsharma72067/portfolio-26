@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **MagicBento project grid** (`src/components/MagicBento.tsx` + `.css`) — interactive bento layout for the Work section, adapted from React Bits and re-themed to the mint "Stdout" palette. Cursor-driven global spotlight, per-card border glow, gsap star particles, magnetism, and click ripple; animations auto-disable on mobile (≤768px). Cards carry per-project preview image, tags, and live/source links.
+- Two new projects in `src/data/content.ts`: **MyBase** (all-in-one personal dashboard) and **CryptoPulse** (crypto screener), bringing the grid to six tiles for a balanced 4-column bento with two feature-width cards.
 - **Chess engine** (`src/lib/chessEngine.ts`) — dependency-free move generation, check/checkmate detection, and legal-move filtering for all six piece types
 - **Chess puzzles** (`src/lib/chessPuzzles.ts`) — three verified "mate in 1" positions (back-rank, queen & king, smothered), each serving a random puzzle
 - **ChessPuzzleModal** — animated pop-in puzzle window opened from the chess card; players move pieces with rule-checked legality, win condition decided by the engine, with hint and "new puzzle" controls

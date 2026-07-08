@@ -6,6 +6,8 @@ import Traceon from '@/assets/image/traceon.png';
 import AiGenPreview from '@/assets/image/aigenpreview.png';
 import FolioPreview from '@/assets/image/folio.jpeg';
 import RepetoPreview from '@/assets/image/repeto.jpeg';
+import MyBasePreview from '@/assets/image/mybase.png';
+import CryptoPreview from '@/assets/image/crypto.png';
 
 /* ---------------------------------------------------------------- personal */
 
@@ -99,6 +101,26 @@ export const projects: Project[] = [
     github: 'https://github.com/aneeshsharma72067/repeto',
     live: 'https://repeto.dev',
     image: RepetoPreview,
+  },
+  {
+    title: 'MyBase',
+    year: '2025',
+    description:
+      'An all-in-one personal dashboard that unifies task management, goal tracking, hydration logging, and expense tracking into a single clean workspace. Designed to replace a dozen scattered apps with one fast, focused home base.',
+    tags: ['React', 'TypeScript', 'Dashboard', 'Productivity'],
+    github: 'https://github.com/aneeshsharma72067/mybase',
+    live: 'https://mybase.app',
+    image: MyBasePreview,
+  },
+  {
+    title: 'CryptoPulse',
+    year: '2025',
+    description:
+      'An advanced cryptocurrency screener with real-time prices, multi-timeframe market-cap change, sorting, currency conversion, and a watchlist. Built for traders who want to scan hundreds of assets at a glance.',
+    tags: ['React', 'CoinGecko API', 'Screener', 'Real-time'],
+    github: 'https://github.com/aneeshsharma72067/cryptopulse',
+    live: 'https://cryptopulse.app',
+    image: CryptoPreview,
   },
 ];
 
