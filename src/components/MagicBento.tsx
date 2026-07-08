@@ -1,8 +1,7 @@
 import { useRef, useEffect, useCallback, useState, type ReactNode, type CSSProperties } from 'react';
 import { gsap } from 'gsap';
-import { ArrowUpRight, Github } from 'lucide-react';
 import { projects, type Project } from '@/data/content';
-import { useTranslation } from '@/context/TranslationContext';
+import ProjectModal from './ProjectModal';
 import './MagicBento.css';
 
 /**
@@ -77,6 +76,7 @@ interface ParticleCardProps {
   enableTilt?: boolean;
   clickEffect?: boolean;
   enableMagnetism?: boolean;
+  onActivate?: () => void;
 }
 
 const ParticleCard = ({
@@ -89,6 +89,7 @@ const ParticleCard = ({
   enableTilt = false,
   clickEffect = false,
   enableMagnetism = false,
+  onActivate,
 }: ParticleCardProps) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<HTMLDivElement[]>([]);
@@ -236,39 +237,41 @@ const ParticleCard = ({
     };
 
     const handleClick = (e: MouseEvent) => {
-      if (!clickEffect) return;
+      if (clickEffect) {
+        const rect = element.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
 
-      const rect = element.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+        const maxDistance = Math.max(
+          Math.hypot(x, y),
+          Math.hypot(x - rect.width, y),
+          Math.hypot(x, y - rect.height),
+          Math.hypot(x - rect.width, y - rect.height)
+        );
 
-      const maxDistance = Math.max(
-        Math.hypot(x, y),
-        Math.hypot(x - rect.width, y),
-        Math.hypot(x, y - rect.height),
-        Math.hypot(x - rect.width, y - rect.height)
-      );
+        const ripple = document.createElement('div');
+        ripple.style.cssText = `
+          position: absolute;
+          width: ${maxDistance * 2}px;
+          height: ${maxDistance * 2}px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(${glowColor}, 0.4) 0%, rgba(${glowColor}, 0.2) 30%, transparent 70%);
+          left: ${x - maxDistance}px;
+          top: ${y - maxDistance}px;
+          pointer-events: none;
+          z-index: 1000;
+        `;
 
-      const ripple = document.createElement('div');
-      ripple.style.cssText = `
-        position: absolute;
-        width: ${maxDistance * 2}px;
-        height: ${maxDistance * 2}px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(${glowColor}, 0.4) 0%, rgba(${glowColor}, 0.2) 30%, transparent 70%);
-        left: ${x - maxDistance}px;
-        top: ${y - maxDistance}px;
-        pointer-events: none;
-        z-index: 1000;
-      `;
+        element.appendChild(ripple);
 
-      element.appendChild(ripple);
+        gsap.fromTo(
+          ripple,
+          { scale: 0, opacity: 1 },
+          { scale: 1, opacity: 0, duration: 0.8, ease: 'power2.out', onComplete: () => ripple.remove() }
+        );
+      }
 
-      gsap.fromTo(
-        ripple,
-        { scale: 0, opacity: 1 },
-        { scale: 1, opacity: 0, duration: 0.8, ease: 'power2.out', onComplete: () => ripple.remove() }
-      );
+      onActivate?.();
     };
 
     element.addEventListener('mouseenter', handleMouseEnter);
@@ -284,7 +287,7 @@ const ParticleCard = ({
       element.removeEventListener('click', handleClick);
       clearAllParticles();
     };
-  }, [animateParticles, clearAllParticles, disableAnimations, enableTilt, enableMagnetism, clickEffect, glowColor]);
+  }, [animateParticles, clearAllParticles, disableAnimations, enableTilt, enableMagnetism, clickEffect, glowColor, onActivate]);
 
   return (
     <div ref={cardRef} className={`${className} particle-container`} style={{ ...style, position: 'relative', overflow: 'hidden' }}>
@@ -433,78 +436,34 @@ const useMobileDetection = () => {
 
 /* --------------------------------------------------------------- card */
 
-/** Inner content of a project card — shared by animated and static variants. */
-const CardBody = ({ project }: { project: Project }) => {
-  const { t } = useTranslation();
+/**
+ * Inner content of a project card — deliberately minimal so it reads cleanly
+ * over the preview image: label + year, title, and a short tag row. Full
+ * description and links live in the modal opened on click.
+ */
+const CardBody = ({ project }: { project: Project }) => (
+  <>
+    <img src={project.image} alt={project.title} loading="lazy" className="magic-bento-card__image" />
+    <div className="magic-bento-card__scrim" />
 
-  const getProjectDescription = (title: string, defaultDesc: string) => {
-    switch (title) {
-      case 'RepoSage':
-        return t('reposageDesc');
-      case 'AI-Gen':
-        return t('aigenDesc');
-      case 'Folio':
-        return t('folioDesc');
-      case 'Repeto':
-        return t('repetoDesc');
-      default:
-        return defaultDesc;
-    }
-  };
+    <div className="magic-bento-card__header">
+      <span className="magic-bento-card__label">Project</span>
+      <span className="magic-bento-card__year">{project.year}</span>
+    </div>
 
-  // Stop card-level click ripple / navigation conflicts on the anchors.
-  const stop = (e: React.MouseEvent) => e.stopPropagation();
+    <div className="magic-bento-card__content">
+      <h3 className="magic-bento-card__title">{project.title}</h3>
 
-  return (
-    <>
-      <img src={project.image} alt={project.title} loading="lazy" className="magic-bento-card__image" />
-      <div className="magic-bento-card__scrim" />
-
-      <div className="magic-bento-card__header">
-        <span className="magic-bento-card__label">Project</span>
-        <span className="magic-bento-card__year">{project.year}</span>
+      <div className="magic-bento-card__tags">
+        {project.tags.slice(0, 4).map((tag) => (
+          <span key={tag} className="magic-bento-card__tag">
+            {tag}
+          </span>
+        ))}
       </div>
-
-      <div className="magic-bento-card__content">
-        <h3 className="magic-bento-card__title">{project.title}</h3>
-        <p className="magic-bento-card__description">
-          {getProjectDescription(project.title, project.description)}
-        </p>
-
-        <div className="magic-bento-card__tags">
-          {project.tags.slice(0, 5).map((tag) => (
-            <span key={tag} className="magic-bento-card__tag">
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        <div className="magic-bento-card__links">
-          <a
-            href={project.live}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={stop}
-            className="magic-bento-card__link"
-          >
-            {t('liveDemo')}
-            <ArrowUpRight size={14} />
-          </a>
-          <a
-            href={project.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={stop}
-            className="magic-bento-card__link magic-bento-card__link--muted"
-          >
-            <Github size={14} />
-            {t('sourceCode')}
-          </a>
-        </div>
-      </div>
-    </>
-  );
-};
+    </div>
+  </>
+);
 
 /* ------------------------------------------------------------- public */
 
@@ -539,6 +498,9 @@ const MagicBento = ({
   const isMobile = useMobileDetection();
   const shouldDisableAnimations = disableAnimations || isMobile;
 
+  // Which project the gallery modal is showing; null = closed.
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
   return (
     <>
       {enableSpotlight && (
@@ -552,7 +514,7 @@ const MagicBento = ({
       )}
 
       <div className="card-grid bento-section" ref={gridRef}>
-        {projects.map((project) => {
+        {projects.map((project, index) => {
           const className = `magic-bento-card ${textAutoHide ? 'magic-bento-card--text-autohide' : ''} ${
             enableBorderGlow ? 'magic-bento-card--border-glow' : ''
           }`;
@@ -570,6 +532,7 @@ const MagicBento = ({
                 enableTilt={enableTilt}
                 clickEffect={clickEffect}
                 enableMagnetism={enableMagnetism}
+                onActivate={() => setOpenIndex(index)}
               >
                 <CardBody project={project} />
               </ParticleCard>
@@ -577,12 +540,29 @@ const MagicBento = ({
           }
 
           return (
-            <div key={project.title} className={className} style={style}>
+            <div
+              key={project.title}
+              className={className}
+              style={style}
+              onClick={() => setOpenIndex(index)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') setOpenIndex(index);
+              }}
+            >
               <CardBody project={project} />
             </div>
           );
         })}
       </div>
+
+      <ProjectModal
+        isOpen={openIndex !== null}
+        index={openIndex ?? 0}
+        onClose={() => setOpenIndex(null)}
+        onIndexChange={setOpenIndex}
+      />
     </>
   );
 };
