@@ -26,7 +26,7 @@ const PREVIEW_PIECES: PreviewPiece[] = [
 
 export default function ChessProfile() {
   const { t } = useTranslation();
-  const [stats, setStats] = useState<ChessStats>({ blitz: 1680, rapid: 1720, bullet: 1540 });
+  const [stats, setStats] = useState<ChessStats>({ blitz: 640, rapid: 690, bullet: 455 });
   const [loading, setLoading] = useState(true);
   const [puzzleOpen, setPuzzleOpen] = useState(false);
 
