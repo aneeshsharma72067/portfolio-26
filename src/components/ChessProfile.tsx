@@ -39,9 +39,9 @@ export default function ChessProfile() {
       })
       .then((data) => {
         setStats({
-          blitz: data.chess_blitz?.last?.rating || 1680,
-          rapid: data.chess_rapid?.last?.rating || 1720,
-          bullet: data.chess_bullet?.last?.rating || 1540,
+          blitz: data.chess_blitz?.last?.rating || 640,
+          rapid: data.chess_rapid?.last?.rating || 690,
+          bullet: data.chess_bullet?.last?.rating || 455,
         });
         setLoading(false);
       })
