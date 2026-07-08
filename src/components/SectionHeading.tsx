@@ -63,27 +63,33 @@ export const ScrambleText = ({ text, cycleWords }: { text: string; cycleWords?: 
     };
   }, []);
 
-  // Longest candidate (base text + any cycle words). Rendered invisibly to
-  // reserve a stable box width so swapping phrases never reflows / wraps the
-  // heading — prevents the line-toggle flicker on wider phrases.
-  const sizer = [text, ...(cycleWords ?? [])].reduce(
-    (longest, w) => (w.length > longest.length ? w : longest),
-    text
+  // Worst-case width reserver. During scrambling every character is replaced by
+  // a symbol from `chars` (@ # % & …) which renders WIDER than the average
+  // letter — so reserving the longest *phrase* width is not enough: the
+  // scrambled state overflows it and the line wraps, then snaps back on
+  // unscramble (the toggling flicker). Instead reserve the longest phrase's
+  // length filled with the widest glyph the scramble can emit ('@' from the
+  // char set), so the box always fits even the fully-scrambled state → line
+  // count never changes, without over-reserving space for short headings.
+  const maxLen = [text, ...(cycleWords ?? [])].reduce(
+    (max, w) => Math.max(max, w.length),
+    0
   );
+  const sizer = '@'.repeat(maxLen);
 
   return (
     <span
       onMouseEnter={startScramble}
       onMouseLeave={resetScramble}
-      className="cursor-default whitespace-nowrap"
+      className="cursor-default"
       style={{ display: 'inline-grid' }}
     >
-      {/* Invisible width-reserver (longest phrase) — overlaid, not laid out inline */}
-      <span aria-hidden className="invisible" style={{ gridArea: '1 / 1' }}>
+      {/* Invisible worst-case width-reserver — overlaid, not laid out inline */}
+      <span aria-hidden className="invisible whitespace-nowrap" style={{ gridArea: '1 / 1' }}>
         {sizer}
       </span>
       {/* Visible scrambling text sits on top of the reserved box */}
-      <span style={{ gridArea: '1 / 1' }}>{displayText}</span>
+      <span className="whitespace-nowrap" style={{ gridArea: '1 / 1' }}>{displayText}</span>
     </span>
   );
 };
