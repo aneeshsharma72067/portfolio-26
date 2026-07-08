@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - **Functional music player** (`src/components/NowPlaying.tsx`) — now wraps a real `<audio>` element loading the bundled Charlie Puth – "We Don't Talk Anymore" track. Starts paused; play/pause, click-to-seek progress bar, restart, +10s forward, and mute are all wired to the native element with live time/duration readouts.
 - **Blogs nav item** (`src/components/Header.tsx`) — distinct pill-style link (`PenLine` icon, mint outline) that opens `https://blogs.aneesh-sharma.me` in a new tab. New `navBlogs` translation key across all five languages.
+- **Signature quote** (`src/components/About.tsx`) — replaced the four value pills (Clean Code / Problem Solver / Performance / Team Player) with a styled `blockquote`: "Corruption is just legacy code nobody wants to refactor. ~ Me" — accent bar, decorative quote glyph, mint-tinted card.
 
 ### Changed
 - **Project links** (`src/data/content.ts`) — MyBase live URL → `aneeshsharma72067.github.io/mybase`; CryptoPulse live URL → `cryptopulse1.vercel.app`.

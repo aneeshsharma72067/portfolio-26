@@ -1,9 +1,7 @@
+import { Quote } from 'lucide-react';
 import { useTranslation } from '@/context/TranslationContext';
 import { useReveal } from '@/hooks/useReveal';
 import SectionHeading from './SectionHeading';
-
-/** Value pills shown alongside the bio. */
-const values = ['Clean Code', 'Problem Solver', 'Performance', 'Team Player'];
 
 /**
  * About — long-form serif prose (the "writing" voice) plus a small set of
@@ -39,17 +37,23 @@ const About = () => {
         </p>
       </div>
 
-      {/* Value pills */}
-      <div className="mt-8 flex flex-wrap gap-2.5">
-        {values.map((v) => (
-          <span
-            key={v}
-            className="rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 font-label text-[11px] font-bold uppercase tracking-label text-primary"
-          >
-            {v}
-          </span>
-        ))}
-      </div>
+      {/* Signature quote — replaces the old value pills */}
+      <figure className="relative mt-10 overflow-hidden rounded-2xl border border-primary/20 bg-primary/[0.06] p-6 pl-14 shadow-floating">
+        {/* Accent bar on the left edge */}
+        <span className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-primary to-primary-container" />
+        {/* Oversized decorative quote glyph */}
+        <Quote
+          size={28}
+          className="absolute left-5 top-5 text-primary/50"
+          fill="currentColor"
+        />
+        <blockquote className="font-body text-lg italic leading-relaxed text-on-surface sm:text-xl">
+          Corruption is just legacy code nobody wants to refactor.
+        </blockquote>
+        <figcaption className="mt-3 font-label text-[11px] font-bold uppercase tracking-label text-primary">
+          ~ Me
+        </figcaption>
+      </figure>
     </section>
   );
 };
