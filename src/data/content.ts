@@ -124,6 +124,27 @@ export const projects: Project[] = [
   },
 ];
 
+/* -------------------------------------------------------------- experience */
+
+export type Experience = {
+  company: string;
+  role: string;
+  period: string;
+  current?: boolean;
+  description: string;
+};
+
+export const experiences: Experience[] = [
+  {
+    company: 'Resiliencesoft',
+    role: 'Software Development Engineer',
+    period: 'Feb 2025 — Present',
+    current: true,
+    description:
+      'Architecting fault-tolerant, cloud-native systems at scale — shipping event-driven microservices, driving observability-first design, and turning ambiguous specs into resilient, low-latency infrastructure that just refuses to fall over.',
+  },
+];
+
 /* ------------------------------------------------------------------ skills */
 
 export type SkillGroup = { title: string; items: string[] };

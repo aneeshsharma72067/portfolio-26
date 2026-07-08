@@ -8,6 +8,7 @@ import Magnetic from './Magnetic';
 const navItems = [
   { name: 'About', href: '#about', tKey: 'navAbout' as const },
   { name: 'Work', href: '#work', tKey: 'navWork' as const },
+  { name: 'Experience', href: '#experience', tKey: 'navExperience' as const },
   { name: 'Stack', href: '#stack', tKey: 'navStack' as const },
   { name: 'Contact', href: '#contact', tKey: 'navContact' as const },
 ];

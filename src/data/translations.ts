@@ -13,6 +13,7 @@ export const translations = {
     // Navigation
     navAbout: 'About',
     navWork: 'Work',
+    navExperience: 'Experience',
     navStack: 'Stack',
     navContact: 'Contact',
     navBlogs: 'Blogs',
@@ -41,6 +42,9 @@ export const translations = {
     workTitle: "Things I've",
     workAccent: 'built.',
     moreGithub: 'More on GitHub',
+    expEyebrow: 'Career',
+    expTitle: 'Where I',
+    expAccent: 'work.',
     liveDemo: 'Live Demo',
     sourceCode: 'Source',
 
@@ -97,6 +101,7 @@ export const translations = {
     // Navigation
     navAbout: '自己紹介',
     navWork: '実績',
+    navExperience: '経歴',
     navStack: 'スキル',
     navContact: '連絡先',
     navBlogs: 'ブログ',
@@ -125,6 +130,9 @@ export const translations = {
     workTitle: 'これまで',
     workAccent: '創ったもの。',
     moreGithub: 'GitHubでもっと見る',
+    expEyebrow: 'キャリア',
+    expTitle: '所属',
+    expAccent: '企業。',
     liveDemo: 'ライブデモ',
     sourceCode: 'ソース',
 
@@ -181,6 +189,7 @@ export const translations = {
     // Navigation
     navAbout: 'Sobre mí',
     navWork: 'Proyectos',
+    navExperience: 'Experiencia',
     navStack: 'Habilidades',
     navContact: 'Contacto',
     navBlogs: 'Blogs',
@@ -209,6 +218,9 @@ export const translations = {
     workTitle: 'Cosas que he',
     workAccent: 'creado.',
     moreGithub: 'Más en GitHub',
+    expEyebrow: 'Carrera',
+    expTitle: 'Dónde',
+    expAccent: 'trabajo.',
     liveDemo: 'Demo en vivo',
     sourceCode: 'Código',
 
@@ -265,6 +277,7 @@ export const translations = {
     // Navigation
     navAbout: 'Über mich',
     navWork: 'Projekte',
+    navExperience: 'Erfahrung',
     navStack: 'Tech-Stack',
     navContact: 'Kontakt',
     navBlogs: 'Blog',
@@ -293,6 +306,9 @@ export const translations = {
     workTitle: 'Dinge, die ich',
     workAccent: 'gebaut habe.',
     moreGithub: 'Mehr auf GitHub',
+    expEyebrow: 'Werdegang',
+    expTitle: 'Wo ich',
+    expAccent: 'arbeite.',
     liveDemo: 'Live-Demo',
     sourceCode: 'Quellcode',
 
@@ -349,6 +365,7 @@ export const translations = {
     // Navigation
     navAbout: '关于我',
     navWork: '项目',
+    navExperience: '经历',
     navStack: '技能',
     navContact: '联系我',
     navBlogs: '博客',
@@ -377,6 +394,9 @@ export const translations = {
     workTitle: '我所',
     workAccent: '构建的作品。',
     moreGithub: '在 GitHub 上查看更多',
+    expEyebrow: '职业经历',
+    expTitle: '我的',
+    expAccent: '工作。',
     liveDemo: '在线演示',
     sourceCode: '源码',
 

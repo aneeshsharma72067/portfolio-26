@@ -3,6 +3,7 @@ import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import About from '@/components/About';
 import Work from '@/components/Work';
+import Experience from '@/components/Experience';
 import Stack from '@/components/Stack';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
@@ -89,6 +90,7 @@ const App = () => {
           <Hero />
           <About />
           <Work />
+          <Experience />
           <Stack />
           <Contact />
           <Footer />

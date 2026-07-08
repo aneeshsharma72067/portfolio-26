@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ArrowUpRight, MapPin } from 'lucide-react';
 import { personal } from '@/data/content';
 import Profile from '@/assets/image/gallery/1.png';
-import Landscape from '@/assets/image/landscape.jpeg';
+import Landscape from '@/assets/image/banner.jpg';
 import NowPlaying from './NowPlaying';
 import ChessProfile from './ChessProfile';
 import GitHubContributions from './GitHubContributions';
