@@ -63,13 +63,27 @@ export const ScrambleText = ({ text, cycleWords }: { text: string; cycleWords?: 
     };
   }, []);
 
+  // Longest candidate (base text + any cycle words). Rendered invisibly to
+  // reserve a stable box width so swapping phrases never reflows / wraps the
+  // heading — prevents the line-toggle flicker on wider phrases.
+  const sizer = [text, ...(cycleWords ?? [])].reduce(
+    (longest, w) => (w.length > longest.length ? w : longest),
+    text
+  );
+
   return (
     <span
       onMouseEnter={startScramble}
       onMouseLeave={resetScramble}
-      className="inline-block cursor-default"
+      className="cursor-default whitespace-nowrap"
+      style={{ display: 'inline-grid' }}
     >
-      {displayText}
+      {/* Invisible width-reserver (longest phrase) — overlaid, not laid out inline */}
+      <span aria-hidden className="invisible" style={{ gridArea: '1 / 1' }}>
+        {sizer}
+      </span>
+      {/* Visible scrambling text sits on top of the reserved box */}
+      <span style={{ gridArea: '1 / 1' }}>{displayText}</span>
     </span>
   );
 };
