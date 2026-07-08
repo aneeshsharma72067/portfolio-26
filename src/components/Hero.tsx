@@ -9,6 +9,19 @@ import GitHubContributions from './GitHubContributions';
 import { useTranslation } from '@/context/TranslationContext';
 import GalleryOverlay from './GalleryOverlay';
 import Magnetic from './Magnetic';
+import { ScrambleText } from './SectionHeading';
+
+// Phrases the hero accent cycles through on each hover (scramble effect).
+// First entry matches the default heroAccent so the initial render is stable.
+const ACCENT_PHRASES = [
+  'thoughtful software.',
+  'scalable solutions.',
+  'resilient systems.',
+  'elegant interfaces.',
+  'performant backends.',
+  'delightful products.',
+  'clean architecture.',
+];
 
 /**
  * Hero — profile-page style layout inspired by bharath.codes.
@@ -75,7 +88,9 @@ const Hero = () => {
       {/* ── Headline ── */}
       <h2 className="mt-6 font-headline text-4xl font-extrabold leading-[1.1] tracking-tight text-on-surface sm:text-5xl">
         {t('heroGreeting')}
-        <span className="text-primary">{t('heroAccent')}</span>
+        <span className="text-primary">
+          <ScrambleText text={t('heroAccent')} cycleWords={ACCENT_PHRASES} />
+        </span>
       </h2>
 
       {/* ── Serif lead ── */}

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Functional music player** (`src/components/NowPlaying.tsx`) — now wraps a real `<audio>` element loading the bundled Charlie Puth – "We Don't Talk Anymore" track. Starts paused; play/pause, click-to-seek progress bar, restart, +10s forward, and mute are all wired to the native element with live time/duration readouts.
+- **Blogs nav item** (`src/components/Header.tsx`) — distinct pill-style link (`PenLine` icon, mint outline) that opens `https://blogs.aneesh-sharma.me` in a new tab. New `navBlogs` translation key across all five languages.
+- **Scramble hero accent** — the "thoughtful software." headline in `Hero.tsx` now uses `ScrambleText` and cycles through 7 phrases on hover (scalable solutions, resilient systems, elegant interfaces, performant backends, delightful products, clean architecture).
+
+### Changed
+- **Project links** (`src/data/content.ts`) — MyBase live URL → `aneeshsharma72067.github.io/mybase`; CryptoPulse live URL → `cryptopulse1.vercel.app`.
+- **NowPlaying:** removed the "Offline" state text in favour of a live "Paused" label (new `paused` translation key in all five languages).
+
+### Added (earlier)
 - **MagicBento project grid** (`src/components/MagicBento.tsx` + `.css`) — interactive bento layout for the Work section, adapted from React Bits and re-themed to the mint "Stdout" palette. Cursor-driven global spotlight, per-card border glow, gsap star particles, magnetism, and click ripple; animations auto-disable on mobile (≤768px). Cards show only name + tags over a dimmed preview so text never fights the image.
 - **ProjectModal** (`src/components/ProjectModal.tsx`) — full-screen gallery viewer opened on card click. Projects sit on a 3D cylinder: the active project faces the viewer as a full detail card (preview, localised description, tags, live/source links) while neighbours curve away left/right (rotateY + Z push) like a rotating carousel. Navigable via arrow buttons, ←/→ keys, pointer drag, touch swipe, clicking a side card, or a dot rail; Escape or backdrop click closes. Per-breakpoint geometry and neighbour-only image mounting keep it light.
 - Two new projects in `src/data/content.ts`: **MyBase** (all-in-one personal dashboard) and **CryptoPulse** (crypto screener), bringing the grid to six tiles for a balanced 4-column bento with two feature-width cards.

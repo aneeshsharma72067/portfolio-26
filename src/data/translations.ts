@@ -15,6 +15,7 @@ export const translations = {
     navWork: 'Work',
     navStack: 'Stack',
     navContact: 'Contact',
+    navBlogs: 'Blogs',
 
     // Hero / Personal info
     role: 'Software Development Engineer',
@@ -22,6 +23,7 @@ export const translations = {
     location: 'Bilaspur, India',
     nowPlaying: 'Now Playing',
     offline: 'Offline',
+    paused: 'Paused',
     by: 'by',
     heroGreeting: "Hi, I'm Aneesh — I build ",
     heroAccent: 'thoughtful software.',
@@ -97,6 +99,7 @@ export const translations = {
     navWork: '実績',
     navStack: 'スキル',
     navContact: '連絡先',
+    navBlogs: 'ブログ',
 
     // Hero / Personal info
     role: 'ソフトウェア開発エンジニア',
@@ -104,6 +107,7 @@ export const translations = {
     location: 'インド、ビラスプル',
     nowPlaying: '再生中',
     offline: 'オフライン',
+    paused: '一時停止',
     by: 'アーティスト:',
     heroGreeting: 'こんにちは、アニーシュです。',
     heroAccent: '思慮深いソフトウェアを開発しています。',
@@ -179,6 +183,7 @@ export const translations = {
     navWork: 'Proyectos',
     navStack: 'Habilidades',
     navContact: 'Contacto',
+    navBlogs: 'Blogs',
 
     // Hero / Personal info
     role: 'Ingeniero de Desarrollo de Software',
@@ -186,6 +191,7 @@ export const translations = {
     location: 'Bilaspur, India',
     nowPlaying: 'Reproduciendo',
     offline: 'Desconectado',
+    paused: 'Pausado',
     by: 'de',
     heroGreeting: 'Hola, soy Aneesh — creo ',
     heroAccent: 'software reflexivo.',
@@ -261,6 +267,7 @@ export const translations = {
     navWork: 'Projekte',
     navStack: 'Tech-Stack',
     navContact: 'Kontakt',
+    navBlogs: 'Blog',
 
     // Hero / Personal info
     role: 'Software-Entwicklungsingenieur',
@@ -268,6 +275,7 @@ export const translations = {
     location: 'Bilaspur, Indien',
     nowPlaying: 'Läuft gerade',
     offline: 'Offline',
+    paused: 'Pausiert',
     by: 'von',
     heroGreeting: 'Hallo, ich bin Aneesh — ich baue ',
     heroAccent: 'durchdachte Software.',
@@ -343,6 +351,7 @@ export const translations = {
     navWork: '项目',
     navStack: '技能',
     navContact: '联系我',
+    navBlogs: '博客',
 
     // Hero / Personal info
     role: '软件开发工程师',
@@ -350,6 +359,7 @@ export const translations = {
     location: '印度, 毕拉斯普尔',
     nowPlaying: '正在播放',
     offline: '离线',
+    paused: '已暂停',
     by: '歌手:',
     heroGreeting: '你好，我是 Aneesh — 我构建 ',
     heroAccent: '用心设计的软件。',

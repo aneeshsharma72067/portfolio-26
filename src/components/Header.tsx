@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { personal, links } from '@/data/content';
 import { useTranslation } from '@/context/TranslationContext';
 import { LANGUAGES, Language } from '@/data/translations';
-import { Globe, ChevronDown } from 'lucide-react';
+import { Globe, ChevronDown, PenLine } from 'lucide-react';
 import Magnetic from './Magnetic';
 
 const navItems = [
@@ -73,6 +73,17 @@ const Header = () => {
               {t(item.tKey)}
             </a>
           ))}
+
+          {/* Blogs — distinct pill UI, opens external blog in a new tab */}
+          <a
+            href="https://blogs.aneesh-sharma.me"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 font-label text-[11px] font-bold uppercase tracking-label text-primary transition-all duration-300 hover:border-primary hover:bg-primary/20 hover:drop-shadow-[0_0_10px_rgba(85,221,173,0.6)]"
+          >
+            <PenLine size={12} className="transition-transform duration-300 group-hover:-rotate-12" />
+            {t('navBlogs')}
+          </a>
         </nav>
 
         {/* Action controls (Language Picker + GitHub Link) */}

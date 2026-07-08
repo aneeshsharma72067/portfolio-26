@@ -1,54 +1,121 @@
-import { useState, useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Heart, Music2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Heart, Music2 } from 'lucide-react';
 import { nowPlaying } from '@/data/content';
 import { useTranslation } from '@/context/TranslationContext';
+// Local audio track bundled by Vite. Special characters (spaces, parens,
+// apostrophe) are fine inside the import specifier string.
+import trackSrc from "@/assets/audio/Charlie Puth - We Don't Talk Anymore (Lyrics) feat. Selena Gomez (2).mp3";
 
 /**
- * YouTube Music themed "now playing" card.
- * Designed as a full-height plugin matching the Chess board size.
+ * YouTube Music themed "now playing" card — now fully functional.
+ * Wraps a real <audio> element and drives it from the UI controls.
  * Features:
  * - Curved borders (rounded-2xl) and pure black (#030303) background.
- * - Left side: Large rotating vinyl record disc (animated spin).
- * - Right side: Detailed playback info, red seek bar, time counters,
- *   and control buttons (play/pause toggle, skip, volume, like).
- * - Fully responsive, stretching to fill height cleanly.
+ * - Left side: Large rotating vinyl record disc (animated spin while playing).
+ * - Right side: Live playback info, red seek bar, real time counters,
+ *   and control buttons (play/pause, seek, restart, mute, like).
+ * - Starts paused; audio only begins on user interaction.
  */
 const NowPlaying = () => {
   const { t } = useTranslation();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   const [playing, setPlaying] = useState(nowPlaying.isPlaying);
   const [liked, setLiked] = useState(false);
-  const [progress, setProgress] = useState(38); // percentage
-
+  const [muted, setMuted] = useState(false);
   const [isScratching, setIsScratching] = useState(false);
 
-  // Simulate progress bar movement when playing (unless scratching)
-  useEffect(() => {
-    if (!playing || isScratching) return;
-    const interval = setInterval(() => {
-      setProgress((prev) => (prev >= 100 ? 0 : prev + 0.2));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [playing, isScratching]);
+  const [currentTime, setCurrentTime] = useState(0); // seconds
+  const [duration, setDuration] = useState(0); // seconds
 
-  // Format time based on progress percentage (mocking a 3:45 song length)
-  const getFmtTime = (pct: number) => {
-    const totalSecs = 225; // 3 mins 45 secs
-    const currentSecs = Math.floor((pct / 100) * totalSecs);
-    const mins = Math.floor(currentSecs / 60);
-    const secs = currentSecs % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  // Percentage played — guards against divide-by-zero before metadata loads.
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  // Wire native <audio> events to component state.
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const onLoaded = () => setDuration(audio.duration || 0);
+    const onTime = () => setCurrentTime(audio.currentTime);
+    const onEnded = () => {
+      setPlaying(false);
+      setCurrentTime(0);
+    };
+
+    audio.addEventListener('loadedmetadata', onLoaded);
+    audio.addEventListener('timeupdate', onTime);
+    audio.addEventListener('ended', onEnded);
+    return () => {
+      audio.removeEventListener('loadedmetadata', onLoaded);
+      audio.removeEventListener('timeupdate', onTime);
+      audio.removeEventListener('ended', onEnded);
+    };
+  }, []);
+
+  // Keep the audio element's play/pause in sync with `playing` state.
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (playing) {
+      // play() returns a promise that rejects if autoplay is blocked.
+      audio.play().catch(() => setPlaying(false));
+    } else {
+      audio.pause();
+    }
+  }, [playing]);
+
+  // Reflect mute state onto the element.
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.muted = muted;
+  }, [muted]);
+
+  // Format seconds as m:ss.
+  const fmtTime = (secs: number) => {
+    if (!isFinite(secs)) return '0:00';
+    const mins = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return `${mins}:${s < 10 ? '0' : ''}${s}`;
   };
 
   const handlePlayToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setPlaying(!playing);
+    setPlaying((p) => !p);
   };
 
   const handleLikeToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setLiked(!liked);
+    setLiked((l) => !l);
+  };
+
+  // Seek to a click position on the progress bar.
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    const audio = audioRef.current;
+    if (!audio || duration <= 0) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
+    audio.currentTime = pct * duration;
+    setCurrentTime(audio.currentTime);
+  };
+
+  // Restart the track from the beginning.
+  const handleRestart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+    setCurrentTime(0);
+  };
+
+  // Jump forward 10s (acts as "next" within a single track).
+  const handleForward = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const audio = audioRef.current;
+    if (!audio || duration <= 0) return;
+    audio.currentTime = Math.min(audio.currentTime + 10, duration);
+    setCurrentTime(audio.currentTime);
   };
 
   return (
@@ -56,6 +123,9 @@ const NowPlaying = () => {
       className="group flex flex-col justify-between rounded-2xl border border-white/10 bg-[#030303] p-4 shadow-floating transition-all duration-300 hover:border-red-600/40 w-full h-full select-none"
       style={{ fontFamily: 'sans-serif', minHeight: '186px' }}
     >
+      {/* Hidden native audio element driving the whole card */}
+      <audio ref={audioRef} src={trackSrc} preload="metadata" />
+
       {/* Top Section: Vinyl + Track Details */}
       <div className="flex gap-4 items-start">
         {/* Large Vinyl Record Disc Container */}
@@ -85,7 +155,7 @@ const NowPlaying = () => {
               <div className="absolute inset-5 rounded-full border border-white/5" />
             </div>
           ) : (
-            // Offline/Paused state
+            // Paused state — static disc icon
             <span className="text-[#ff0000]/70">
               <Music2 size={32} />
             </span>
@@ -97,7 +167,7 @@ const NowPlaying = () => {
           <div className="flex items-center gap-1.5">
             <span className={`h-1.5 w-1.5 rounded-full bg-[#ff0000] ${playing ? 'animate-pulse' : 'opacity-40'}`} />
             <p className="text-[9px] font-bold uppercase tracking-wider text-red-500 font-mono">
-              {playing ? t('nowPlaying') : t('offline')}
+              {playing ? t('nowPlaying') : t('paused')}
             </p>
           </div>
           <h4 className="truncate text-base font-extrabold text-white mt-1 leading-tight">
@@ -111,34 +181,45 @@ const NowPlaying = () => {
 
       {/* Middle Section: Progress Slider */}
       <div className="mt-4 w-full">
-        {/* Seek Bar */}
-        <div className="relative w-full h-1 bg-[#282828] rounded-full overflow-hidden cursor-pointer">
+        {/* Seek Bar — click to scrub */}
+        <div
+          onClick={handleSeek}
+          className="relative w-full h-1 bg-[#282828] rounded-full overflow-hidden cursor-pointer"
+        >
           <div
             className="absolute left-0 top-0 h-full bg-[#ff0000] rounded-full"
-            style={{ width: `${progress}%`, transition: playing ? 'width 1s linear' : 'none' }}
+            style={{ width: `${progress}%` }}
           />
         </div>
-        
+
         {/* Time stamps */}
         <div className="flex justify-between items-center text-[9px] font-mono text-[#888888] mt-1.5">
-          <span>{getFmtTime(progress)}</span>
-          <span>3:45</span>
+          <span>{fmtTime(currentTime)}</span>
+          <span>{fmtTime(duration)}</span>
         </div>
       </div>
 
       {/* Bottom Section: Media Controls */}
       <div className="flex items-center justify-between mt-3 pt-1 border-t border-white/5">
-        {/* Left Side: Volume details */}
-        <button className="text-[#aaaaaa] hover:text-white transition-colors" title="Volume">
-          <Volume2 size={15} />
+        {/* Left Side: Mute toggle */}
+        <button
+          onClick={(e) => { e.stopPropagation(); setMuted((m) => !m); }}
+          className="text-[#aaaaaa] hover:text-white transition-colors"
+          title={muted ? 'Unmute' : 'Mute'}
+        >
+          {muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
         </button>
 
         {/* Center: Playback Controls */}
         <div className="flex items-center gap-4">
-          <button className="text-[#aaaaaa] hover:text-white transition-colors" title="Previous">
+          <button
+            onClick={handleRestart}
+            className="text-[#aaaaaa] hover:text-white transition-colors"
+            title="Restart"
+          >
             <SkipBack size={15} />
           </button>
-          
+
           <button
             onClick={handlePlayToggle}
             className="flex items-center justify-center w-7 h-7 rounded-full bg-white text-black hover:bg-[#ff0000] hover:text-white transition-all transform active:scale-95 shadow"
@@ -147,7 +228,11 @@ const NowPlaying = () => {
             {playing ? <Pause size={13} fill="currentColor" /> : <Play size={13} fill="currentColor" className="ml-0.5" />}
           </button>
 
-          <button className="text-[#aaaaaa] hover:text-white transition-colors" title="Next">
+          <button
+            onClick={handleForward}
+            className="text-[#aaaaaa] hover:text-white transition-colors"
+            title="Forward 10s"
+          >
             <SkipForward size={15} />
           </button>
         </div>

@@ -109,7 +109,7 @@ export const projects: Project[] = [
       'An all-in-one personal dashboard that unifies task management, goal tracking, hydration logging, and expense tracking into a single clean workspace. Designed to replace a dozen scattered apps with one fast, focused home base.',
     tags: ['React', 'TypeScript', 'Dashboard', 'Productivity'],
     github: 'https://github.com/aneeshsharma72067/mybase',
-    live: 'https://mybase.app',
+    live: 'https://aneeshsharma72067.github.io/mybase',
     image: MyBasePreview,
   },
   {
@@ -119,7 +119,7 @@ export const projects: Project[] = [
       'An advanced cryptocurrency screener with real-time prices, multi-timeframe market-cap change, sorting, currency conversion, and a watchlist. Built for traders who want to scan hundreds of assets at a glance.',
     tags: ['React', 'CoinGecko API', 'Screener', 'Real-time'],
     github: 'https://github.com/aneeshsharma72067/cryptopulse',
-    live: 'https://cryptopulse.app',
+    live: 'https://cryptopulse1.vercel.app/',
     image: CryptoPreview,
   },
 ];
@@ -145,8 +145,8 @@ export const skillGroups: SkillGroup[] = [
 /* -------------------------------------------------------------- now playing */
 
 export const nowPlaying = {
-  track: 'Weightless',
-  artist: 'Marconi Union',
+  track: "We Don't Talk Anymore",
+  artist: 'Charlie Puth feat. Selena Gomez',
   href: 'https://open.spotify.com/',
-  isPlaying: true,
+  isPlaying: false,
 };
