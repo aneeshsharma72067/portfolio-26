@@ -33,9 +33,9 @@ export const translations = {
     aboutEyebrow: 'Notes',
     aboutTitle: 'A little',
     aboutAccent: 'about me.',
-    bio0: "I'm a software developer who builds products, mobile apps, backend systems, and CLI tools. I write code, break things, and occasionally fix them.",
-    bio1: "My stack revolves around React, Next.js, Hono, Python, Rust, and Cloudflare Workers. I'm a big fan of lightweight, high-performance setups that just work.",
-    bio2: "When I'm not fighting git merge conflicts or optimizing database queries, you can find me reading manhwas or playing chess. Favorite games are Persona and Fire Emblem",
+    bio0: "I am Aneesh Sharma, a dreamy software engineer with an interest in building cool stuff: backend systems, CLI tools, and smooth animated frontends. I started learning to code in college after choosing Engineering (only to not get into agriculture like my family lol). I discovered this stuff was really fun. Before AI came along, I built a lot of stuff and learned a lot about software as well as hardware. Everything I built took time. I started like everyone else with YouTube tutorials and eventually ended up on documentation sites. Now with AI, I try stuff I never really attempted before.",
+    bio1: "In my job I work with React, React Native, Next.js, Node.js, PostgreSQL, basically the whole JS family. Outside of work I personally enjoy Python and Rust. Python because I want to build Jarvis one day, and Rust because I want crazy fast performance. I'm also trying to learn RAG systems because I need to automate my life.",
+    bio2: "When I'm not coding or socializing, you can find me playing chess, reading manhwas, or drawing. I like socializing, though it's quite draining for me, but being with people I can laugh and relax with is fun. In my career I want to go to new places, meet new people, learn all this crazy stuff, and explore the world.",
 
     // Work Section
     workEyebrow: 'Selected Work',

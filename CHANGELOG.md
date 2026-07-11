@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 - **Experience section** (`src/components/Experience.tsx`) — vertical timeline with a mint gradient spine, `Briefcase` node markers (pulsing ring on the current role), and a light staggered fade/slide-in on scroll (CSS-only, via `useReveal`). Seeded with Resiliencesoft SDE (Feb 2025 — Present). New `#experience` nav item + `expEyebrow`/`expTitle`/`expAccent`/`navExperience` keys and an `experiences` data model across all five languages.
 
 ### Changed
+- **About bio rewrite** (`bio0`/`bio1`/`bio2` in `src/data/translations.ts`, `personal.bio` in `src/data/content.ts`) — new first-person story covering background, stack, and interests. `About.tsx` now highlights impactful keywords (stack, tools, hobbies) with a mint accent span via a longest-first phrase matcher. Hero lead swapped from `bio0` to the shorter `headline` so it stays a one-liner.
 - **GitHub username** — updated all links, handles, and the contributions API/terminal prompt from `aneeshsharma72067` to `jiffyaneesh` (`src/data/content.ts`, `src/components/GitHubContributions.tsx`, `src/components/Terminal.tsx`, `index.html`, `CONTENT.md`).
 - **Project links** (`src/data/content.ts`) — MyBase live URL → `aneeshsharma72067.github.io/mybase`; CryptoPulse live URL → `cryptopulse1.vercel.app`.
 - **NowPlaying:** removed the "Offline" state text in favour of a live "Paused" label (new `paused` translation key in all five languages).

@@ -80,7 +80,7 @@ const Hero = () => {
 
       {/* ── Serif lead ── */}
       <p className="mt-6 max-w-2xl font-body text-lg italic leading-relaxed text-on-surface-variant">
-        {t('bio0')}
+        {t('headline')}
       </p>
 
       {/* ── CTAs ── */}
