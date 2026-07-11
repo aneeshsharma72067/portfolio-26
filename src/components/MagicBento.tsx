@@ -76,8 +76,7 @@ interface ParticleCardProps {
   enableTilt?: boolean;
   clickEffect?: boolean;
   enableMagnetism?: boolean;
-  /** Fired on click; receives the card's viewport rect for the modal morph. */
-  onActivate?: (rect: DOMRect) => void;
+  onActivate?: () => void;
 }
 
 const ParticleCard = ({
@@ -272,7 +271,7 @@ const ParticleCard = ({
         );
       }
 
-      onActivate?.(element.getBoundingClientRect());
+      onActivate?.();
     };
 
     element.addEventListener('mouseenter', handleMouseEnter);
@@ -501,13 +500,6 @@ const MagicBento = ({
 
   // Which project the gallery modal is showing; null = closed.
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  // Viewport rect of the clicked card — the modal morphs out of this box.
-  const [origin, setOrigin] = useState<DOMRect | null>(null);
-
-  const openProject = (index: number, rect: DOMRect) => {
-    setOrigin(rect);
-    setOpenIndex(index);
-  };
 
   return (
     <>
@@ -540,7 +532,7 @@ const MagicBento = ({
                 enableTilt={enableTilt}
                 clickEffect={clickEffect}
                 enableMagnetism={enableMagnetism}
-                onActivate={(rect) => openProject(index, rect)}
+                onActivate={() => setOpenIndex(index)}
               >
                 <CardBody project={project} />
               </ParticleCard>
@@ -552,12 +544,11 @@ const MagicBento = ({
               key={project.title}
               className={className}
               style={style}
-              onClick={(e) => openProject(index, e.currentTarget.getBoundingClientRect())}
+              onClick={() => setOpenIndex(index)}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ')
-                  openProject(index, e.currentTarget.getBoundingClientRect());
+                if (e.key === 'Enter' || e.key === ' ') setOpenIndex(index);
               }}
             >
               <CardBody project={project} />
@@ -569,7 +560,6 @@ const MagicBento = ({
       <ProjectModal
         isOpen={openIndex !== null}
         index={openIndex ?? 0}
-        originRect={origin}
         onClose={() => setOpenIndex(null)}
         onIndexChange={setOpenIndex}
       />
