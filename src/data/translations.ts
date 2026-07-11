@@ -121,9 +121,9 @@ export const translations = {
     aboutEyebrow: 'ノート',
     aboutTitle: '私に',
     aboutAccent: 'ついて。',
-    bio0: '私はプロダクト、モバイルアプリ、バックエンドシステム、CLIツールを開発するソフトウェア開発者です。コードを書き、バグを生み出し、たまに修正しています。',
-    bio1: '主にReact、Next.js、Hono、Python、Rust、Cloudflare Workersを使っています。シンプルでパフォーマンスの高い開発環境が大好きです。',
-    bio2: 'マージコンフリクトと戦ったりデータベースのクエリを最適化していない時は、マンファ（韓国漫画）を読んでいるか、チェスをしています。お気に入りのゲームは「ペルソナ」と「ファイアーエムブレム」です。',
+    bio0: '僕はアニーシュ・シャルマ、夢見がちなソフトウェアエンジニアで、面白いものを作るのが好きです。バックエンドシステム、CLIツール、なめらかにアニメーションするフロントエンドなど。大学で工学部を選んだ後（家族のように農業へ進まないためだけにね(笑)）、コードを書き始めました。やってみたら本当に楽しかったんです。AIが登場する前は、たくさんのものを作り、ソフトウェアだけでなくハードウェアについても多くを学びました。作るものすべてに時間がかかりました。みんなと同じようにYouTubeのチュートリアルから始めて、やがてドキュメントサイトにたどり着きました。今はAIのおかげで、今まで挑戦したことのないことにも手を出しています。',
+    bio1: '仕事ではReact、React Native、Next.js、Node.js、PostgreSQL、つまりJSファミリー全般を扱っています。仕事以外では個人的にPythonとRustが好きです。Pythonはいつか自分だけのJarvisを作りたいから、Rustはとにかく速いパフォーマンスが欲しいから。人生を自動化する必要があるので、RAGシステムも学ぼうとしています。',
+    bio2: 'コーディングや人付き合いをしていない時は、チェスをしたり、マンファを読んだり、絵を描いたりしています。人付き合いは好きですが、僕にとってはかなり消耗するもの。それでも一緒に笑ってリラックスできる人といるのは楽しいです。キャリアの中では、新しい場所へ行き、新しい人に出会い、こうしたクレイジーなことを学び、世界を旅したいと思っています。',
 
     // Work Section
     workEyebrow: '選定プロジェクト',
@@ -209,9 +209,9 @@ export const translations = {
     aboutEyebrow: 'Notas',
     aboutTitle: 'Un poco',
     aboutAccent: 'sobre mí.',
-    bio0: 'Soy un desarrollador de software que crea productos, apps móviles, sistemas backend y herramientas CLI. Escribo código, rompo cosas y, a veces, las arreglo.',
-    bio1: 'Mi stack gira en torno a React, Next.js, Hono, Python, Rust y Cloudflare Workers. Soy fan de las configuraciones ligeras y de alto rendimiento.',
-    bio2: 'Cuando no estoy luchando contra conflictos de git o depurando consultas de bases de datos, me encontrarás leyendo manhwas o jugando al ajedrez. Mis juegos favoritos son Persona y Fire Emblem.',
+    bio0: 'Soy Aneesh Sharma, un ingeniero de software soñador con interés en construir cosas geniales: sistemas backend, herramientas CLI y frontends con animaciones fluidas. Empecé a programar en la universidad tras elegir Ingeniería (solo para no acabar en agricultura como mi familia, jaja). Descubrí que esto era muy divertido. Antes de que llegara la IA, construí muchas cosas y aprendí mucho tanto de software como de hardware. Todo lo que construía llevaba su tiempo. Empecé como todos, con tutoriales de YouTube, y terminé en los sitios de documentación. Ahora, con la IA, intento cosas que nunca antes me había atrevido a probar.',
+    bio1: 'En mi trabajo uso React, React Native, Next.js, Node.js, PostgreSQL, básicamente toda la familia de JS. Fuera del trabajo, personalmente disfruto de Python y Rust. Python porque quiero construir mi propio Jarvis algún día, y Rust porque quiero un rendimiento increíblemente rápido. También estoy intentando aprender sistemas RAG porque necesito automatizar mi vida.',
+    bio2: 'Cuando no estoy programando o socializando, me encontrarás jugando al ajedrez, leyendo manhwas o dibujando. Me gusta socializar, aunque me resulta bastante agotador, pero estar con gente con la que puedo reír y relajarme es divertido. En mi carrera quiero ir a lugares nuevos, conocer gente nueva, aprender todas estas cosas locas y explorar el mundo.',
 
     // Work Section
     workEyebrow: 'Trabajo Seleccionado',
@@ -297,9 +297,9 @@ export const translations = {
     aboutEyebrow: 'Notizen',
     aboutTitle: 'Ein wenig',
     aboutAccent: 'über mich.',
-    bio0: 'Ich bin ein Softwareentwickler, der Produkte, mobile Apps, Backend-Systeme und CLI-Tools baut. Ich schreibe Code, mache Dinge kaputt und repariere sie manchmal auch.',
-    bio1: 'Mein Stack dreht sich um React, Next.js, Hono, Python, Rust und Cloudflare Workers. Ich stehe auf schlanke, performante Setups, die einfach funktionieren.',
-    bio2: 'Wenn ich nicht gerade mit Git-Merge-Konflikten kämpfe oder Datenbankabfragen optimiere, lese ich Manhwas oder spiele Schach. Meine Lieblingsspiele sind Persona und Fire Emblem.',
+    bio0: 'Ich bin Aneesh Sharma, ein verträumter Softwareentwickler mit einem Faible dafür, coole Sachen zu bauen: Backend-Systeme, CLI-Tools und flüssig animierte Frontends. Ich habe im Studium mit dem Programmieren angefangen, nachdem ich mich für Ingenieurwesen entschieden hatte (nur um nicht wie meine Familie in die Landwirtschaft zu gehen, haha). Ich entdeckte, dass dieses Zeug richtig Spaß macht. Bevor die KI kam, habe ich eine Menge gebaut und viel über Software wie auch Hardware gelernt. Alles, was ich baute, brauchte seine Zeit. Ich habe wie alle anderen mit YouTube-Tutorials angefangen und bin schließlich bei Dokumentationsseiten gelandet. Jetzt, mit KI, probiere ich Dinge aus, an die ich mich vorher nie herangetraut habe.',
+    bio1: 'In meinem Job arbeite ich mit React, React Native, Next.js, Node.js, PostgreSQL, im Grunde der ganzen JS-Familie. Außerhalb der Arbeit mag ich persönlich Python und Rust. Python, weil ich eines Tages mein eigenes Jarvis bauen will, und Rust, weil ich wahnsinnig schnelle Performance will. Ich versuche außerdem, RAG-Systeme zu lernen, weil ich mein Leben automatisieren muss.',
+    bio2: 'Wenn ich nicht gerade programmiere oder unter Leuten bin, findest du mich beim Schach, beim Lesen von Manhwas oder beim Zeichnen. Ich bin gern unter Menschen, auch wenn es mich ziemlich auslaugt, aber mit Leuten zusammen zu sein, mit denen ich lachen und entspannen kann, macht Spaß. In meiner Karriere möchte ich an neue Orte reisen, neue Menschen treffen, all dieses verrückte Zeug lernen und die Welt erkunden.',
 
     // Work Section
     workEyebrow: 'Ausgewählte Arbeiten',
@@ -385,9 +385,9 @@ export const translations = {
     aboutEyebrow: '简记',
     aboutTitle: '关于',
     aboutAccent: '我的介绍。',
-    bio0: '我是一个喜欢开发产品、移动应用、后端系统和命令行工具的软件开发仔。日常就是写写代码、搞点破坏，偶尔顺手把它们修复一下。',
-    bio1: '我的核心技术栈围绕 React、Next.js、Hono、Python、Rust 和 Cloudflare Workers 展开。非常热衷于搭建那些轻量、高效且够稳的轮子。',
-    bio2: '在没有跟 Git 冲突死磕或优化数据库查询的时候，我通常在看韩漫或下国际象棋。最喜欢的游戏是《女神异闻录》和《火焰之纹章》。',
+    bio0: '我是 Aneesh Sharma，一个爱做梦的软件工程师，喜欢折腾各种酷东西：后端系统、命令行工具，还有丝滑的动画前端。我在大学选了工程专业之后才开始学写代码（纯粹是为了不像家里人那样去搞农业，哈哈）。然后发现这玩意儿真的很好玩。在 AI 出现之前，我做过很多东西，也学了不少软件和硬件的知识。我做的每一样东西都花了不少时间。我和大多数人一样从 YouTube 教程入门，最后逐渐转到官方文档上。现在有了 AI，我开始尝试那些以前从没真正敢碰的东西。',
+    bio1: '工作中我用 React、React Native、Next.js、Node.js、PostgreSQL，基本上就是整个 JS 全家桶。工作之外，我个人更喜欢 Python 和 Rust。喜欢 Python 是因为我想有一天造出自己的 Jarvis，喜欢 Rust 是因为我想要那种快到离谱的性能。我还在学 RAG 系统，因为我得把自己的生活自动化。',
+    bio2: '不写代码也不社交的时候，你会看到我在下国际象棋、看韩漫，或者画画。我喜欢社交，虽然对我来说挺累的，但和那些能一起大笑、一起放松的人待在一起真的很开心。在职业生涯里，我想去新的地方、认识新的人、学会这些疯狂的东西，然后去探索这个世界。',
 
     // Work Section
     workEyebrow: '精选项目',
