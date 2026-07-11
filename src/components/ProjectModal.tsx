@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { X, ChevronLeft, ChevronRight, ArrowUpRight, Github } from 'lucide-react';
 import { projects } from '@/data/content';
 import { useTranslation } from '@/context/TranslationContext';
@@ -6,9 +6,18 @@ import { useTranslation } from '@/context/TranslationContext';
 interface ProjectModalProps {
   isOpen: boolean;
   index: number;
+  /** Viewport rect of the grid card that opened this modal (for the morph). */
+  originRect?: DOMRect | null;
   onClose: () => void;
   onIndexChange: (index: number) => void;
 }
+
+/** A plain box in viewport coordinates — the FLIP "first"/"last" frames. */
+type Box = { left: number; top: number; width: number; height: number };
+
+/** Morph duration + easing, shared by the ghost tween and the backdrop fade. */
+const MORPH_MS = 460;
+const MORPH_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 /**
  * ProjectModal — full-screen gallery viewer for the project list.
@@ -19,13 +28,23 @@ interface ProjectModalProps {
  * buttons, ←/→ keys, pointer drag, touch swipe, clicking a side card, or the
  * dot rail — all mutate the parent-owned `index` so grid and modal stay synced.
  */
-const ProjectModal = ({ isOpen, index, onClose, onIndexChange }: ProjectModalProps) => {
+const ProjectModal = ({ isOpen, index, originRect, onClose, onIndexChange }: ProjectModalProps) => {
   const { t } = useTranslation();
 
   // Drag tracking for swipe-to-navigate.
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
   // Narrower geometry on small screens.
   const [isMobile, setIsMobile] = useState(false);
+
+  /* -------- morph lifecycle --------
+   * 'morphing' : ghost is flying from the grid card to the centred detail box.
+   * 'open'     : morph done — real carousel + chrome are interactive.
+   * 'closing'  : ghost is flying back to the grid card, chrome hidden.
+   * The ghost box holds the current FLIP frame the transition animates toward. */
+  const [phase, setPhase] = useState<'morphing' | 'open' | 'closing'>('morphing');
+  const [ghost, setGhost] = useState<Box | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const count = projects.length;
 
@@ -40,6 +59,68 @@ const ProjectModal = ({ isOpen, index, onClose, onIndexChange }: ProjectModalPro
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  // The centred box the active detail card occupies — the morph's destination.
+  const targetBox = (): Box => {
+    const width = isMobile ? Math.min(window.innerWidth * 0.86, 380) : Math.min(760, window.innerWidth * 0.78);
+    const height = isMobile ? window.innerHeight * 0.68 : Math.min(460, window.innerHeight * 0.74);
+    return {
+      width,
+      height,
+      left: (window.innerWidth - width) / 2,
+      top: (window.innerHeight - height) / 2,
+    };
+  };
+
+  const clearTimers = () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (timerRef.current) clearTimeout(timerRef.current);
+  };
+
+  // Opening: start the ghost at the grid card, then fly it to the centre box.
+  useEffect(() => {
+    if (!isOpen) return;
+    clearTimers();
+
+    // No source rect (edge case) → skip morph, open straight away.
+    if (!originRect) {
+      setGhost(null);
+      setPhase('open');
+      return;
+    }
+
+    setPhase('morphing');
+    // First frame: ghost sits exactly over the clicked card.
+    setGhost({ left: originRect.left, top: originRect.top, width: originRect.width, height: originRect.height });
+
+    // Next frame: move ghost to the centred detail box (triggers the CSS transition).
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = requestAnimationFrame(() => setGhost(targetBox()));
+    });
+
+    // When the flight ends, reveal the real carousel + chrome.
+    timerRef.current = setTimeout(() => setPhase('open'), MORPH_MS);
+
+    return clearTimers;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  // Reverse morph, then actually unmount via onClose.
+  const closeWithMorph = () => {
+    clearTimers();
+    if (!originRect) {
+      onClose();
+      return;
+    }
+    setPhase('closing');
+    setGhost(targetBox()); // start from the centre…
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = requestAnimationFrame(() =>
+        setGhost({ left: originRect.left, top: originRect.top, width: originRect.width, height: originRect.height })
+      );
+    });
+    timerRef.current = setTimeout(onClose, MORPH_MS);
+  };
+
   // Lock body scroll while open.
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
@@ -48,20 +129,26 @@ const ProjectModal = ({ isOpen, index, onClose, onIndexChange }: ProjectModalPro
     };
   }, [isOpen]);
 
-  // Keyboard: arrows navigate, escape closes.
+  // Keyboard: arrows navigate (only when fully open), escape closes with morph.
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') next();
+      if (e.key === 'Escape') closeWithMorph();
+      else if (phase !== 'open') return;
+      else if (e.key === 'ArrowRight') next();
       else if (e.key === 'ArrowLeft') prev();
-      else if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, index]);
+  }, [isOpen, index, phase]);
 
   if (!isOpen) return null;
+
+  const activeProject = projects[index];
+  const morphing = phase !== 'open';
+  // Chrome (header/footer/carousel) is only live once the morph settles.
+  const chromeVisible = phase === 'open';
 
   // Localised description mirrors the original Work-row switch.
   const describe = (title: string, fallback: string) => {
@@ -89,12 +176,12 @@ const ProjectModal = ({ isOpen, index, onClose, onIndexChange }: ProjectModalPro
     const dy = y - dragStart.y;
     const dist = Math.hypot(dx, dy);
 
-    if (dist > 40 && Math.abs(dx) > Math.abs(dy)) {
+    if (phase === 'open' && dist > 40 && Math.abs(dx) > Math.abs(dy)) {
       if (dx < 0) next();
       else prev();
     } else if (dist < 10 && target === current) {
-      // Treated as a click on the backdrop → close.
-      onClose();
+      // Treated as a click on the backdrop → close with the reverse morph.
+      closeWithMorph();
     }
     setDragStart(null);
   };
@@ -106,13 +193,56 @@ const ProjectModal = ({ isOpen, index, onClose, onIndexChange }: ProjectModalPro
 
   return (
     <div
-      onMouseDown={(e) => startDrag(e.clientX, e.clientY)}
-      onMouseUp={(e) => endDrag(e.clientX, e.clientY, e.target, e.currentTarget)}
-      onTouchStart={(e) => startDrag(e.touches[0].clientX, e.touches[0].clientY)}
-      onTouchEnd={(e) => endDrag(e.changedTouches[0].clientX, e.changedTouches[0].clientY, e.target, e.currentTarget)}
-      className="fixed inset-0 z-[10000] flex flex-col items-center justify-between bg-[#07090e]/95 p-4 backdrop-blur-md select-none sm:p-6"
-      style={{ animation: 'pm-fade 0.25s ease-out' }}
+      className="fixed inset-0 z-[10000] select-none"
+      style={{
+        // Backdrop tint + blur fade in/out over the morph, in lockstep with the ghost.
+        backgroundColor: 'rgba(7, 9, 14, 0.95)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        opacity: phase === 'closing' ? 0 : 1,
+        transition: `opacity ${MORPH_MS}ms ${MORPH_EASE}`,
+      }}
     >
+      {/* ── Morph ghost ──
+          A clone of the active project that flies between the grid card and the
+          centred detail box. Shown only while morphing/closing; the real carousel
+          takes over once open. */}
+      {morphing && ghost && (
+        <div
+          className="absolute overflow-hidden rounded-2xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.7)]"
+          style={{
+            left: ghost.left,
+            top: ghost.top,
+            width: ghost.width,
+            height: ghost.height,
+            transition: `all ${MORPH_MS}ms ${MORPH_EASE}`,
+            zIndex: 50,
+          }}
+        >
+          <img src={activeProject.image} alt={activeProject.title} draggable={false} className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#07090e]/90 via-[#07090e]/30 to-transparent" />
+          <div className="absolute bottom-0 left-0 p-5">
+            <span className="font-label text-[10px] font-bold uppercase tracking-label text-primary">
+              {activeProject.year}
+            </span>
+            <h4 className="mt-1 font-headline text-lg font-bold text-white">{activeProject.title}</h4>
+          </div>
+        </div>
+      )}
+
+      {/* Chrome (header/carousel/footer) fades in only after the morph settles. */}
+      <div
+        onMouseDown={(e) => startDrag(e.clientX, e.clientY)}
+        onMouseUp={(e) => endDrag(e.clientX, e.clientY, e.target, e.currentTarget)}
+        onTouchStart={(e) => startDrag(e.touches[0].clientX, e.touches[0].clientY)}
+        onTouchEnd={(e) => endDrag(e.changedTouches[0].clientX, e.changedTouches[0].clientY, e.target, e.currentTarget)}
+        className="flex h-full w-full flex-col items-center justify-between p-4 sm:p-6"
+        style={{
+          opacity: chromeVisible ? 1 : 0,
+          transition: 'opacity 200ms ease-out',
+          pointerEvents: chromeVisible ? 'auto' : 'none',
+        }}
+      >
       {/* ── Header ── */}
       <div onClick={(e) => e.stopPropagation()} className="flex w-full max-w-5xl items-center justify-between">
         <div className="flex items-center gap-2">
@@ -120,7 +250,7 @@ const ProjectModal = ({ isOpen, index, onClose, onIndexChange }: ProjectModalPro
           <span className="font-label text-[10px] uppercase tracking-widest text-primary">Aneesh. Work</span>
         </div>
         <button
-          onClick={onClose}
+          onClick={closeWithMorph}
           className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 transition-all hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
           title="Close (Esc)"
         >
@@ -313,8 +443,7 @@ const ProjectModal = ({ isOpen, index, onClose, onIndexChange }: ProjectModalPro
           ))}
         </div>
       </div>
-
-      <style>{`@keyframes pm-fade { from { opacity: 0 } to { opacity: 1 } }`}</style>
+      </div>
     </div>
   );
 };
