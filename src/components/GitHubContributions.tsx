@@ -28,7 +28,7 @@ type ApiResponse = {
 /** Tooltip anchor — page-absolute centre of the hovered cell */
 type TooltipAnchor = { day: Day; cx: number; top: number };
 
-const GITHUB_USERNAME = 'aneeshsharma72067';
+const GITHUB_USERNAME = 'jiffyaneesh';
 
 const MONTHS = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',

@@ -31,8 +31,8 @@ export const personal = {
 /* ------------------------------------------------------------------- links */
 
 export const links = {
-  github: 'https://github.com/aneeshsharma72067',
-  githubRepos: 'https://github.com/aneeshsharma72067?tab=repositories',
+  github: 'https://github.com/jiffyaneesh',
+  githubRepos: 'https://github.com/jiffyaneesh?tab=repositories',
   linkedin: 'https://www.linkedin.com/in/helloaneesh',
   twitter: 'https://x.com/aneeshdev03',
   email: 'mailto:aneeshsharma1024@gmail.com',
@@ -43,7 +43,7 @@ export const links = {
 export type SocialLink = { label: string; handle: string; href: string };
 
 export const socials: SocialLink[] = [
-  { label: 'GitHub', handle: 'aneeshsharma72067', href: links.github },
+  { label: 'GitHub', handle: 'jiffyaneesh', href: links.github },
   { label: 'LinkedIn', handle: 'in/helloaneesh', href: links.linkedin },
   { label: 'Twitter', handle: '@aneeshdev03', href: links.twitter },
   { label: 'Email', handle: personal.email, href: links.email },
@@ -68,7 +68,7 @@ export const projects: Project[] = [
     description:
       'Event-driven AI system that analyzes GitHub repository events and detects engineering risks such as large commits and architectural drift. A serverless Fastify API on Vercel ingests webhooks in under 100ms and queues jobs to Redis via BullMQ, while distributed AI workers on Azure store runs in Postgres and power a Next.js dashboard.',
     tags: ['Fastify', 'Next.js', 'Redis', 'BullMQ', 'Postgres', 'Azure', 'AI'],
-    github: 'https://github.com/aneeshsharma72067/reposage',
+    github: 'https://github.com/jiffyaneesh/reposage',
     live: 'https://reposage-web.vercel.app/',
     image: Traceon,
   },
@@ -78,7 +78,7 @@ export const projects: Project[] = [
     description:
       'A standalone AI-powered CLI tool that generates complete project folder structures from natural language prompts. Scaffolds projects instantly with zero setup, powered by Google Gemini AI and shipped as a cross-platform executable.',
     tags: ['Python', 'CLI', 'Gemini AI', 'React', 'Vite', 'Tailwind'],
-    github: 'https://github.com/aneeshsharma72067/ai-structure-gen',
+    github: 'https://github.com/jiffyaneesh/ai-structure-gen',
     live: 'https://ai-structure-gen.vercel.app/',
     image: AiGenPreview,
   },
@@ -88,7 +88,7 @@ export const projects: Project[] = [
     description:
       'Browser-based PDF reader with note-taking built in, highly optimized, built with Svelte 5, SvelteKit, PDF.js, IndexedDB, can load 1000 pages without any lag or performance issue even on low end device.',
     tags: ['Svelte 5', 'SvelteKit', 'PDF.js', 'IndexedDB', 'Vite'],
-    github: 'https://github.com/aneeshsharma72067/folio',
+    github: 'https://github.com/jiffyaneesh/folio',
     live: 'https://folioapp.pages.dev/',
     image: FolioPreview,
   },
@@ -98,7 +98,7 @@ export const projects: Project[] = [
     description:
       'Leetcode POTD email sender, custom time, no friction, no signup, built with Hono, React, Supabase, Cloudflare Workers. Real production tool with over 100 users.',
     tags: ['Hono', 'React', 'Supabase', 'Cloudflare Workers', 'Cron'],
-    github: 'https://github.com/aneeshsharma72067/repeto',
+    github: 'https://github.com/jiffyaneesh/repeto',
     live: 'https://repeto.dev',
     image: RepetoPreview,
   },
@@ -108,8 +108,8 @@ export const projects: Project[] = [
     description:
       'An all-in-one personal dashboard that unifies task management, goal tracking, hydration logging, and expense tracking into a single clean workspace. Designed to replace a dozen scattered apps with one fast, focused home base.',
     tags: ['React', 'TypeScript', 'Dashboard', 'Productivity'],
-    github: 'https://github.com/aneeshsharma72067/mybase',
-    live: 'https://aneeshsharma72067.github.io/mybase',
+    github: 'https://github.com/jiffyaneesh/mybase',
+    live: 'https://jiffyaneesh.github.io/mybase',
     image: MyBasePreview,
   },
   {
@@ -118,7 +118,7 @@ export const projects: Project[] = [
     description:
       'An advanced cryptocurrency screener with real-time prices, multi-timeframe market-cap change, sorting, currency conversion, and a watchlist. Built for traders who want to scan hundreds of assets at a glance.',
     tags: ['React', 'CoinGecko API', 'Screener', 'Real-time'],
-    github: 'https://github.com/aneeshsharma72067/cryptopulse',
+    github: 'https://github.com/jiffyaneesh/cryptopulse',
     live: 'https://cryptopulse1.vercel.app/',
     image: CryptoPreview,
   },

@@ -41,11 +41,11 @@ contribute to open-source projects, and sharpen my thinking through chess.
 
 | Platform | URL |
 |---|---|
-| GitHub | https://github.com/aneeshsharma72067 |
+| GitHub | https://github.com/jiffyaneesh |
 | LinkedIn | https://www.linkedin.com/in/helloaneesh |
 | Twitter / X | https://x.com/aneeshdev03 |
 | Email | mailto:aneeshsharma1024@gmail.com |
-| GitHub (repos) | https://github.com/aneeshsharma72067?tab=repositories |
+| GitHub (repos) | https://github.com/jiffyaneesh?tab=repositories |
 
 ---
 
@@ -58,7 +58,7 @@ Fastify API on Vercel ingests webhook events in under 100ms and publishes jobs
 to Redis (Upstash) via BullMQ. Distributed AI workers on Azure Container Apps
 with Postgres + Prisma store analysis runs and power a Next.js dashboard.
 - Tags: Fastify, Next.js, Redis, BullMQ, Postgres, Prisma, Azure, Vercel, AI, Serverless
-- GitHub: https://github.com/aneeshsharma72067/reposage
+- GitHub: https://github.com/jiffyaneesh/reposage
 - Live: https://reposage-web.vercel.app/
 - Image: src/assets/image/traceon.png
 
@@ -67,7 +67,7 @@ Standalone AI-powered CLI tool that generates complete project folder structures
 from natural language prompts. Scaffolds projects instantly with zero setup,
 powered by Google Gemini AI and distributed as a cross-platform executable.
 - Tags: Python, CLI Tool, Google Gemini AI, AI, React, Vite, Tailwind CSS, Vercel
-- GitHub: https://github.com/aneeshsharma72067/ai-structure-gen
+- GitHub: https://github.com/jiffyaneesh/ai-structure-gen
 - Live: https://ai-structure-gen.vercel.app/
 - Image: src/assets/image/aigenpreview.png
 
@@ -76,7 +76,7 @@ Modern crypto screener built with React and Tailwind CSS displaying real-time
 cryptocurrency market data via the CoinGecko API. Clean UI, responsive design,
 fast data updates for tracking top cryptocurrencies.
 - Tags: React, Tailwind CSS, API Integration, CoinGecko API, JavaScript, Frontend, Responsive UI
-- GitHub: https://github.com/aneeshsharma72067/cryptopulse
+- GitHub: https://github.com/jiffyaneesh/cryptopulse
 - Live: https://cryptopulse1.vercel.app/
 - Image: https://aneesh-dev-old.netlify.app/assets/crypto-e693db22.png
 
@@ -85,7 +85,7 @@ Real-time collaborative code editor supporting JavaScript and Python, enabling
 multiple users to write and edit code simultaneously. Low-latency
 synchronization, tested with up to 5 concurrent users for stability.
 - Tags: Real-Time Systems, WebSockets, JavaScript, Python, Collaborative Editing, Concurrency, Full Stack
-- GitHub: https://github.com/aneeshsharma72067/coderaven-with-js
+- GitHub: https://github.com/jiffyaneesh/coderaven-with-js
 - Live: https://coderaven.onrender.com/
 - Image: https://aneesh-dev-old.netlify.app/assets/coderaven-07cbb033.png
 

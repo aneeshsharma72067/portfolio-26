@@ -336,7 +336,7 @@ export default function Terminal({ onNavigate }: Props) {
           <div className="w-3.5 h-3.5 rounded-full bg-[#ffbd2e]" />
           <div className="w-3.5 h-3.5 rounded-full bg-[#27c93f]" />
         </div>
-        <span className="text-xs text-outline/80 font-mono">aneeshsharma72067@portfolio: ~</span>
+        <span className="text-xs text-outline/80 font-mono">jiffyaneesh@portfolio: ~</span>
         <div className="w-16" /> {/* balance layout spacing */}
       </div>
 
