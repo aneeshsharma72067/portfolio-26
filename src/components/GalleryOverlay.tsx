@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import img1 from '../assets/image/gallery/1.png';
-import img2 from '../assets/image/gallery/2.jpg';
-import img3 from '../assets/image/gallery/3.jpg';
-import img4 from '../assets/image/gallery/4.jpg';
-import img5 from '../assets/image/gallery/5.jpg';
+import img1 from '../assets/image/gallery/1.webp';
+import img2 from '../assets/image/gallery/2.webp';
+import img3 from '../assets/image/gallery/3.webp';
+import img4 from '../assets/image/gallery/4.webp';
+import img5 from '../assets/image/gallery/5.webp';
 
 interface GalleryOverlayProps {
   isOpen: boolean;
