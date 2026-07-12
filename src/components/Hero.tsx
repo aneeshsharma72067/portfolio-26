@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowUpRight, MapPin } from 'lucide-react';
 import { personal } from '@/data/content';
-import Profile from '@/assets/image/gallery/1.png';
+import Profile from '@/assets/image/gallery/1.webp';
 import Landscape from '@/assets/image/banner.jpg';
 import NowPlaying from './NowPlaying';
 import ChessProfile from './ChessProfile';
