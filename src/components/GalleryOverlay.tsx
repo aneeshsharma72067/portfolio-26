@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import img1 from '../assets/image/gallery/1.webp';
 import img2 from '../assets/image/gallery/2.webp';
@@ -115,17 +116,32 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!touchStartCoords) return;
 
-    const touchEnd = e.changedTouches[0].clientX;
-    const diffX = touchStartCoords.x - touchEnd;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const diffX = touchStartCoords.x - endX;
+    const diffY = touchStartCoords.y - endY;
+    const distance = Math.sqrt(diffX * diffX + diffY * diffY);
 
-    if (Math.abs(diffX) > 40) {
-      if (diffX > 50) handleNext(); // Swipe left -> Next
-      else if (diffX < -50) handlePrev(); // Swipe right -> Prev
+    if (distance > 30) {
+      // It's a swipe — only act on mostly-horizontal gestures
+      if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX > 50) handleNext(); // Swipe left -> Next
+        else if (diffX < -50) handlePrev(); // Swipe right -> Prev
+      }
+    } else {
+      // It's a tap — close if it landed on the backdrop (not header/carousel/footer)
+      const target = e.target as HTMLElement;
+      if (target === e.currentTarget) {
+        onClose();
+      }
     }
     setTouchStartCoords(null);
   };
 
-  return (
+  // Render into document.body via portal so the overlay escapes the ancestor
+  // stacking context (main has `relative z-10`), otherwise the fixed Header
+  // (z-50 at root) paints on top of the close button on mobile.
+  return createPortal(
     <div
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
@@ -320,7 +336,8 @@ const GalleryOverlay = ({ isOpen, onClose }: GalleryOverlayProps) => {
           to { opacity: 1; transform: scale(1); }
         }
       `}</style>
-    </div>
+    </div>,
+    document.body
   );
 };
 
