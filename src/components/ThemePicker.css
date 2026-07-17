@@ -1,34 +1,40 @@
 /*
  * ThemePicker — "Circular Reveal" theme switcher.
  *
- * Three stacked layers, low -> high z-index:
- *   1. .theme-base    — the committed background colour (sits behind page content)
- *   2. .theme-reveal  — the expanding ripple circle (sweeps ABOVE content, then commits)
- *   3. .theme-picker  — the fixed toggle button + fanned colour dots (always on top)
+ * Stacked layers, low -> high z-index:
+ *   1. .theme-base    — committed OLD background colour, static during a sweep
+ *   2. .theme-reveal  — expanding ripple circle, the incoming NEW background.
+ *                       Sits BELOW page content, ABOVE the old base, so it
+ *                       paints the new colour in from the corner without ever
+ *                       touching the text's own colour (no state flash).
+ *   3. page content   — z-index >= 10 (the <main>)
+ *   4. .theme-picker  — the fixed toggle button + fanned colour dots (top)
+ *
+ * The colour only commits to .theme-base once the circle's transform transition
+ * has fully ended (onTransitionEnd), after which the circle is reset to scale(0)
+ * silently. Because base now equals the ripple colour, the reset is invisible.
  *
  * The ripple grows from the top-right corner (transform-origin) as a 250vw circle,
  * so its arc always clears the bottom-left of any viewport before it finishes.
  */
 
 /* ------------------------------------------------------------------ */
-/* 1. Committed background layer (behind all page content)             */
+/* 1. Committed background layer (behind everything, holds OLD colour)  */
 /* ------------------------------------------------------------------ */
 .theme-base {
   position: fixed;
   inset: 0;
   z-index: 0;                 /* page content lives at z-index >= 10 */
   pointer-events: none;
-  /* Colour fades softly if it ever changes without a ripple (fallback) */
-  transition: background-color 0.3s ease;
 }
 
 /* ------------------------------------------------------------------ */
-/* 2. Expanding ripple circle                                          */
+/* 2. Expanding ripple circle — the incoming NEW background            */
 /* ------------------------------------------------------------------ */
 .theme-reveal-wrap {
   position: fixed;
   inset: 0;
-  z-index: 90;                /* above content, below the picker chrome */
+  z-index: 1;                 /* ABOVE old base, BELOW page content */
   overflow: hidden;           /* clip the oversized circle -> no scrollbars */
   pointer-events: none;
 }
@@ -126,6 +132,16 @@
 /* Currently active colour gets a ring */
 .theme-dot.is-active {
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55);
+}
+
+/*
+ * OPTIONAL text-flip hook (off by default).
+ * If a theme needs the TEXT colour to invert as the circle passes beneath it,
+ * add class `theme-blend` to the content wrapper. Only enable when content is
+ * plain text — it inverts images and accent colours too.
+ */
+.theme-blend {
+  mix-blend-mode: difference;
 }
 
 /* Respect reduced-motion: skip the sweep, snap instantly */

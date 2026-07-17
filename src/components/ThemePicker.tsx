@@ -41,7 +41,6 @@ const ThemePicker = () => {
   const [rippleOn, setRippleOn] = useState(false);
 
   const rootRef = useRef<HTMLDivElement>(null);
-  const commitTimer = useRef<number | null>(null);
 
   /* Close the dial on any outside click. */
   useEffect(() => {
@@ -54,19 +53,14 @@ const ThemePicker = () => {
     return () => document.removeEventListener('mousedown', onOutside);
   }, []);
 
-  /* Clear any pending commit timer on unmount. */
-  useEffect(() => {
-    return () => {
-      if (commitTimer.current) window.clearTimeout(commitTimer.current);
-    };
-  }, []);
-
   /**
    * Handle a colour choice:
    * 1. collapse the dial (dots shrink back into the toggle),
-   * 2. plant a ripple circle of the chosen colour at the corner,
-   * 3. on the next frame, expand it (the 1s sweep),
-   * 4. once it fully covers the screen, commit it as the base and drop the ripple.
+   * 2. plant a ripple circle of the chosen colour at the corner (scale 0),
+   * 3. on the next frame, expand it — the 1s sweep paints the new colour
+   *    IN FROM THE CORNER, beneath the content, over the static old base.
+   * The commit happens later, in onRevealEnd (fired by onTransitionEnd), so the
+   * page background state never changes mid-sweep -> no flash.
    */
   const pickColor = (bg: string) => {
     if (bg === activeColor) {
@@ -82,14 +76,21 @@ const ThemePicker = () => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => setRippleOn(true));
     });
+  };
 
-    // Match the 1s CSS sweep, then swap layers with no visible seam.
-    if (commitTimer.current) window.clearTimeout(commitTimer.current);
-    commitTimer.current = window.setTimeout(() => {
-      setActiveColor(bg);   // base now holds the new colour...
-      setRippleOn(false);
-      setRippleColor(null); // ...so removing the ripple reveals an identical surface
-    }, 1000);
+  /**
+   * Fired when the ripple's transform transition fully finishes.
+   * The circle has now covered the whole viewport, so:
+   *   - commit the new colour to the static base layer, THEN
+   *   - silently reset the circle to scale(0).
+   * Base === ripple colour at this instant, so the reset is invisible.
+   */
+  const onRevealEnd = (e: React.TransitionEvent<HTMLDivElement>) => {
+    // Only react to the transform sweep, not stray property transitions.
+    if (e.propertyName !== 'transform' || !rippleColor) return;
+    setActiveColor(rippleColor); // base now holds the new colour...
+    setRippleOn(false);          // ...reset the circle (no transition on the way back)
+    setRippleColor(null);        // ...and drop it; identical surface underneath
   };
 
   const dotCount = PALETTE.length;
@@ -105,6 +106,7 @@ const ThemePicker = () => {
           <div
             className={`theme-reveal ${rippleOn ? 'is-expanding' : ''}`}
             style={{ backgroundColor: rippleColor }}
+            onTransitionEnd={onRevealEnd}
           />
         </div>
       )}
