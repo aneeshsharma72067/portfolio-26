@@ -1,0 +1,140 @@
+/*
+ * ThemePicker — "Circular Reveal" theme switcher.
+ *
+ * Three stacked layers, low -> high z-index:
+ *   1. .theme-base    — the committed background colour (sits behind page content)
+ *   2. .theme-reveal  — the expanding ripple circle (sweeps ABOVE content, then commits)
+ *   3. .theme-picker  — the fixed toggle button + fanned colour dots (always on top)
+ *
+ * The ripple grows from the top-right corner (transform-origin) as a 250vw circle,
+ * so its arc always clears the bottom-left of any viewport before it finishes.
+ */
+
+/* ------------------------------------------------------------------ */
+/* 1. Committed background layer (behind all page content)             */
+/* ------------------------------------------------------------------ */
+.theme-base {
+  position: fixed;
+  inset: 0;
+  z-index: 0;                 /* page content lives at z-index >= 10 */
+  pointer-events: none;
+  /* Colour fades softly if it ever changes without a ripple (fallback) */
+  transition: background-color 0.3s ease;
+}
+
+/* ------------------------------------------------------------------ */
+/* 2. Expanding ripple circle                                          */
+/* ------------------------------------------------------------------ */
+.theme-reveal-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 90;                /* above content, below the picker chrome */
+  overflow: hidden;           /* clip the oversized circle -> no scrollbars */
+  pointer-events: none;
+}
+
+.theme-reveal {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 250vw;
+  height: 250vw;
+  border-radius: 50%;
+  /* Anchor growth to the top-right corner and push it half off-screen
+     so the circle's centre aligns with the toggle button. */
+  transform-origin: top right;
+  transform: translate(50%, -50%) scale(0);
+  will-change: transform;
+}
+
+/* Active ripple: the liquid sweep across the screen */
+.theme-reveal.is-expanding {
+  transform: translate(50%, -50%) scale(1);
+  transition: transform 1s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ------------------------------------------------------------------ */
+/* 3. Picker chrome — toggle button + colour dots                      */
+/* ------------------------------------------------------------------ */
+.theme-picker {
+  position: fixed;
+  top: 5rem;                  /* sit just below the 4rem (h-16) header */
+  right: 1.25rem;
+  z-index: 100;               /* always clickable, above the ripple */
+  width: 44px;
+  height: 44px;
+}
+
+/* Central toggle */
+.theme-toggle {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  cursor: pointer;
+  z-index: 2;                 /* above the fanned dots' origin */
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Rotate + glow when the dial is open */
+.theme-picker.is-open .theme-toggle {
+  transform: rotate(135deg);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.35);
+}
+
+/* Colour dots — fan out from under the toggle */
+.theme-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;    /* centre the dot on the toggle's centre */
+  border-radius: 9999px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  z-index: 1;
+  /* Collapsed under the toggle by default */
+  transform: translate(0, 0) scale(0);
+  opacity: 0;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.3s ease, box-shadow 0.2s ease;
+}
+
+.theme-picker.is-open .theme-dot {
+  opacity: 1;
+  /* --tx / --ty are set inline per-dot; scale to full size */
+  transform: translate(var(--tx), var(--ty)) scale(1);
+}
+
+.theme-dot:hover {
+  box-shadow: 0 0 14px 2px currentColor;
+}
+
+/* Currently active colour gets a ring */
+.theme-dot.is-active {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55);
+}
+
+/* Respect reduced-motion: skip the sweep, snap instantly */
+@media (prefers-reduced-motion: reduce) {
+  .theme-reveal.is-expanding {
+    transition: none;
+  }
+  .theme-dot,
+  .theme-toggle {
+    transition: opacity 0.2s ease;
+  }
+}

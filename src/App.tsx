@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import Preloader from '@/components/Preloader';
 import EasterEgg from '@/components/EasterEgg';
 import Terminal from '@/components/Terminal';
+import ThemePicker from '@/components/ThemePicker';
 import { useClickBurst } from '@/hooks/useClickBurst';
 
 /**
@@ -85,6 +86,9 @@ const App = () => {
         />
 
         <Header />
+
+        {/* Circular-reveal theme switcher (fixed top-right) */}
+        <ThemePicker />
 
         <main className="relative z-10 mx-auto w-[90%] max-w-5xl pb-4 pt-24 md:w-[60%]">
           <Hero />
