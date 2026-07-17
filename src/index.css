@@ -12,10 +12,11 @@
 @layer base {
   :root {
     color-scheme: dark;
-    /* Accent channels (space-separated RGB) consumed by Tailwind's `primary`.
-       Default = mint #55ddad. The theme picker overwrites this at runtime so
-       the accent swaps together with the background as a matched pair. */
-    --primary: 85 221 173;
+    /* Runtime theme channels (space-separated RGB). The picker overwrites both
+       at the end of a reveal sweep so accent + surface swap as a matched pair.
+       Consumed by Tailwind's `primary` and by any `rgb(var(--x) / a)` usage. */
+    --primary: 85 221 173;   /* accent — default mint  #55ddad */
+    --bg: 14 19 32;          /* surface — default navy #0e1320 */
   }
 
   html {

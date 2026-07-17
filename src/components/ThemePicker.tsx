@@ -11,22 +11,24 @@ interface Theme {
   id: string;
   label: string;
   bg: string;             // whole-screen background colour
+  bgRgb: string;          // bg as space-separated RGB channels for --bg
   accent: string;         // paired accent hue (Tailwind `primary`)
-  accentRgb: string;      // same accent as space-separated RGB channels for --primary
+  accentRgb: string;      // accent as space-separated RGB channels for --primary
 }
 
 /*
  * Palette — each theme is a matched (background, accent) PAIR. The dot shown in
- * the dial is the accent, so you preview the accent you're switching to.
- * `accentRgb` must be the channel form of `accent` (Tailwind needs bare RGB).
- * Default first = the site's navy + mint.
+ * the dial is the accent, so you preview what you're switching to.
+ * `*Rgb` fields must be the space-separated channel form (consumed by the
+ * --bg / --primary runtime vars). Backgrounds are deep, low-chroma surfaces;
+ * accents are bright and legible against them. Default first = navy + mint.
  */
 const PALETTE: Theme[] = [
-  { id: 'stdout', label: 'Stdout', bg: '#0e1320', accent: '#55ddad', accentRgb: '85 221 173' },
-  { id: 'blue', label: 'Deep Blue', bg: '#0b1f3a', accent: '#4da3ff', accentRgb: '77 163 255' },
-  { id: 'plum', label: 'Plum', bg: '#241030', accent: '#c084fc', accentRgb: '192 132 252' },
-  { id: 'ember', label: 'Ember', bg: '#2b1310', accent: '#ff8a5c', accentRgb: '255 138 92' },
-  { id: 'rose', label: 'Rose', bg: '#2b1020', accent: '#ff6fae', accentRgb: '255 111 174' },
+  { id: 'stdout', label: 'Stdout',   bg: '#0e1320', bgRgb: '14 19 32',   accent: '#55ddad', accentRgb: '85 221 173' },
+  { id: 'ocean',  label: 'Ocean',    bg: '#0a1626', bgRgb: '10 22 38',   accent: '#38bdf8', accentRgb: '56 189 248' },
+  { id: 'grape',  label: 'Grape',    bg: '#161029', bgRgb: '22 16 41',   accent: '#a78bfa', accentRgb: '167 139 250' },
+  { id: 'sunset', label: 'Sunset',   bg: '#1f1512', bgRgb: '31 21 18',   accent: '#fb923c', accentRgb: '251 146 60' },
+  { id: 'sakura', label: 'Sakura',   bg: '#20121a', bgRgb: '32 18 26',   accent: '#f472b6', accentRgb: '244 114 182' },
 ];
 
 /**
@@ -59,9 +61,12 @@ const ThemePicker = () => {
     return () => document.removeEventListener('mousedown', onOutside);
   }, []);
 
-  /* Keep the live `--primary` accent channel in sync with the committed theme. */
+  /* Keep the live theme channels (--primary accent, --bg surface) in sync with
+     the committed theme so every var-driven colour retints as a pair. */
   useEffect(() => {
-    document.documentElement.style.setProperty('--primary', activeTheme.accentRgb);
+    const root = document.documentElement.style;
+    root.setProperty('--primary', activeTheme.accentRgb);
+    root.setProperty('--bg', activeTheme.bgRgb);
   }, [activeTheme]);
 
   /**

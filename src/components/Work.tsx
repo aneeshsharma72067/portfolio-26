@@ -30,7 +30,7 @@ const Work = () => {
         clickEffect
         spotlightRadius={320}
         particleCount={10}
-        glowColor="85, 221, 173"
+        glowColor="var(--primary)"
       />
 
       <a

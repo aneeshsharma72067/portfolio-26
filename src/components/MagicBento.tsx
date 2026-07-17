@@ -19,7 +19,7 @@ import './MagicBento.css';
 
 const DEFAULT_PARTICLE_COUNT = 10;
 const DEFAULT_SPOTLIGHT_RADIUS = 320;
-const DEFAULT_GLOW_COLOR = '85, 221, 173'; // theme mint (primary #55ddad)
+const DEFAULT_GLOW_COLOR = 'var(--primary)'; // live theme accent channel
 const MOBILE_BREAKPOINT = 768;
 
 /* --------------------------------------------------------------- helpers */
@@ -32,8 +32,8 @@ const createParticleElement = (x: number, y: number, color = DEFAULT_GLOW_COLOR)
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background: rgba(${color}, 1);
-    box-shadow: 0 0 6px rgba(${color}, 0.6);
+    background: rgb(${color} / 1);
+    box-shadow: 0 0 6px rgb(${color} / 0.6);
     pointer-events: none;
     z-index: 100;
     left: ${x}px;
@@ -255,7 +255,7 @@ const ParticleCard = ({
           width: ${maxDistance * 2}px;
           height: ${maxDistance * 2}px;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(${glowColor}, 0.4) 0%, rgba(${glowColor}, 0.2) 30%, transparent 70%);
+          background: radial-gradient(circle, rgb(${glowColor} / 0.4) 0%, rgb(${glowColor} / 0.2) 30%, transparent 70%);
           left: ${x - maxDistance}px;
           top: ${y - maxDistance}px;
           pointer-events: none;
@@ -327,11 +327,11 @@ const GlobalSpotlight = ({
       border-radius: 50%;
       pointer-events: none;
       background: radial-gradient(circle,
-        rgba(${glowColor}, 0.15) 0%,
-        rgba(${glowColor}, 0.08) 15%,
-        rgba(${glowColor}, 0.04) 25%,
-        rgba(${glowColor}, 0.02) 40%,
-        rgba(${glowColor}, 0.01) 65%,
+        rgb(${glowColor} / 0.15) 0%,
+        rgb(${glowColor} / 0.08) 15%,
+        rgb(${glowColor} / 0.04) 25%,
+        rgb(${glowColor} / 0.02) 40%,
+        rgb(${glowColor} / 0.01) 65%,
         transparent 70%
       );
       z-index: 200;

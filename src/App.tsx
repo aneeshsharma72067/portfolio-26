@@ -75,13 +75,13 @@ const App = () => {
 
     return (
       <div id="top" className="relative min-h-screen overflow-x-hidden">
-        {/* Ambient glow — restrained green bloom near the top */}
+        {/* Ambient glow — restrained accent bloom near the top (follows theme) */}
         <div
           aria-hidden
-          className="pointer-events-none fixed inset-x-0 top-0 h-[420px] opacity-60"
+          className="pointer-events-none fixed inset-x-0 top-0 z-[2] h-[420px] opacity-60"
           style={{
             background:
-              'radial-gradient(60% 100% at 50% 0%, rgba(85,221,173,0.10), transparent 70%)',
+              'radial-gradient(60% 100% at 50% 0%, rgb(var(--primary) / 0.10), transparent 70%)',
           }}
         />
 
