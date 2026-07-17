@@ -10,17 +10,23 @@ import './ThemePicker.css';
 interface Theme {
   id: string;
   label: string;
-  bg: string;
-  dot: string;
+  bg: string;             // whole-screen background colour
+  accent: string;         // paired accent hue (Tailwind `primary`)
+  accentRgb: string;      // same accent as space-separated RGB channels for --primary
 }
 
-/* Palette — the site's default navy first, then a fanned arc of moods. */
+/*
+ * Palette — each theme is a matched (background, accent) PAIR. The dot shown in
+ * the dial is the accent, so you preview the accent you're switching to.
+ * `accentRgb` must be the channel form of `accent` (Tailwind needs bare RGB).
+ * Default first = the site's navy + mint.
+ */
 const PALETTE: Theme[] = [
-  { id: 'stdout', label: 'Stdout', bg: '#0e1320', dot: '#0e1320' },
-  { id: 'blue', label: 'Deep Blue', bg: '#0b2545', dot: '#1d6fd6' },
-  { id: 'plum', label: 'Plum', bg: '#2a1230', dot: '#9d4edd' },
-  { id: 'ember', label: 'Ember', bg: '#2b0f0f', dot: '#e0553b' },
-  { id: 'forest', label: 'Forest', bg: '#0c1f16', dot: '#2ebf91' },
+  { id: 'stdout', label: 'Stdout', bg: '#0e1320', accent: '#55ddad', accentRgb: '85 221 173' },
+  { id: 'blue', label: 'Deep Blue', bg: '#0b1f3a', accent: '#4da3ff', accentRgb: '77 163 255' },
+  { id: 'plum', label: 'Plum', bg: '#241030', accent: '#c084fc', accentRgb: '192 132 252' },
+  { id: 'ember', label: 'Ember', bg: '#2b1310', accent: '#ff8a5c', accentRgb: '255 138 92' },
+  { id: 'rose', label: 'Rose', bg: '#2b1020', accent: '#ff6fae', accentRgb: '255 111 174' },
 ];
 
 /**
@@ -33,11 +39,11 @@ const PALETTE: Theme[] = [
 const ThemePicker = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // `activeColor` is what's committed behind the page right now.
-  const [activeColor, setActiveColor] = useState<string>(PALETTE[0].bg);
+  // `activeTheme` is the (bg + accent) pair committed behind the page right now.
+  const [activeTheme, setActiveTheme] = useState<Theme>(PALETTE[0]);
 
-  // The ripple is a transient top layer: colour + a toggled "expanding" flag.
-  const [rippleColor, setRippleColor] = useState<string | null>(null);
+  // The ripple is a transient top layer: the incoming theme + an "expanding" flag.
+  const [rippleTheme, setRippleTheme] = useState<Theme | null>(null);
   const [rippleOn, setRippleOn] = useState(false);
 
   const rootRef = useRef<HTMLDivElement>(null);
@@ -53,23 +59,28 @@ const ThemePicker = () => {
     return () => document.removeEventListener('mousedown', onOutside);
   }, []);
 
+  /* Keep the live `--primary` accent channel in sync with the committed theme. */
+  useEffect(() => {
+    document.documentElement.style.setProperty('--primary', activeTheme.accentRgb);
+  }, [activeTheme]);
+
   /**
-   * Handle a colour choice:
+   * Handle a theme choice:
    * 1. collapse the dial (dots shrink back into the toggle),
-   * 2. plant a ripple circle of the chosen colour at the corner (scale 0),
-   * 3. on the next frame, expand it — the 1s sweep paints the new colour
+   * 2. plant a ripple circle of the chosen background at the corner (scale 0),
+   * 3. on the next frame, expand it — the 1s sweep paints the new background
    *    IN FROM THE CORNER, beneath the content, over the static old base.
-   * The commit happens later, in onRevealEnd (fired by onTransitionEnd), so the
-   * page background state never changes mid-sweep -> no flash.
+   * The commit (bg + accent together) happens later in onRevealEnd, so nothing
+   * about the page state changes mid-sweep -> no flash.
    */
-  const pickColor = (bg: string) => {
-    if (bg === activeColor) {
+  const pickTheme = (theme: Theme) => {
+    if (theme.id === activeTheme.id) {
       setIsMenuOpen(false);
       return;
     }
 
     setIsMenuOpen(false);
-    setRippleColor(bg);
+    setRippleTheme(theme);
     setRippleOn(false);
 
     // Next frame: flip the flag so the CSS transition actually animates.
@@ -81,16 +92,16 @@ const ThemePicker = () => {
   /**
    * Fired when the ripple's transform transition fully finishes.
    * The circle has now covered the whole viewport, so:
-   *   - commit the new colour to the static base layer, THEN
+   *   - commit the new theme (bg to the base layer, accent via the effect), THEN
    *   - silently reset the circle to scale(0).
-   * Base === ripple colour at this instant, so the reset is invisible.
+   * Base === ripple background at this instant, so the reset is invisible.
    */
   const onRevealEnd = (e: React.TransitionEvent<HTMLDivElement>) => {
     // Only react to the transform sweep, not stray property transitions.
-    if (e.propertyName !== 'transform' || !rippleColor) return;
-    setActiveColor(rippleColor); // base now holds the new colour...
+    if (e.propertyName !== 'transform' || !rippleTheme) return;
+    setActiveTheme(rippleTheme); // base + accent now hold the new theme...
     setRippleOn(false);          // ...reset the circle (no transition on the way back)
-    setRippleColor(null);        // ...and drop it; identical surface underneath
+    setRippleTheme(null);        // ...and drop it; identical surface underneath
   };
 
   const dotCount = PALETTE.length;
@@ -98,14 +109,14 @@ const ThemePicker = () => {
   return (
     <>
       {/* 1. Committed background — behind all page content */}
-      <div className="theme-base" style={{ backgroundColor: activeColor }} aria-hidden />
+      <div className="theme-base" style={{ backgroundColor: activeTheme.bg }} aria-hidden />
 
-      {/* 2. Transient ripple sweep */}
-      {rippleColor && (
+      {/* 2. Transient ripple sweep (incoming background) */}
+      {rippleTheme && (
         <div className="theme-reveal-wrap" aria-hidden>
           <div
             className={`theme-reveal ${rippleOn ? 'is-expanding' : ''}`}
-            style={{ backgroundColor: rippleColor }}
+            style={{ backgroundColor: rippleTheme.bg }}
             onTransitionEnd={onRevealEnd}
           />
         </div>
@@ -132,16 +143,17 @@ const ThemePicker = () => {
           return (
             <button
               key={theme.id}
-              className={`theme-dot ${activeColor === theme.bg ? 'is-active' : ''}`}
+              className={`theme-dot ${activeTheme.id === theme.id ? 'is-active' : ''}`}
               style={{
-                backgroundColor: theme.dot,
-                color: theme.dot, // drives the hover glow (currentColor)
+                // Dot shows the theme's ACCENT — preview what you're switching to.
+                backgroundColor: theme.accent,
+                color: theme.accent, // drives the hover glow (currentColor)
                 // Stagger the fan for a "dealing cards" feel.
                 transitionDelay: isMenuOpen ? `${i * 45}ms` : '0ms',
                 ['--tx' as string]: `${tx}px`,
                 ['--ty' as string]: `${ty}px`,
               }}
-              onClick={() => pickColor(theme.bg)}
+              onClick={() => pickTheme(theme)}
               aria-label={`Switch theme to ${theme.label}`}
               title={theme.label}
             />

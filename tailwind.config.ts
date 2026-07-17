@@ -25,8 +25,11 @@ export default {
       },
       colors: {
         // Accent — mint / teal green
+        // Accent — driven by the runtime `--primary` channel var so the theme
+        // picker can swap it live. `<alpha-value>` keeps `primary/NN` opacity
+        // utilities working. Default channels = mint #55ddad (see index.css).
         primary: {
-          DEFAULT: '#55ddad',
+          DEFAULT: 'rgb(var(--primary) / <alpha-value>)',
           fixed: '#75fac8',
           container: '#2ebf91',
         },
