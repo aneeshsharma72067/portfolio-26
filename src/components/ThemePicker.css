@@ -64,17 +64,18 @@
 /* ------------------------------------------------------------------ */
 .theme-picker {
   position: fixed;
-  top: 0.75rem;               /* tucked into the very top-right corner */
-  right: 1rem;
+  top: 0;                     /* origin sits ON the viewport's top-right corner */
+  right: 0;
   z-index: 100;               /* always clickable, above the ripple */
-  width: 44px;
-  height: 44px;
+  width: 0;
+  height: 0;
 }
 
-/* Central toggle */
+/* Central toggle — nudged down-left off the corner so it's fully on-screen. */
 .theme-toggle {
   position: absolute;
-  inset: 0;
+  top: 14px;
+  right: 14px;                /* offsets from the corner into the visible area */
   display: grid;
   place-items: center;
   width: 44px;
@@ -85,7 +86,7 @@
   backdrop-filter: blur(8px);
   color: #fff;
   cursor: pointer;
-  z-index: 2;                 /* above the fanned dots' origin */
+  z-index: 2;                 /* above the ring hub */
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
     background-color 0.3s ease, box-shadow 0.3s ease;
 }
@@ -100,29 +101,49 @@
   box-shadow: 0 0 18px rgba(255, 255, 255, 0.35);
 }
 
-/* Colour dots — fan out from under the toggle */
-.theme-dot {
+/*
+ * The ring — a full circle of dots orbiting the toggle's centre (the corner).
+ * Its own box is zero-size at the toggle centre; each dot is absolutely placed
+ * and transformed out onto the ring. Only the lower-left quarter lands on-screen;
+ * the rest overflows past the top/right viewport edges and is clipped by them.
+ *
+ * The ring is collapsed (scale 0) + hidden until the dial opens. A smooth
+ * transition on --rot would fight the wheel, so rotation itself is instant while
+ * the open/close scale eases.
+ */
+.theme-ring {
   position: absolute;
   top: 50%;
   left: 50%;
+  width: 0;
+  height: 0;
+  z-index: 1;
+  pointer-events: none;       /* dots re-enable it; empty ring area stays click-through */
+  opacity: 0;
+  transform: scale(0.2);
+  transform-origin: center;
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-picker.is-open .theme-ring {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+/* Colour dots — placed on the ring by an inline transform (angle + --rot). */
+.theme-dot {
+  position: absolute;
+  top: -13px;                 /* centre the 26px dot on the ring's centre point */
+  left: -13px;
   width: 26px;
   height: 26px;
-  margin: -13px 0 0 -13px;    /* centre the dot on the toggle's centre */
   border-radius: 9999px;
   border: 2px solid rgba(255, 255, 255, 0.85);
   cursor: pointer;
-  z-index: 1;
-  /* Collapsed under the toggle by default */
-  transform: translate(0, 0) scale(0);
-  opacity: 0;
-  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.3s ease, box-shadow 0.2s ease;
-}
-
-.theme-picker.is-open .theme-dot {
-  opacity: 1;
-  /* --tx / --ty are set inline per-dot; scale to full size */
-  transform: translate(var(--tx), var(--ty)) scale(1);
+  pointer-events: auto;
+  /* Inline transform sets rotation+translate; keep box-shadow/border animated. */
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .theme-dot:hover {
@@ -132,6 +153,7 @@
 /* Currently active colour gets a ring */
 .theme-dot.is-active {
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55);
+  border-color: #fff;
 }
 
 /*

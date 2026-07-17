@@ -6,8 +6,8 @@
 @tailwind utilities;
 
 /*
- * "Stdout" — dark editorial base.
  * Dark by default; there is no light mode.
+ * Default theme: Mono (near-black + soft white).
  */
 @layer base {
   :root {
@@ -15,8 +15,8 @@
     /* Runtime theme channels (space-separated RGB). The picker overwrites both
        at the end of a reveal sweep so accent + surface swap as a matched pair.
        Consumed by Tailwind's `primary` and by any `rgb(var(--x) / a)` usage. */
-    --primary: 85 221 173;   /* accent — default mint  #55ddad */
-    --bg: 14 19 32;          /* surface — default navy #0e1320 */
+    --primary: 240 240 240;  /* accent — default soft white #f0f0f0 */
+    --bg: 17 17 17;          /* surface — default near-black #111111 */
   }
 
   html {
