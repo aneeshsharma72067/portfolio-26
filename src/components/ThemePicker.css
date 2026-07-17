@@ -64,8 +64,8 @@
 /* ------------------------------------------------------------------ */
 .theme-picker {
   position: fixed;
-  top: 5rem;                  /* sit just below the 4rem (h-16) header */
-  right: 1.25rem;
+  top: 0.75rem;               /* tucked into the very top-right corner */
+  right: 1rem;
   z-index: 100;               /* always clickable, above the ripple */
   width: 44px;
   height: 44px;

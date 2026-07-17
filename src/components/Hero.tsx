@@ -20,7 +20,7 @@ const Hero = () => {
   const OVERLAP = AVATAR_SIZE / 2; // 56px
 
   return (
-    <section id="about" className="pt-10">
+    <section id="about" className="pt-2">
       {/* ── Banner + overlapping avatar ── */}
       <div
         className="relative w-full"
