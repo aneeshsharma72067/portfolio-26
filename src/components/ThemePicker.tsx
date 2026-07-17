@@ -118,9 +118,11 @@ const ThemePicker = () => {
       >
         {/* Fanned colour dots — spread across a ~150° arc opening down-left. */}
         {PALETTE.map((theme, i) => {
-          // Distribute dots along an arc. Angle 90°=down, 180°=left.
-          const startAngle = 100; // degrees
-          const endAngle = 200;
+          // Distribute dots along the lower-left quarter arc.
+          // 0°=right, 90°=down, 180°=left → sweep straight down to straight left
+          // so every dot stays below the top edge and left of the right edge.
+          const startAngle = 90; // degrees (straight down)
+          const endAngle = 180; // (straight left)
           const t = dotCount === 1 ? 0 : i / (dotCount - 1);
           const angle = (startAngle + (endAngle - startAngle) * t) * (Math.PI / 180);
           const radius = 74; // px from the toggle centre
