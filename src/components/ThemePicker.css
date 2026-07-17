@@ -102,6 +102,26 @@
 }
 
 /*
+ * Wheel hit-area — invisible disc centred on the corner hub. Catches the wheel
+ * event across the whole dial face (over dots AND the empty gaps between them),
+ * so scrolling anywhere inside the dial spins the ring. Below the dots so their
+ * clicks still land; disabled until the dial opens.
+ */
+.theme-hit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.theme-picker.is-open .theme-hit {
+  pointer-events: auto;
+}
+
+/*
  * The ring — a full circle of dots orbiting the toggle's centre (the corner).
  * Its own box is zero-size at the toggle centre; each dot is absolutely placed
  * and transformed out onto the ring. Only the lower-left quarter lands on-screen;

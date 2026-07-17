@@ -36,7 +36,7 @@ const PALETTE: Theme[] = [
 
 /* Ring geometry. Dots sit on a circle centred on the viewport's top-right corner,
    so only the lower-left quarter of the ring falls on-screen (a real dial face). */
-const RING_RADIUS = 150; // px from the corner centre to each dot
+const RING_RADIUS = 96; // px from the corner centre to each dot
 const STEP = 360 / PALETTE.length; // angular gap between dots
 const SCROLL_SENSITIVITY = 0.35; // deg of ring rotation per wheel-delta unit
 
@@ -152,6 +152,14 @@ const ThemePicker = () => {
         ref={rootRef}
         className={`theme-picker ${isMenuOpen ? 'is-open' : ''}`}
       >
+        {/* Wheel hit-area — a disc centred on the corner spanning past the ring,
+            so scrolling ANYWHERE inside the dial (over dots or gaps) spins it.
+            Only shown/active while open; sits below the dots so clicks pass. */}
+        <div
+          className="theme-hit"
+          style={{ width: (RING_RADIUS + 40) * 2, height: (RING_RADIUS + 40) * 2 }}
+          aria-hidden
+        />
         {/* The ring: a full circle of dots orbiting the corner. Its centre is the
             viewport corner; only the lower-left quarter shows. The whole ring
             rotates as one so dots slide through the visible arc on scroll. */}
