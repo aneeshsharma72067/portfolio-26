@@ -11,7 +11,9 @@ const STEP = 360 / PALETTE.length; // angular gap between dots
 const SCROLL_SENSITIVITY = 0.35; // deg of ring rotation per wheel-delta unit
 /* Min gap between wheel-tick sounds (ms). Wheel events fire far faster than
    this; throttling keeps the clicks crisp instead of a smeared drone. */
-const SFX_THROTTLE_MS = 70;
+const SFX_THROTTLE_MS = 80;
+/** How many seconds of the clip to actually play per tick. */
+const SFX_PLAY_DURATION = 0.18;
 
 /**
  * ThemePicker — a corner-mounted rotating colour dial.
@@ -40,19 +42,32 @@ const ThemePicker = () => {
   const [rippleOn, setRippleOn] = useState(false);
 
   const rootRef = useRef<HTMLDivElement>(null);
-  // Preloaded wheel-tick sound + timestamp of the last play (for throttling).
-  const sfxRef = useRef<HTMLAudioElement | null>(null);
+  // Web Audio API state — decoded buffer + AudioContext, timestamp guard.
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const audioBufferRef = useRef<AudioBuffer | null>(null);
   const lastSfxAt = useRef(0);
 
-  /* Preload the wheel-scroll SFX once so the first tick has no fetch latency. */
+  /* Decode the wheel-scroll clip once into an AudioBuffer.
+     Using the Web Audio API lets us play exactly SFX_PLAY_DURATION seconds
+     per tick with zero latency and no bleed after scrolling stops. */
   useEffect(() => {
-    const a = new Audio(wheelScrollSfx);
-    a.preload = 'auto';
-    a.volume = 0.35;
-    sfxRef.current = a;
+    let cancelled = false;
+    const ctx = new AudioContext();
+    audioCtxRef.current = ctx;
+
+    fetch(wheelScrollSfx)
+      .then((r) => r.arrayBuffer())
+      .then((ab) => ctx.decodeAudioData(ab))
+      .then((buf) => {
+        if (!cancelled) audioBufferRef.current = buf;
+      })
+      .catch(() => {}); // silently ignore if asset missing
+
     return () => {
-      a.pause();
-      sfxRef.current = null;
+      cancelled = true;
+      ctx.close().catch(() => {});
+      audioCtxRef.current = null;
+      audioBufferRef.current = null;
     };
   }, []);
 
@@ -84,15 +99,23 @@ const ThemePicker = () => {
       e.preventDefault();
       setRotation((r) => r + e.deltaY * SCROLL_SENSITIVITY);
 
-      // Play a crisp tick, throttled. Rewind to 0 so rapid ticks retrigger
-      // instantly instead of waiting for the clip to finish. Ignore the
-      // autoplay-policy rejection (harmless before first user gesture).
+      // Play a short tick via Web Audio API — zero latency, stops after
+      // SFX_PLAY_DURATION seconds so there's no bleed when scrolling stops.
       const now = e.timeStamp;
-      const sfx = sfxRef.current;
-      if (sfx && now - lastSfxAt.current >= SFX_THROTTLE_MS) {
+      const ctx = audioCtxRef.current;
+      const buf = audioBufferRef.current;
+      if (ctx && buf && now - lastSfxAt.current >= SFX_THROTTLE_MS) {
         lastSfxAt.current = now;
-        sfx.currentTime = 0;
-        sfx.play().catch(() => {});
+        // Resume context if suspended by autoplay policy (no-op if already running).
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+        const src = ctx.createBufferSource();
+        const gain = ctx.createGain();
+        gain.gain.value = 0.4;
+        src.buffer = buf;
+        src.connect(gain);
+        gain.connect(ctx.destination);
+        src.start(ctx.currentTime);
+        src.stop(ctx.currentTime + SFX_PLAY_DURATION);
       }
     };
     el.addEventListener('wheel', onWheel, { passive: false });
