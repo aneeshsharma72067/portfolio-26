@@ -12,10 +12,12 @@ import EasterEgg from '@/components/EasterEgg';
 import Terminal from '@/components/Terminal';
 import ThemePicker from '@/components/ThemePicker';
 import DevMode from '@/components/DevMode';
+import DarkHour from '@/components/DarkHour';
 import TerminalFX, { fireConfetti, type FxEffect } from '@/components/TerminalFX';
 import { useClickBurst } from '@/hooks/useClickBurst';
 import { useKonami } from '@/hooks/useKonami';
 import { useConsoleEggs } from '@/hooks/useConsoleEggs';
+import { useDarkHour } from '@/hooks/useDarkHour';
 
 /**
  * Root layout — supports client-side pathname-based routing for '/cli' vs '/'.
@@ -38,20 +40,33 @@ const App = () => {
   /* Spawn ring-particle fireworks on every click — zero re-renders */
   useClickBurst();
 
+  /* Hidden Persona 3 "Dark Hour": auto-fires in the midnight window; can also be
+     forced via terminal / #darkhour hash. */
+  const { active: darkHour, dismiss: dismissDarkHour, force: forceDarkHour } = useDarkHour();
+
   /* Konami Code → confetti burst + toggle the dev-mode HUD. */
   useKonami(() => {
     fireConfetti(160);
     setDevMode((d) => !d);
   });
 
-  /* Console banner + hire() global + tab-blur title + ?matrix/#konami triggers. */
+  /* Console banner + hire() global + tab-blur title + ?matrix/#konami/#darkhour. */
   useConsoleEggs({
     onMatrix: () => setFx('matrix'),
     onKonami: () => {
       fireConfetti(160);
       setDevMode(true);
     },
+    onDarkHour: forceDarkHour,
   });
+
+  /* Cross-component trigger: the terminal (a different route) dispatches this
+     event so its `darkhour` command can summon the takeover on the GUI. */
+  useEffect(() => {
+    const onEvt = () => forceDarkHour();
+    window.addEventListener('portfolio:darkhour', onEvt);
+    return () => window.removeEventListener('portfolio:darkhour', onEvt);
+  }, [forceDarkHour]);
 
   useEffect(() => {
     const handleLocationChange = () => {
@@ -148,6 +163,9 @@ const App = () => {
 
       {/* Global fullscreen effect fired from console eggs / hash triggers */}
       {fx && <TerminalFX effect={fx} onDone={() => setFx(null)} />}
+
+      {/* Hidden Persona 3 Dark Hour takeover (midnight window / forced) */}
+      {darkHour && <DarkHour onDismiss={dismissDarkHour} />}
     </>
   );
 };

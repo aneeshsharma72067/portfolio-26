@@ -45,6 +45,7 @@ const COMMANDS = [
   'hack',
   'nmap',
   'cmatrix',
+  'darkhour',
   'sudo',
 ];
 
@@ -280,6 +281,19 @@ export default function Terminal({ onNavigate }: Props) {
       return;
     }
 
+    // ---- summon the hidden Dark Hour on the GUI ---------------------------
+    if (mainCommand === 'darkhour') {
+      setHistory((prev) => [
+        ...prev,
+        { command: commandText, output: <span className="text-green-400">The Dark Hour approaches… returning to the surface.</span> },
+      ]);
+      // The DarkHour overlay lives on the GUI route; fire the cross-component
+      // event, then navigate back so the takeover is visible.
+      window.dispatchEvent(new Event('portfolio:darkhour'));
+      window.setTimeout(() => onNavigate('/'), 400);
+      return;
+    }
+
     // ---- theme / persona switching ----------------------------------------
     if (mainCommand === 'theme') {
       output = handleTheme(arg);
@@ -343,7 +357,7 @@ export default function Terminal({ onNavigate }: Props) {
             Protip: Use <span className="text-white font-bold">Tab</span> for autocomplete, and <span className="text-white font-bold">Up/Down Arrows</span> for command history.
           </p>
           <p className="text-xs text-outline/50">
-            …and a few things aren't on this list. Try <span className="text-white">fortune</span>, <span className="text-white">sl</span>, <span className="text-white">cmatrix</span>, <span className="text-white">persona 5</span>, or something a real sysadmin would <span className="text-red-400">never</span> type. 😈
+            …and a few things aren't on this list. Try <span className="text-white">fortune</span>, <span className="text-white">sl</span>, <span className="text-white">cmatrix</span>, <span className="text-white">persona 5</span>, or wait until <span className="text-green-400">midnight</span> for something you can also <span className="text-white">darkhour</span>. 😈
           </p>
         </div>
       );

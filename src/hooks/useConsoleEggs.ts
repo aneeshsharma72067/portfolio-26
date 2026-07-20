@@ -17,9 +17,11 @@ type Options = {
   onMatrix?: () => void;
   /** Fire the Konami unlock (e.g. from `#konami`). */
   onKonami?: () => void;
+  /** Summon the Dark Hour (e.g. from `#darkhour`). */
+  onDarkHour?: () => void;
 };
 
-export function useConsoleEggs({ onMatrix, onKonami }: Options = {}) {
+export function useConsoleEggs({ onMatrix, onKonami, onDarkHour }: Options = {}) {
   useEffect(() => {
     /* -------- 1. console banner + hire() global -------- */
     const brand = 'color:#55ddad;font-size:14px;font-weight:bold';
@@ -57,6 +59,7 @@ export function useConsoleEggs({ onMatrix, onKonami }: Options = {}) {
     const params = new URLSearchParams(window.location.search);
     if (params.has('matrix')) onMatrix?.();
     if (window.location.hash === '#konami') onKonami?.();
+    if (window.location.hash === '#darkhour') onDarkHour?.();
 
     return () => {
       document.removeEventListener('visibilitychange', onVisibility);
