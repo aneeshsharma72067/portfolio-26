@@ -35,6 +35,11 @@ export default function DarkHour({ onDismiss }: Props) {
   // Two-phase takeover: 'intro' = opaque cinematic; 'ambient' = translucent,
   // non-blocking wash so the (green-tinted, frozen) portfolio shows through.
   const [phase, setPhase] = useState<'intro' | 'ambient'>('intro');
+  // Set true while the quick "power restored" reverse fade plays before we tell
+  // the parent to unmount us. Ref mirror guards against double-trigger from the
+  // mount-once key listener's stale closure.
+  const [exiting, setExiting] = useState(false);
+  const exitingRef = useRef(false);
 
   /* --- Apply the green wash + freeze, restore everything on unmount. --- */
   useEffect(() => {
@@ -67,10 +72,22 @@ export default function DarkHour({ onDismiss }: Props) {
     };
   }, []);
 
+  /**
+   * Dismiss with a quick "power restored" reverse fade: flash the class that
+   * snaps the overlay bright→out, then unmount via the parent. Guarded so a
+   * double-trigger (Esc + click) only runs once.
+   */
+  const beginExit = () => {
+    if (exitingRef.current) return;
+    exitingRef.current = true;
+    setExiting(true);
+    window.setTimeout(onDismiss, 650);
+  };
+
   /* --- Dismiss on Escape; run the intro → ambient beat. --- */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onDismiss();
+      if (e.key === 'Escape') beginExit();
     };
     window.addEventListener('keydown', onKey);
     // Fade the title card, then dissolve the opaque intro into the ambient wash
@@ -89,12 +106,12 @@ export default function DarkHour({ onDismiss }: Props) {
   return (
     <div
       ref={rootRef}
-      className={`dark-hour-overlay dh-${phase}`}
+      className={`dark-hour-overlay dh-${phase} ${exiting ? 'is-exiting' : ''}`}
       role="dialog"
       aria-label="The Dark Hour"
       // Intro is a click-to-skip cinematic. Ambient lets clicks fall through to
       // the portfolio (pointer-events:none in CSS) — dismissal moves to the HUD.
-      onClick={isAmbient ? undefined : onDismiss}
+      onClick={isAmbient ? undefined : beginExit}
       style={{ ['--dh-bg' as string]: `url(${darkHourBg})` }}
     >
       {/* Green clock backdrop (the P3 25th-hour moon-clock image) */}
@@ -115,6 +132,8 @@ export default function DarkHour({ onDismiss }: Props) {
       <div className="dh-grain" aria-hidden />
       {/* Crimson blood-water vignette at the edges */}
       <div className="dh-vignette" aria-hidden />
+      {/* Periodic full-screen power flicker — a failing-signal blink */}
+      <div className="dh-flicker" aria-hidden />
 
       {/* Intro title card */}
       <div className={`dh-title ${titleGone ? 'is-gone' : ''}`}>
@@ -132,7 +151,7 @@ export default function DarkHour({ onDismiss }: Props) {
           className="dh-exit"
           onClick={(e) => {
             e.stopPropagation();
-            onDismiss();
+            beginExit();
           }}
         >
           <span className="dh-exit-clock">00:00</span>

@@ -17,11 +17,24 @@ html.dark-hour #root > :not(.dark-hour-overlay) * {
   animation-play-state: paused !important;
 }
 
-/* "Electronics don't work in the Dark Hour": the theme dial is dead — no
-   interaction (which also stops it clobbering the green wash via --primary),
-   dimmed + faintly flickering like a failing screen. */
-html.dark-hour .theme-picker {
+/* "Electronics don't work in the Dark Hour": every interactive control on the
+   page goes dead — no clicks, links, media or inputs respond. Scoped to page
+   content so the overlay's own exit HUD stays alive. */
+html.dark-hour #root > :not(.dark-hour-overlay) button,
+html.dark-hour #root > :not(.dark-hour-overlay) a,
+html.dark-hour #root > :not(.dark-hour-overlay) audio,
+html.dark-hour #root > :not(.dark-hour-overlay) video,
+html.dark-hour #root > :not(.dark-hour-overlay) input,
+html.dark-hour #root > :not(.dark-hour-overlay) select,
+html.dark-hour #root > :not(.dark-hour-overlay) textarea,
+html.dark-hour #root > :not(.dark-hour-overlay) [role='button'] {
   pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
+/* The theme dial is the emblem of dead electronics: also dimmed + flickering
+   like a failing screen. Disabling it stops --primary clobbering the wash. */
+html.dark-hour .theme-picker {
   opacity: 0.35;
   filter: grayscale(0.6);
   animation: dh-dead-flicker 2.4s steps(1) infinite;
@@ -161,6 +174,46 @@ html.dark-hour .theme-picker {
   100% { transform: translate(0, 0); }
 }
 
+/* ---- periodic power flicker ---------------------------------------------- */
+/* A faint black/green blink that sweeps the whole overlay at irregular beats,
+   selling a failing signal. Present in both phases (still shows through the
+   click-through ambient layer). */
+.dh-flicker {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(0, 8, 3, 0.9);
+  mix-blend-mode: multiply;
+  opacity: 0;
+  animation: dh-power-flicker 7s steps(1) infinite;
+}
+@keyframes dh-power-flicker {
+  0%, 100%   { opacity: 0; }
+  /* two quick brownouts partway through each cycle */
+  40%        { opacity: 0; }
+  41%        { opacity: 0.55; }
+  42%        { opacity: 0.05; }
+  43%        { opacity: 0.4; }
+  44%        { opacity: 0; }
+  72%        { opacity: 0; }
+  72.5%      { opacity: 0.6; }
+  73.5%      { opacity: 0.1; }
+  74%        { opacity: 0; }
+}
+
+/* ---- exit: quick "power restored" reverse fade --------------------------- */
+/* Snap bright, then out — the world flooding back to normal. Runs over ~0.65s
+   (matches beginExit's timeout). Overrides ambient's transparent bg. */
+.dark-hour-overlay.is-exiting {
+  animation: dh-power-restore 0.65s ease-out forwards !important;
+  pointer-events: none;
+}
+@keyframes dh-power-restore {
+  0%   { opacity: 1; filter: none; }
+  18%  { opacity: 1; filter: brightness(2.6) saturate(0.2); } /* flash */
+  100% { opacity: 0; filter: brightness(3); }
+}
+
 /* ---- blood-water crimson vignette ---------------------------------------- */
 .dh-vignette {
   position: absolute;
@@ -255,10 +308,14 @@ html.dark-hour .theme-picker {
   .dh-moon,
   .dh-coffin,
   .dh-grain,
+  .dh-flicker,
   .dh-title-clock,
-  .dh-title-hint {
+  .dh-title-hint,
+  html.dark-hour .theme-picker {
     animation: none;
   }
   .dh-coffin { opacity: 0.7; transform: none; }
   .dark-hour-overlay { opacity: 1; }
+  /* Still fade out on exit, just without the bright flash. */
+  .dark-hour-overlay.is-exiting { animation: dh-fade-in 0.4s ease reverse forwards !important; }
 }
