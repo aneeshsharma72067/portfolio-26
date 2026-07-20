@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Palette } from 'lucide-react';
 import { PALETTE, applyTheme, loadInitialTheme, type Theme } from '@/lib/themes';
+import wheelScrollSfx from '@/assets/audio/wheel-scroll.mp3';
 import './ThemePicker.css';
 
 /* Ring geometry. Dots sit on a circle centred on the viewport's top-right corner,
@@ -8,6 +9,9 @@ import './ThemePicker.css';
 const RING_RADIUS = 96; // px from the corner centre to each dot
 const STEP = 360 / PALETTE.length; // angular gap between dots
 const SCROLL_SENSITIVITY = 0.35; // deg of ring rotation per wheel-delta unit
+/* Min gap between wheel-tick sounds (ms). Wheel events fire far faster than
+   this; throttling keeps the clicks crisp instead of a smeared drone. */
+const SFX_THROTTLE_MS = 70;
 
 /**
  * ThemePicker — a corner-mounted rotating colour dial.
@@ -36,6 +40,21 @@ const ThemePicker = () => {
   const [rippleOn, setRippleOn] = useState(false);
 
   const rootRef = useRef<HTMLDivElement>(null);
+  // Preloaded wheel-tick sound + timestamp of the last play (for throttling).
+  const sfxRef = useRef<HTMLAudioElement | null>(null);
+  const lastSfxAt = useRef(0);
+
+  /* Preload the wheel-scroll SFX once so the first tick has no fetch latency. */
+  useEffect(() => {
+    const a = new Audio(wheelScrollSfx);
+    a.preload = 'auto';
+    a.volume = 0.35;
+    sfxRef.current = a;
+    return () => {
+      a.pause();
+      sfxRef.current = null;
+    };
+  }, []);
 
   /* Close the dial on any outside click. */
   useEffect(() => {
@@ -64,6 +83,17 @@ const ThemePicker = () => {
       if (!isMenuOpen) return;
       e.preventDefault();
       setRotation((r) => r + e.deltaY * SCROLL_SENSITIVITY);
+
+      // Play a crisp tick, throttled. Rewind to 0 so rapid ticks retrigger
+      // instantly instead of waiting for the clip to finish. Ignore the
+      // autoplay-policy rejection (harmless before first user gesture).
+      const now = e.timeStamp;
+      const sfx = sfxRef.current;
+      if (sfx && now - lastSfxAt.current >= SFX_THROTTLE_MS) {
+        lastSfxAt.current = now;
+        sfx.currentTime = 0;
+        sfx.play().catch(() => {});
+      }
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
