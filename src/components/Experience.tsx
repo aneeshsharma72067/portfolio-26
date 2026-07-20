@@ -29,7 +29,7 @@ const Experience = () => {
       <div className="relative pl-8">
         <span
           aria-hidden
-          className={`pointer-events-none absolute left-1 top-2 h-[calc(100%-1rem)] w-px origin-top bg-gradient-to-b from-primary via-primary/40 to-transparent transition-transform duration-[1400ms] ease-out ${
+          className={`pointer-events-none absolute left-[11px] top-2 h-[calc(100%-1rem)] w-px origin-top bg-gradient-to-b from-primary via-primary/40 to-transparent transition-transform duration-[1400ms] ease-out ${
             visible ? 'scale-y-100' : 'scale-y-0'
           }`}
         />
