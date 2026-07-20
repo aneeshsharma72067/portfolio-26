@@ -32,6 +32,11 @@ const PALETTE: Theme[] = [
   { id: 'lime',   label: 'Lime',    bg: '#131c0c', bgRgb: '19 28 12',  accent: '#a3e635', accentRgb: '163 230 53' },
   { id: 'forest', label: 'Forest',  bg: '#0c1f16', bgRgb: '12 31 22',  accent: '#34d399', accentRgb: '52 211 153' },
   { id: 'mono',   label: 'Mono',    bg: '#121212', bgRgb: '18 18 18',  accent: '#e5e7eb', accentRgb: '229 231 235' },
+  // Persona tribute trio — each keyed to that game's signature UI colour.
+  // P3 Reload: electric Tartarus blue. P4: Midnight-Channel yellow. P5 Royal: velvet-room red.
+  { id: 'p3r',    label: 'P3 Reload', bg: '#08111f', bgRgb: '8 17 31',   accent: '#37aaff', accentRgb: '55 170 255' },
+  { id: 'p4g',    label: 'P4',        bg: '#171408', bgRgb: '23 20 8',   accent: '#ffe500', accentRgb: '255 229 0' },
+  { id: 'p5r',    label: 'P5 Royal',  bg: '#150708', bgRgb: '21 7 8',    accent: '#ff2233', accentRgb: '255 34 51' },
 ];
 
 /* Ring geometry. Dots sit on a circle centred on the viewport's top-right corner,
