@@ -1,0 +1,186 @@
+/* ============================================================================
+   TerminalFX — fullscreen cinematic overlays for the interactive terminal.
+   All effects sit above page content and are purely CSS-driven (plus a canvas
+   for the matrix rain). Respects prefers-reduced-motion where it matters.
+   ========================================================================== */
+
+.fx-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: hidden;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------- rm -rf blast
+   Progress-bar dread → CRT shake/glitch → white flash. The whole layer melts
+   and desaturates as the "deletion" completes. */
+.fx-blast {
+  background: #000;
+  display: grid;
+  place-items: center;
+  animation: fx-blast-melt 2.6s ease-in forwards;
+}
+
+.fx-blast-glitch {
+  width: min(680px, 88vw);
+  color: #ff4b3e;
+  text-shadow: 2px 0 #00e0ff, -2px 0 #ff00a0;
+  animation: fx-blast-shake 0.12s infinite;
+}
+
+.fx-blast-line {
+  margin: 0.25rem 0;
+  font-size: clamp(0.7rem, 2.4vw, 1rem);
+  opacity: 0;
+  animation: fx-blast-reveal 0.3s ease forwards;
+}
+.fx-blast-line-2 { animation-delay: 0.5s; }
+.fx-blast-line-3 {
+  color: #fff;
+  font-weight: 700;
+  font-size: clamp(1rem, 4vw, 1.8rem);
+  letter-spacing: 0.1em;
+  animation-delay: 1.9s;
+}
+
+.fx-blast-bar {
+  margin: 0.75rem 0;
+  height: 14px;
+  border: 1px solid #ff4b3e;
+  background: #1a0000;
+}
+.fx-blast-bar-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: repeating-linear-gradient(90deg, #ff4b3e 0 8px, #7a0000 8px 12px);
+  animation: fx-blast-fill 1.8s steps(30) forwards;
+}
+
+.fx-blast-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  animation: fx-blast-boom 0.5s ease-in 2.1s forwards;
+}
+
+@keyframes fx-blast-fill { to { width: 100%; } }
+@keyframes fx-blast-reveal { to { opacity: 1; } }
+@keyframes fx-blast-shake {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-2px, 1px); }
+  50%  { transform: translate(2px, -1px); }
+  75%  { transform: translate(-1px, -2px); }
+  100% { transform: translate(1px, 2px); }
+}
+@keyframes fx-blast-boom {
+  0%   { opacity: 0; }
+  40%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+@keyframes fx-blast-melt {
+  0%   { filter: none; transform: scaleY(1); }
+  80%  { filter: saturate(1.4) brightness(1.1); transform: scaleY(1); }
+  100% { filter: grayscale(1) brightness(3); transform: scaleY(1.04); }
+}
+
+/* ------------------------------------------------------------------- cmatrix */
+.fx-matrix { background: #000; pointer-events: auto; cursor: pointer; }
+.fx-matrix-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fx-matrix-hint {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #00ff66;
+  font-size: 0.8rem;
+  opacity: 0.6;
+  animation: fx-pulse 1.6s ease-in-out infinite;
+}
+@keyframes fx-pulse { 50% { opacity: 0.15; } }
+
+/* ------------------------------------------------------------------- sl train
+   The locomotive slides from off-screen right to off-screen left, once. */
+.fx-train { background: rgba(0, 0, 0, 0.9); display: grid; align-items: center; }
+.fx-train-art {
+  color: #e5e7eb;
+  font-size: clamp(0.4rem, 1.4vw, 0.8rem);
+  line-height: 1.05;
+  white-space: pre;
+  width: max-content;
+  animation: fx-train-run 4s linear forwards;
+}
+@keyframes fx-train-run {
+  from { transform: translateX(100vw); }
+  to   { transform: translateX(-120%); }
+}
+
+/* ------------------------------------------------------------------ fork bomb
+   A grid of the bomb snippet floods in, jitters, then the recovery msg fades up
+   over the top. */
+.fx-forkbomb { background: #000; display: grid; place-items: center; }
+.fx-forkbomb-flood {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  padding: 8px;
+  overflow: hidden;
+  color: #00ff66;
+  font-size: 0.75rem;
+}
+.fx-forkbomb-flood span {
+  opacity: 0;
+  animation: fx-fork-pop 0.4s ease forwards, fx-blast-shake 0.1s infinite;
+}
+@keyframes fx-fork-pop { to { opacity: 0.85; } }
+.fx-forkbomb-msg {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  font-size: clamp(1rem, 3vw, 1.6rem);
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  opacity: 0;
+  animation: fx-blast-reveal 0.5s ease 2.4s forwards;
+}
+
+/* ------------------------------------------------------------------ confetti
+   Imperatively-spawned layer over the live UI; each bit falls + spins. */
+.fx-confetti-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  overflow: hidden;
+}
+.fx-confetti-bit {
+  position: absolute;
+  top: -5vh;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  animation-name: fx-confetti-fall;
+  animation-timing-function: cubic-bezier(0.3, 0.7, 0.5, 1);
+  animation-fill-mode: forwards;
+}
+@keyframes fx-confetti-fall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(108vh) rotate(720deg); opacity: 0.9; }
+}
+
+/* Reduced motion: keep effects legible but drop the aggressive shake/melt. */
+@media (prefers-reduced-motion: reduce) {
+  .fx-blast,
+  .fx-blast-glitch,
+  .fx-forkbomb-flood span,
+  .fx-train-art { animation-duration: 0.01ms; animation-iteration-count: 1; }
+  .fx-blast-glitch { text-shadow: none; }
+}
