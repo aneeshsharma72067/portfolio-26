@@ -17,6 +17,22 @@ html.dark-hour #root > :not(.dark-hour-overlay) * {
   animation-play-state: paused !important;
 }
 
+/* "Electronics don't work in the Dark Hour": the theme dial is dead — no
+   interaction (which also stops it clobbering the green wash via --primary),
+   dimmed + faintly flickering like a failing screen. */
+html.dark-hour .theme-picker {
+  pointer-events: none !important;
+  opacity: 0.35;
+  filter: grayscale(0.6);
+  animation: dh-dead-flicker 2.4s steps(1) infinite;
+}
+@keyframes dh-dead-flicker {
+  0%, 70%, 100% { opacity: 0.35; }
+  72% { opacity: 0.12; }
+  74% { opacity: 0.3; }
+  85% { opacity: 0.08; }
+}
+
 /* ---- overlay shell ------------------------------------------------------- */
 .dark-hour-overlay {
   position: fixed;
@@ -28,11 +44,29 @@ html.dark-hour #root > :not(.dark-hour-overlay) * {
   color: #aaffcc;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   animation: dh-fade-in 1.2s ease forwards;
+  /* Backdrop opacity is a var so the intro→ambient transition can ease it. */
+  --dh-backdrop-opacity: 0.55;
+  transition: background-color 1.4s ease;
 }
 @keyframes dh-fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* ---- ambient phase: portfolio shows through, still green + frozen -------- */
+/* The opaque black base dissolves so the (filtered) page reads underneath, and
+   the whole overlay stops intercepting clicks — the world is dead-quiet, only
+   the atmosphere remains. */
+.dark-hour-overlay.dh-ambient {
+  background-color: transparent;
+  pointer-events: none;
+  --dh-backdrop-opacity: 0.14;
+}
+/* Heavy set-pieces recede in ambient so the portfolio stays legible. */
+.dh-ambient .dh-coffins { opacity: 0.35; }
+.dh-ambient .dh-moon { opacity: 0.7; }
+.dh-ambient .dh-scanlines { opacity: 0.28; }
+.dh-ambient .dh-grain { opacity: 0.05; }
 
 /* ---- green clock backdrop image ------------------------------------------ */
 .dh-backdrop {
@@ -41,7 +75,8 @@ html.dark-hour #root > :not(.dark-hour-overlay) * {
   background-image: var(--dh-bg);
   background-size: cover;
   background-position: center;
-  opacity: 0.55;
+  opacity: var(--dh-backdrop-opacity);
+  transition: opacity 1.4s ease;
   /* slow, ominous drift + breathe */
   animation: dh-drift 24s ease-in-out infinite alternate;
 }
@@ -180,6 +215,38 @@ html.dark-hour #root > :not(.dark-hour-overlay) * {
   97%   { opacity: 0.4; }
 }
 @keyframes dh-pulse { 50% { opacity: 0.2; } }
+
+/* ---- ambient exit HUD ---------------------------------------------------- */
+/* Re-enable pointer events on just this control (parent is click-through). */
+.dh-exit {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid rgba(57, 255, 20, 0.4);
+  border-radius: 999px;
+  background: rgba(2, 10, 4, 0.7);
+  backdrop-filter: blur(4px);
+  color: #9dffbd;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+  animation: dh-fade-in 1s ease 0.3s both;
+}
+.dh-exit:hover { border-color: rgba(57, 255, 20, 0.8); color: #eafff0; }
+.dh-exit-clock {
+  font-weight: 800;
+  color: #eafff0;
+  animation: dh-flicker 3s linear infinite;
+}
 
 /* ---- reduced motion: keep the mood, drop the churn ----------------------- */
 @media (prefers-reduced-motion: reduce) {

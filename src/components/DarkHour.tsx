@@ -25,10 +25,16 @@ const DH_BG = '2 10 4'; // near-black green
  *    film grain + scanlines, coffin silhouettes, and a fading title card.
  *  - dismisses on Esc or click, or when the parent's 2-minute window ends.
  */
+/** How long the opaque intro cinematic holds before dissolving to ambient. */
+const INTRO_MS = 3800;
+
 export default function DarkHour({ onDismiss }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   // Drives the title-card fade-out after its intro beat.
   const [titleGone, setTitleGone] = useState(false);
+  // Two-phase takeover: 'intro' = opaque cinematic; 'ambient' = translucent,
+  // non-blocking wash so the (green-tinted, frozen) portfolio shows through.
+  const [phase, setPhase] = useState<'intro' | 'ambient'>('intro');
 
   /* --- Apply the green wash + freeze, restore everything on unmount. --- */
   useEffect(() => {
@@ -61,26 +67,34 @@ export default function DarkHour({ onDismiss }: Props) {
     };
   }, []);
 
-  /* --- Dismiss on Escape; fade the title card after its beat. --- */
+  /* --- Dismiss on Escape; run the intro → ambient beat. --- */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onDismiss();
     };
     window.addEventListener('keydown', onKey);
-    const titleTimer = window.setTimeout(() => setTitleGone(true), 4200);
+    // Fade the title card, then dissolve the opaque intro into the ambient wash
+    // so the portfolio becomes visible (but still green + frozen) beneath.
+    const titleTimer = window.setTimeout(() => setTitleGone(true), INTRO_MS - 900);
+    const phaseTimer = window.setTimeout(() => setPhase('ambient'), INTRO_MS);
     return () => {
       window.removeEventListener('keydown', onKey);
       window.clearTimeout(titleTimer);
+      window.clearTimeout(phaseTimer);
     };
   }, [onDismiss]);
+
+  const isAmbient = phase === 'ambient';
 
   return (
     <div
       ref={rootRef}
-      className="dark-hour-overlay"
+      className={`dark-hour-overlay dh-${phase}`}
       role="dialog"
       aria-label="The Dark Hour"
-      onClick={onDismiss}
+      // Intro is a click-to-skip cinematic. Ambient lets clicks fall through to
+      // the portfolio (pointer-events:none in CSS) — dismissal moves to the HUD.
+      onClick={isAmbient ? undefined : onDismiss}
       style={{ ['--dh-bg' as string]: `url(${darkHourBg})` }}
     >
       {/* Green clock backdrop (the P3 25th-hour moon-clock image) */}
@@ -102,13 +116,29 @@ export default function DarkHour({ onDismiss }: Props) {
       {/* Crimson blood-water vignette at the edges */}
       <div className="dh-vignette" aria-hidden />
 
-      {/* Title card */}
+      {/* Intro title card */}
       <div className={`dh-title ${titleGone ? 'is-gone' : ''}`}>
         <p className="dh-title-clock">00:00</p>
         <h2 className="dh-title-main">The Dark Hour has come.</h2>
         <p className="dh-title-sub">Memento mori. Time stands still.</p>
         <p className="dh-title-hint">— click anywhere or press Esc to return —</p>
       </div>
+
+      {/* Ambient-phase HUD: a small persistent marker + explicit exit. This is
+          the ONLY interactive element once clicks pass through to the page. */}
+      {isAmbient && (
+        <button
+          type="button"
+          className="dh-exit"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDismiss();
+          }}
+        >
+          <span className="dh-exit-clock">00:00</span>
+          the dark hour · press Esc to wake
+        </button>
+      )}
     </div>
   );
 }
