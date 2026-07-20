@@ -11,7 +11,11 @@ import Preloader from '@/components/Preloader';
 import EasterEgg from '@/components/EasterEgg';
 import Terminal from '@/components/Terminal';
 import ThemePicker from '@/components/ThemePicker';
+import DevMode from '@/components/DevMode';
+import TerminalFX, { fireConfetti, type FxEffect } from '@/components/TerminalFX';
 import { useClickBurst } from '@/hooks/useClickBurst';
+import { useKonami } from '@/hooks/useKonami';
+import { useConsoleEggs } from '@/hooks/useConsoleEggs';
 
 /**
  * Root layout — supports client-side pathname-based routing for '/cli' vs '/'.
@@ -26,8 +30,28 @@ const App = () => {
   const [showPreloader, setShowPreloader] = useState(true);
   const [pendingRoute, setPendingRoute] = useState<string | null>(null);
 
+  // Dev-mode HUD (Konami-unlocked) + a global fullscreen effect the console
+  // eggs / Konami can fire over the main page (e.g. matrix rain, confetti).
+  const [devMode, setDevMode] = useState(false);
+  const [fx, setFx] = useState<FxEffect | null>(null);
+
   /* Spawn ring-particle fireworks on every click — zero re-renders */
   useClickBurst();
+
+  /* Konami Code → confetti burst + toggle the dev-mode HUD. */
+  useKonami(() => {
+    fireConfetti(160);
+    setDevMode((d) => !d);
+  });
+
+  /* Console banner + hire() global + tab-blur title + ?matrix/#konami triggers. */
+  useConsoleEggs({
+    onMatrix: () => setFx('matrix'),
+    onKonami: () => {
+      fireConfetti(160);
+      setDevMode(true);
+    },
+  });
 
   useEffect(() => {
     const handleLocationChange = () => {
@@ -118,6 +142,12 @@ const App = () => {
       )}
 
       {renderView()}
+
+      {/* Konami-unlocked debug HUD (bottom-left) */}
+      {devMode && <DevMode onClose={() => setDevMode(false)} />}
+
+      {/* Global fullscreen effect fired from console eggs / hash triggers */}
+      {fx && <TerminalFX effect={fx} onDone={() => setFx(null)} />}
     </>
   );
 };
