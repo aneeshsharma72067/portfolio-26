@@ -8,6 +8,12 @@ All notable changes to this project will be documented in this file.
 - **Gallery overlay on mobile** (`src/components/GalleryOverlay.tsx`) — overlay now renders into `document.body` via `createPortal`, escaping the `main` element's `relative z-10` stacking context that was letting the fixed Header's "GitHub ↗" link paint over the close (X) button. Also added tap-to-close on the backdrop for touch devices (previously `handleTouchEnd` only handled swipes, so tapping outside never closed the gallery); swipe detection now ignores mostly-vertical gestures.
 
 ### Added
+- **Main-page interactive elements + easter eggs** (`src/App.tsx`, `src/components/Hero.tsx`, `src/components/Experience.tsx`, new `Typewriter.tsx` / `DevMode.tsx`, hooks `useKonami.ts` / `useConsoleEggs.ts`):
+  - **Konami Code** (↑↑↓↓←→←→BA) — fires a confetti burst and toggles a **dev-mode HUD** (bottom-left): live FPS meter + a "secret theme" unlock. Ignores input fields so it never clashes with the terminal.
+  - **Console eggs** — styled `console.log` recruiter banner on load with a real global **`hire()`** that opens the mailto; document title flips to a cheeky line when the tab loses focus; **`?matrix`** query param runs the matrix rain and **`#konami`** hash auto-unlocks dev mode.
+  - **Hero typewriter** — the role line now types/deletes through a rotating set of real + playful one-liners (SDE / "future Jarvis builder" / "chess addict ♟" …) with a blinking caret.
+  - **Avatar click-streak** — 5 fast clicks on the hero avatar spin it, swap to an alt photo, and pop confetti; a single click still opens the gallery.
+  - **Experience timeline spine** — a gradient spine now draws itself top-to-bottom (`scaleY`) as the section scrolls in, with per-role node dots (pulsing on the current role).
 - **Interactive terminal commands + fullscreen FX** (`src/components/Terminal.tsx`, `src/components/TerminalFX.tsx` + `.css`, `src/lib/themes.ts`) — the `/cli` terminal now does a lot more than print sections:
   - **`sudo rm -rf --no-preserve-root`** — fires a CRT-glitch deletion blast (fake wipe progress bar → screen melt → white flash) then drops you back on the homepage. Matches any `sudo rm -r… /` variant.
   - **Fullscreen cinematics** — `cmatrix` (green digital-rain canvas, dismiss on keypress/click), `sl` (ASCII steam locomotive chugs across), the `:(){ :|:& };:` fork bomb (text floods, jitters, "nice try 😏" recovery).

@@ -23,7 +23,16 @@ const Experience = () => {
         accent={t('expAccent')}
       />
 
-      <div>
+      {/* Timeline body. A gradient "spine" runs down the left edge and draws
+          itself (scaleY 0→1 from the top) once the section scrolls into view;
+          each role gets a node dot pinned to the spine. */}
+      <div className="relative pl-8">
+        <span
+          aria-hidden
+          className={`pointer-events-none absolute left-1 top-2 h-[calc(100%-1rem)] w-px origin-top bg-gradient-to-b from-primary via-primary/40 to-transparent transition-transform duration-[1400ms] ease-out ${
+            visible ? 'scale-y-100' : 'scale-y-0'
+          }`}
+        />
         {experiences.map((exp, i) => (
           <article
             key={`${exp.company}-${exp.period}`}
@@ -32,6 +41,21 @@ const Experience = () => {
             }`}
             style={{ transitionDelay: `${i * 140}ms` }}
           >
+            {/* Node dot on the spine — pulses for the current role. Fades in
+                after the spine has begun drawing, staggered per row. */}
+            <span
+              aria-hidden
+              className={`absolute -left-[27px] top-12 flex h-3 w-3 transition-opacity duration-500 ${
+                visible ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{ transitionDelay: `${400 + i * 160}ms` }}
+            >
+              {exp.current && (
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/70" />
+              )}
+              <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-background bg-primary" />
+            </span>
+
             {/* Ghost index numeral — oversized, sits behind the content */}
             <span
               aria-hidden
