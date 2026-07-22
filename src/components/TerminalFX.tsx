@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import './TerminalFX.css';
 
 /**
@@ -36,20 +36,32 @@ const DURATIONS: Record<FxEffect, number> = {
 export default function TerminalFX({ effect, onDone }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  // Keep onDone in a ref so the timer effect below does NOT list it as a dep.
+  // The parent Terminal re-renders once a second (its live clock), handing us a
+  // fresh onDone identity each tick — if the timer effect depended on onDone it
+  // would clear + restart the timeout every second and, for effects longer than
+  // 1s (blast 2.6s, train 4.2s), never actually fire. That left the screen
+  // stuck on the melt/train overlay. The ref decouples callback identity from
+  // the timer lifecycle.
+  const onDoneRef = useRef(onDone);
+  useLayoutEffect(() => {
+    onDoneRef.current = onDone;
+  });
+
   /* Timed effects auto-finish; matrix waits for a key/click to dismiss. */
   useEffect(() => {
+    const done = () => onDoneRef.current();
     if (effect === 'matrix') {
-      const dismiss = () => onDone();
-      window.addEventListener('keydown', dismiss);
-      window.addEventListener('click', dismiss);
+      window.addEventListener('keydown', done);
+      window.addEventListener('click', done);
       return () => {
-        window.removeEventListener('keydown', dismiss);
-        window.removeEventListener('click', dismiss);
+        window.removeEventListener('keydown', done);
+        window.removeEventListener('click', done);
       };
     }
-    const t = window.setTimeout(onDone, DURATIONS[effect]);
+    const t = window.setTimeout(done, DURATIONS[effect]);
     return () => window.clearTimeout(t);
-  }, [effect, onDone]);
+  }, [effect]);
 
   /* Matrix rain — a classic falling-glyph canvas animation. */
   useEffect(() => {

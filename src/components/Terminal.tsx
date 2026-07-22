@@ -47,6 +47,24 @@ const COMMANDS = [
   'cmatrix',
   'darkhour',
   'sudo',
+  'eggs',
+];
+
+/* The master list powering the secret `eggs` command — every hidden gag in one
+   place. Kept here (not in `help`) so it stays a reward for the curious. */
+const EASTER_EGGS = [
+  { cmd: 'sl', desc: 'Watch a steam locomotive chug across the screen.' },
+  { cmd: 'cmatrix', desc: 'Green digital rain. Press any key to wake up.' },
+  { cmd: 'hack / nmap', desc: 'Fake “I’m in” hacking sequence.' },
+  { cmd: 'fortune', desc: 'A rotating dev quip.' },
+  { cmd: 'coffee / brew', desc: 'HTTP 418 — I’m a teapot.' },
+  { cmd: 'darkhour', desc: 'Summon the hidden Persona 3 Dark Hour takeover.' },
+  { cmd: 'persona 5', desc: 'Switch to the P5R theme (try any theme id).' },
+  { cmd: 'sudo hire aneesh', desc: 'Confetti + jump to contact. Good call.' },
+  { cmd: 'sudo make me a sandwich', desc: 'The xkcd #149 classic. 🥪' },
+  { cmd: 'sudo rm -rf /', desc: 'Delete the “filesystem”. Consequences apply.' },
+  { cmd: ':(){ :|:& };:', desc: 'Fork bomb — floods, freezes, recovers.' },
+  { cmd: 'neofetch', desc: 'System info card with ASCII sigil.' },
 ];
 
 const ARGUMENTS = ['about', 'projects', 'experience', 'social', 'skills', 'contact'];
@@ -421,6 +439,23 @@ export default function Terminal({ onNavigate }: Props) {
         </div>
       ) : (
         <span className="text-red-400">What manual page do you want?</span>
+      );
+    } else if (mainCommand === 'eggs') {
+      // Secret command: the master list of every hidden easter egg. Not shown
+      // in `help` on purpose — you only find it by finding it.
+      output = (
+        <div className="font-mono text-sm text-on-surface-variant space-y-2">
+          <p className="text-primary font-bold">🥚 Hidden commands (you found the vault):</p>
+          <div className="grid grid-cols-[130px_1fr] gap-x-4 gap-y-1">
+            {EASTER_EGGS.map((e) => (
+              <React.Fragment key={e.cmd}>
+                <span className="text-green-400">{e.cmd}</span>
+                <span>{e.desc}</span>
+              </React.Fragment>
+            ))}
+          </div>
+          <p className="text-xs text-outline/50">Also try the Konami code on the main site. ↑↑↓↓←→←→BA</p>
+        </div>
       );
     } else if (mainCommand === 'coffee' || mainCommand === 'brew') {
       output = (
