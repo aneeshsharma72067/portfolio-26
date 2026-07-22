@@ -4,6 +4,7 @@ import { useTranslation } from '@/context/TranslationContext';
 import { LANGUAGES, Language } from '@/data/translations';
 import { Globe, ChevronDown, PenLine } from 'lucide-react';
 import Magnetic from './Magnetic';
+import { trackGithubClick, trackExternalLink } from '@/lib/analytics';
 
 const navItems = [
   { name: 'About', href: '#about', tKey: 'navAbout' as const },
@@ -80,6 +81,7 @@ const Header = () => {
             href="https://blogs.aneesh-sharma.me"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackExternalLink('https://blogs.aneesh-sharma.me', 'blog')}
             className="group flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 font-label text-[11px] font-bold uppercase tracking-label text-primary transition-all duration-300 hover:border-primary hover:bg-primary/20 hover:drop-shadow-[0_0_10px_rgba(85,221,173,0.6)]"
           >
             <PenLine size={12} className="transition-transform duration-300 group-hover:-rotate-12" />
@@ -125,6 +127,7 @@ const Header = () => {
               href={links.github}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackGithubClick('header')}
               className="font-label text-[11px] font-bold uppercase tracking-label text-primary transition-all duration-300 hover:drop-shadow-[0_0_12px_rgba(85,221,173,0.8)]"
             >
               GitHub ↗

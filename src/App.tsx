@@ -18,6 +18,7 @@ import { useClickBurst } from '@/hooks/useClickBurst';
 import { useKonami } from '@/hooks/useKonami';
 import { useConsoleEggs } from '@/hooks/useConsoleEggs';
 import { useDarkHour } from '@/hooks/useDarkHour';
+import { initAnalytics, trackPageView } from '@/lib/analytics';
 
 /**
  * Root layout — supports client-side pathname-based routing for '/cli' vs '/'.
@@ -39,6 +40,14 @@ const App = () => {
 
   /* Spawn ring-particle fireworks on every click — zero re-renders */
   useClickBurst();
+
+  /* GA4: initialize once, then emit a page_view on every route change (this app
+     has no react-router, so `route` is our navigation signal). initAnalytics is
+     idempotent, so StrictMode's double-mount can't double-load the script. */
+  useEffect(() => {
+    initAnalytics();
+    trackPageView(route);
+  }, [route]);
 
   /* Hidden Persona 3 "Dark Hour": auto-fires in the midnight window; can also be
      forced via terminal / #darkhour hash. */

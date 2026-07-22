@@ -3,6 +3,7 @@ import { links } from '@/data/content';
 import SectionHeading from './SectionHeading';
 import MagicBento from './MagicBento';
 import { useTranslation } from '@/context/TranslationContext';
+import { trackGithubClick } from '@/lib/analytics';
 
 /**
  * Work — the project feed, rendered as an interactive MagicBento grid.
@@ -37,6 +38,7 @@ const Work = () => {
         href={links.githubRepos}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => trackGithubClick('work_more')}
         className="group mt-10 inline-flex items-center gap-1.5 font-label text-[11px] font-bold uppercase tracking-label text-primary"
       >
         {t('moreGithub')}

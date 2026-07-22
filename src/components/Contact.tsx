@@ -5,6 +5,12 @@ import { useTranslation } from '@/context/TranslationContext';
 import FlowingMenu from './FlowingMenu';
 
 import Magnetic from './Magnetic';
+import {
+  trackContactClick,
+  trackGithubClick,
+  trackLinkedinClick,
+  trackExternalLink,
+} from '@/lib/analytics';
 
 /**
  * Contact — a closing invitation with a large primary CTA and a list of
@@ -15,10 +21,19 @@ const Contact = () => {
   const { t, tArray } = useTranslation();
 
   const flowingItems = socials.map((s) => {
+    // Route each social to the most specific analytics helper by its label.
+    const onSelect = () => {
+      const label = s.label.toLowerCase();
+      if (label.includes('github')) trackGithubClick('contact');
+      else if (label.includes('linkedin')) trackLinkedinClick();
+      else if (label.includes('email')) trackContactClick('email');
+      else trackExternalLink(s.href, s.label);
+    };
     return {
       link: s.href,
       text: s.label,
       handle: s.handle,
+      onSelect,
     };
   });
 
@@ -46,6 +61,7 @@ const Contact = () => {
         <Magnetic strength={0.12}>
           <a
             href={links.email}
+            onClick={() => trackContactClick('email')}
             className="inline-flex items-center gap-2 rounded-soft bg-gradient-to-br from-primary to-primary-container px-6 py-3 font-label text-xs font-bold uppercase tracking-label text-on-primary transition-transform duration-300 hover:scale-[0.98]"
           >
             {personal.email}

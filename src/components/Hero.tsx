@@ -12,6 +12,7 @@ import GalleryOverlay from './GalleryOverlay';
 import Magnetic from './Magnetic';
 import Typewriter from './Typewriter';
 import { fireConfetti } from './TerminalFX';
+import { trackResumeDownload } from '@/lib/analytics';
 
 /* Rotating one-liners for the identity typewriter — half real, half playful. */
 const ROLES = [
@@ -150,6 +151,7 @@ const Hero = () => {
             href={personal.resume}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={trackResumeDownload}
             className="group inline-flex items-center gap-1.5 font-label text-[11px] font-bold uppercase tracking-label text-primary"
           >
             {t('resumeButton')}

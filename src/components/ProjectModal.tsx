@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { X, ChevronLeft, ChevronRight, ArrowUpRight, Github } from 'lucide-react';
 import { projects } from '@/data/content';
 import { useTranslation } from '@/context/TranslationContext';
+import { trackProjectClick, trackProjectSourceClick } from '@/lib/analytics';
 
 interface ProjectModalProps {
   isOpen: boolean;
@@ -244,6 +245,7 @@ const ProjectModal = ({ isOpen, index, onClose, onIndexChange }: ProjectModalPro
                           href={project.live}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => trackProjectClick(project.title)}
                           className="group/link inline-flex items-center gap-1.5 font-label text-[11px] font-bold uppercase tracking-label text-primary"
                         >
                           {t('liveDemo')}
@@ -256,6 +258,7 @@ const ProjectModal = ({ isOpen, index, onClose, onIndexChange }: ProjectModalPro
                           href={project.github}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => trackProjectSourceClick(project.title)}
                           className="inline-flex items-center gap-1.5 font-label text-[11px] font-bold uppercase tracking-label text-outline transition-colors duration-300 hover:text-on-surface"
                         >
                           <Github size={14} />

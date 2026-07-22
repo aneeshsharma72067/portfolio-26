@@ -7,6 +7,9 @@ interface FlowingMenuItem {
   link: string;
   text: string;
   handle: string;
+  /** Optional click hook — lets callers fire analytics without this generic
+      component knowing anything about the destination. */
+  onSelect?: () => void;
 }
 
 interface FlowingMenuProps {
@@ -59,6 +62,7 @@ function MenuItem({
   link,
   text,
   handle,
+  onSelect,
   speed,
   textColor,
   marqueeBgColor,
@@ -182,6 +186,7 @@ function MenuItem({
         href={link}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={onSelect}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         style={{ color: textColor }}
