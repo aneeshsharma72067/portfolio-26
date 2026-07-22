@@ -2,56 +2,75 @@
    analytics.ts — Google Analytics 4 (GA4) integration.
 
    Uses the native gtag.js snippet loaded dynamically (no third-party npm
-   dependency — GA4 is just two globals: `dataLayer` + `gtag`). The Measurement
-   ID is read from the `VITE_GA_MEASUREMENT_ID` env var and is NEVER hardcoded.
+   dependency). The Measurement ID is read from VITE_GA_MEASUREMENT_ID and
+   is NEVER hardcoded.
 
-   Design notes:
-     - initAnalytics() is idempotent: a module-level guard means React 18
-       StrictMode's double-mount (and the app's once-a-second clock re-renders)
-       can call it repeatedly without injecting the script twice.
-     - If the Measurement ID is absent (e.g. local dev without a .env, or a
-       preview build), every function becomes a silent no-op — nothing loads,
-       nothing throws.
-     - Automatic page_view is DISABLED at config time (`send_page_view:false`)
-       because this app drives its own route changes; we send page_view
-       manually via trackPageView() so SPA navigations aren't missed and the
-       initial load isn't double-counted.
-     - Scroll depth, outbound-link clicks and file downloads are intentionally
-       NOT reimplemented here — GA4 Enhanced Measurement already captures them.
-       The custom events below add a dimension EM can't: *which* project, *which*
-       social link, etc.
+   ── Why the original implementation was broken ──────────────────────────────
+   The previous gtag function used a rest parameter spread:
+
+       const gtag: GtagFn = (...args) => { window.dataLayer.push(args); };
+
+   This pushes a plain JavaScript Array onto dataLayer.
+   Google's gtag.js runtime distinguishes gtag commands from raw dataLayer
+   objects by checking whether each entry is an `Arguments` object (the special
+   internal type produced only by `function gtag(){dataLayer.push(arguments)}`).
+   Arrays are silently ignored. As a result every `gtag('event', ...)` call was
+   queued but never dispatched — zero requests to /g/collect were made.
+
+   The fix is the exact function body Google ships:
+
+       function gtag(){ window.dataLayer.push(arguments); }
+
+   Because TypeScript's arrow functions cannot produce `arguments`, we use a
+   traditional function expression and cast its type.
+
+   ── Other design notes ───────────────────────────────────────────────────────
+   - initAnalytics() is idempotent: a module-level guard means it can safely be
+     called on every React render / route change.
+   - Without a Measurement ID every function is a silent no-op.
+   - send_page_view is left to its default (true) for the initial config call so
+     the very first load is tracked even before the script has fully executed.
+     For SPA route changes we call window.gtag('config', ID) again, which GA4
+     treats as a new page_view — this is the officially documented SPA pattern.
+   - Scroll depth, outbound clicks, and file downloads are NOT reimplemented —
+     GA4 Enhanced Measurement captures those. Custom events here add the
+     dimension EM can't provide (which project, which social, etc.).
    ========================================================================== */
 
-// The gtag command signature is variadic and loosely typed by design; this is
-// the shape Google ships. Keeping it local avoids leaking `any` elsewhere.
-type GtagCommand = 'js' | 'config' | 'event' | 'set';
-type GtagFn = (command: GtagCommand, ...args: unknown[]) => void;
+/** Measurement ID from the Vite environment. Empty string when unset. */
+const MEASUREMENT_ID: string = import.meta.env.VITE_GA_MEASUREMENT_ID ?? '';
+
+/** True during `vite dev` — used for console logging. */
+const IS_DEV: boolean = import.meta.env.DEV;
+
+/** Prevents duplicate script injection across re-renders / hot reloads. */
+let initialized = false;
+
+/* ─── Type declarations ───────────────────────────────────────────────────── */
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GtagArgs = [string, ...any[]];
 
 declare global {
   interface Window {
-    dataLayer: unknown[];
-    gtag?: GtagFn;
+    // dataLayer must be typed as IArguments[] because that is exactly what
+    // `function gtag(){ dataLayer.push(arguments) }` pushes — not arrays.
+    // Using `unknown[]` is fine for TypeScript; what matters is runtime type.
+    dataLayer: IArguments[];
+    gtag: (...args: GtagArgs) => void;
   }
 }
 
-/** Measurement ID from the environment. Empty string when unset. */
-const MEASUREMENT_ID: string = import.meta.env.VITE_GA_MEASUREMENT_ID ?? '';
-
-/** True in `vite dev`; used to log events to the console instead of relying
-    solely on the GA Realtime dashboard while developing. */
-const IS_DEV: boolean = import.meta.env.DEV;
-
-/** Guards against duplicate script injection / config (StrictMode, re-renders). */
-let initialized = false;
-
-/** True once GA is actually usable (has an ID and has been initialized). */
-function isEnabled(): boolean {
-  return initialized && Boolean(MEASUREMENT_ID) && typeof window.gtag === 'function';
-}
+/* ─── Core bootstrap ──────────────────────────────────────────────────────── */
 
 /**
- * Inject gtag.js and configure GA4. Safe to call multiple times — only the
- * first call with a valid Measurement ID does any work. No-op without an ID.
+ * Inject the gtag.js script and configure GA4. Safe to call repeatedly —
+ * only the first call with a valid Measurement ID does any work.
+ *
+ * IMPORTANT: The gtag function MUST use `function` + `arguments`, not an
+ * arrow function. This is not stylistic — gtag.js identifies queued commands
+ * by checking `entry instanceof IArguments` (internal slot [[Class]]).
+ * An arrow function's spread produces a plain Array which gtag.js ignores.
  */
 export function initAnalytics(): void {
   if (initialized) return;
@@ -61,53 +80,59 @@ export function initAnalytics(): void {
   }
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
-  // Standard gtag.js bootstrap.
+  // ── Official Google bootstrap (verbatim, typed for TypeScript) ──────────
   window.dataLayer = window.dataLayer || [];
-  const gtag: GtagFn = (...args) => {
-    window.dataLayer.push(args);
-  };
-  window.gtag = gtag;
 
+  // MUST be a regular function — arrow functions don't have `arguments`.
+  // eslint-disable-next-line prefer-rest-params
+  window.gtag = function gtag() { window.dataLayer.push(arguments as unknown as IArguments); };
+
+  // Inject the remote script.
   const script = document.createElement('script');
   script.async = true;
   script.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`;
   document.head.appendChild(script);
 
-  gtag('js', new Date());
-  // send_page_view:false → we emit page_view manually (SPA-aware, no dupes).
-  gtag('config', MEASUREMENT_ID, { send_page_view: false });
+  // Bootstrap timestamp (required by GA4 — must come before config).
+  window.gtag('js', new Date());
+
+  // Initial config. Omitting send_page_view lets GA4 send the first
+  // page_view automatically, which is correct for the landing load.
+  // For subsequent SPA navigations we call gtag('config', ID, {...}) again.
+  window.gtag('config', MEASUREMENT_ID);
 
   initialized = true;
-  if (IS_DEV) console.debug('[analytics] GA4 initialized', MEASUREMENT_ID);
+  if (IS_DEV) console.debug('[analytics] GA4 initialized with', MEASUREMENT_ID);
 }
 
-/**
- * Low-level event dispatcher. All helpers below funnel through here so dev
- * logging + the enabled-check live in one place.
- */
+/* ─── Internal helper ─────────────────────────────────────────────────────── */
+
+/** Dispatch a custom event. All public helpers funnel through here. */
 function track(eventName: string, params: Record<string, unknown> = {}): void {
   if (IS_DEV) console.debug('[analytics] event:', eventName, params);
-  if (!isEnabled()) return;
-  window.gtag!('event', eventName, params);
+  if (!initialized || !MEASUREMENT_ID || typeof window.gtag !== 'function') return;
+  window.gtag('event', eventName, params);
 }
 
+/* ─── Page-view tracking (SPA) ───────────────────────────────────────────── */
+
 /**
- * Send a SPA page_view. Call on every route change (and once on load). Defaults
- * to the current location so callers usually pass nothing.
+ * Call on every SPA route change AFTER the initial mount.
+ * Re-calling `gtag('config', ID)` is the officially documented way to send a
+ * page_view for SPA navigations — it re-fires the config hit with the current
+ * page location, which GA4 records as a new page_view.
  */
 export function trackPageView(path: string = window.location.pathname): void {
   if (IS_DEV) console.debug('[analytics] page_view:', path);
-  if (!isEnabled()) return;
-  window.gtag!('event', 'page_view', {
+  if (!initialized || !MEASUREMENT_ID || typeof window.gtag !== 'function') return;
+  window.gtag('config', MEASUREMENT_ID, {
     page_path: path,
     page_location: window.location.href,
     page_title: document.title,
   });
 }
 
-/* --------------------------------------------------------------- event helpers
-   Thin, self-describing wrappers. Add new ones here as the site grows — one
-   line each — and call them from the relevant onClick. */
+/* ─── Event helpers ───────────────────────────────────────────────────────── */
 
 export function trackResumeDownload(): void {
   track('resume_download');
@@ -135,8 +160,10 @@ export function trackProjectSourceClick(projectName: string): void {
   track('project_source_click', { project_name: projectName });
 }
 
-/** Generic outbound link — use only where the destination label adds insight
-    beyond GA4 Enhanced Measurement's automatic outbound-click tracking. */
+/**
+ * Generic outbound link. Use only where the destination label adds insight
+ * beyond GA4 Enhanced Measurement's automatic outbound-click tracking.
+ */
 export function trackExternalLink(url: string, label = ''): void {
   track('external_link_click', { url, label });
 }

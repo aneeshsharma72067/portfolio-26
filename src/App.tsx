@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import About from '@/components/About';
@@ -41,11 +41,23 @@ const App = () => {
   /* Spawn ring-particle fireworks on every click — zero re-renders */
   useClickBurst();
 
-  /* GA4: initialize once, then emit a page_view on every route change (this app
-     has no react-router, so `route` is our navigation signal). initAnalytics is
-     idempotent, so StrictMode's double-mount can't double-load the script. */
+  /* GA4 ── initialize exactly once on mount. The gtag('config', ID) call
+     inside initAnalytics() already sends the first page_view automatically,
+     so we must NOT also call trackPageView here (that would double-count the
+     landing load). */
   useEffect(() => {
     initAnalytics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* GA4 ── track SPA route changes. The initial value of `route` is skipped
+     because the ref starts as false and flips to true after mount. */
+  const routeRef = useRef(false);
+  useEffect(() => {
+    if (!routeRef.current) {
+      routeRef.current = true;
+      return;
+    }
     trackPageView(route);
   }, [route]);
 
