@@ -7,6 +7,7 @@ import Desktop from './Desktop';
 import Window from './Window';
 import Panel from './Panel';
 import { MacOSDock } from './MacOSDock';
+import Preloader from '@/components/Preloader';
 
 // Lazy load app components to keep the initial chunk size minimal
 import Files from './apps/Files';
@@ -32,6 +33,9 @@ type Props = {
  */
 export default function Computer({ onNavigate }: Props) {
   const [skinId, setSkinId] = useState<SkinId>(loadSkin);
+  const [pendingSkinId, setPendingSkinId] = useState<SkinId | null>(null);
+  const [showPreloader, setShowPreloader] = useState(false);
+
   const skin = SKINS[skinId];
 
   const { windows, topZ, open, close, focus, minimize, toggleMax, commit } = useWindows();
@@ -40,6 +44,24 @@ export default function Computer({ onNavigate }: Props) {
   useEffect(() => {
     saveSkin(skinId);
   }, [skinId]);
+
+  /* Handle OS skin change with pixelated dissolve transition. */
+  const handleSkinChange = useCallback((nextSkinId: SkinId) => {
+    if (nextSkinId === skinId) return;
+    setPendingSkinId(nextSkinId);
+    setShowPreloader(true);
+  }, [skinId]);
+
+  const handlePreloaderMidpoint = useCallback(() => {
+    if (pendingSkinId) {
+      setSkinId(pendingSkinId);
+    }
+  }, [pendingSkinId]);
+
+  const handlePreloaderComplete = useCallback(() => {
+    setShowPreloader(false);
+    setPendingSkinId(null);
+  }, []);
 
   /* ------------------------------------------------------- desktop bounds */
 
@@ -186,7 +208,7 @@ export default function Computer({ onNavigate }: Props) {
                 <ImageViewer name={win.title} src={file?.src} />
               )}
               {win.app === 'settings' && (
-                <Settings activeSkinId={skinId} onSkinChange={setSkinId} />
+                <Settings activeSkinId={skinId} onSkinChange={handleSkinChange} />
               )}
               {win.app === 'photos' && (
                 <Photos />
@@ -203,7 +225,7 @@ export default function Computer({ onNavigate }: Props) {
       <Panel
         skin={skin}
         skinId={skinId}
-        onSkinChange={setSkinId}
+        onSkinChange={handleSkinChange}
         onNavigate={onNavigate}
         windows={windows}
         activeWindowId={activeWindowId}
@@ -212,7 +234,7 @@ export default function Computer({ onNavigate }: Props) {
         onOpenApp={handleOpenApp}
       />
 
-      {/* macOS gets its own dedicated animated dock */}
+      {/* macOS Dock when active */}
       {skin.panel === 'dock' && (
         <MacOSDock
           onOpenApp={handleOpenApp}
@@ -220,6 +242,15 @@ export default function Computer({ onNavigate }: Props) {
           activeWindowId={activeWindowId}
           onFocusWindow={focus}
           onMinimizeWindow={minimize}
+        />
+      )}
+
+      {/* Grid Preloader Transition Overlay */}
+      {showPreloader && (
+        <Preloader
+          mode="transition"
+          onMidpoint={handlePreloaderMidpoint}
+          onComplete={handlePreloaderComplete}
         />
       )}
     </div>

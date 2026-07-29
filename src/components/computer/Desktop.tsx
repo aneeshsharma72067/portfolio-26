@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useRef } from 'react';
 import { resolveIcon } from '@/os/icons';
 import type { FileNode, SkinId } from '@/os/types';
 
@@ -23,6 +23,9 @@ type Props = {
  */
 const Desktop = memo(function Desktop({ nodes, skinId = 'mac', onOpen }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
+  const [offsets, setOffsets] = useState<Record<string, { x: number; y: number }>>({});
+
+  const draggingRef = useRef<{ path: string; startX: number; startY: number; initX: number; initY: number; moved: boolean } | null>(null);
 
   const getDesktopIconSrc = (node: FileNode) => {
     if (skinId === 'windows') {
@@ -35,6 +38,50 @@ const Desktop = memo(function Desktop({ nodes, skinId = 'mac', onOpen }: Props) 
     if (node.path.includes('settings')) return macosSettingsFolderIcon;
     if (node.kind === 'folder') return macosFolderIcon;
     return macosFileIcon;
+  };
+
+  const handlePointerDown = (e: React.PointerEvent, path: string) => {
+    e.stopPropagation();
+    setSelected(path);
+
+    const currentOffset = offsets[path] || { x: 0, y: 0 };
+    draggingRef.current = {
+      path,
+      startX: e.clientX,
+      startY: e.clientY,
+      initX: currentOffset.x,
+      initY: currentOffset.y,
+      moved: false,
+    };
+
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!draggingRef.current) return;
+    const { path, startX, startY, initX, initY } = draggingRef.current;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+      draggingRef.current.moved = true;
+    }
+
+    setOffsets((prev) => ({
+      ...prev,
+      [path]: { x: initX + dx, y: initY + dy },
+    }));
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (draggingRef.current) {
+      try {
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {
+        // Safe fallback if capture already released
+      }
+      draggingRef.current = null;
+    }
   };
 
   return (
@@ -56,23 +103,29 @@ const Desktop = memo(function Desktop({ nodes, skinId = 'mac', onOpen }: Props) 
           const Icon = resolveIcon(node.icon);
           const isSelected = selected === node.path;
           const imgSrc = getDesktopIconSrc(node);
+          const offset = offsets[node.path] || { x: 0, y: 0 };
 
           return (
             <button
               key={node.path}
-              onPointerDown={(e) => {
-                e.stopPropagation();
-                setSelected(node.path);
-              }}
+              onPointerDown={(e) => handlePointerDown(e, node.path)}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
               onDoubleClick={() => onOpen(node)}
               // Single tap opens on touch, where there is no double-click.
               onTouchEnd={(e) => {
-                e.preventDefault();
-                onOpen(node);
+                if (!draggingRef.current?.moved) {
+                  e.preventDefault();
+                  onOpen(node);
+                }
               }}
-              className={`flex h-[88px] w-[88px] flex-col items-center justify-center gap-1 rounded p-1 text-center transition-colors ${
+              className={`flex h-[88px] w-[88px] flex-col items-center justify-center gap-1 rounded p-1 text-center transition-colors relative cursor-grab active:cursor-grabbing ${
                 isSelected ? 'bg-white/20 ring-1 ring-white/30' : 'hover:bg-white/10'
               }`}
+              style={{
+                transform: `translate3d(${offset.x}px, ${offset.y}px, 0)`,
+                zIndex: isSelected ? 10 : 1,
+              }}
               title={node.path}
             >
               {imgSrc ? (

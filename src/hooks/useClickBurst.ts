@@ -117,6 +117,11 @@ export function useClickBurst() {
 
     /* ── Spawn handler ────────────────────────────────────────── */
     const onPointerDown = (e: PointerEvent) => {
+      // Disable cursor character shower effect in computer desktop mode
+      if (window.location.pathname === '/computer') {
+        return;
+      }
+
       // Don't spawn sparks if clicking form inputs or textareas
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
