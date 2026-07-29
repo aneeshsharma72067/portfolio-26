@@ -1,5 +1,12 @@
-/* Fonts — Manrope (structural) + Noto Serif (reading) */
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Noto+Serif:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+
+@font-face {
+  font-family: 'SF Pro';
+  src: url('./assets/fonts/SF-Pro.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;

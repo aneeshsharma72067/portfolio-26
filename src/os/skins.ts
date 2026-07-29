@@ -10,6 +10,7 @@
  * decode instantly and retint with the theme instead of fighting it.
  */
 import type { Skin, SkinId } from './types';
+import macosBg from '@/assets/image/macos_bg.png';
 
 export const SKINS: Record<SkinId, Skin> = {
   /* ------------------------------------------------------------- Windows 11 */
@@ -44,16 +45,15 @@ export const SKINS: Record<SkinId, Skin> = {
     controls: 'left-traffic',
     menubar: true,
     titleAlign: 'center',
-    // Sonoma-ish layered aurora: violet core bleeding into deep indigo.
-    wallpaper:
-      'radial-gradient(90% 70% at 25% 15%, #6d3bd6 0%, transparent 60%), radial-gradient(80% 70% at 85% 80%, #1e4fd8 0%, transparent 62%), linear-gradient(150deg, #241a4d 0%, #120e26 100%)',
+    // Use the real macOS wallpaper image.
+    wallpaper: `url(${macosBg})`,
     accentRgb: '10 132 255', // #0a84ff
-    windowBg: '#232326',
-    chromeBg: '#33333a',
-    chromeText: '#e6e6ea',
-    border: 'rgb(255 255 255 / 0.12)',
-    radius: '11px',
-    font: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif',
+    windowBg: 'rgba(32, 33, 38, 0.72)',
+    chromeBg: 'rgba(42, 43, 50, 0.65)',
+    chromeText: '#f0f0f5',
+    border: 'rgba(255, 255, 255, 0.16)',
+    radius: '14px',
+    font: "'SF Pro', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif",
     panelBg: 'rgb(40 40 46 / 0.62)',
     panelText: '#f2f2f5',
   },

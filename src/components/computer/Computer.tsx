@@ -1,6 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SKINS, loadSkin, saveSkin } from '@/os/skins';
-import type { SkinId } from '@/os/types';
+import { DESKTOP, lookup } from '@/os/fs';
+import { useWindows } from '@/os/useWindows';
+import type { FileNode, SkinId } from '@/os/types';
+import Desktop from './Desktop';
+import Window from './Window';
+import Panel from './Panel';
+import { MacOSDock } from './MacOSDock';
+
+// Lazy load app components to keep the initial chunk size minimal
+import Files from './apps/Files';
+import Reader from './apps/Reader';
+import ImageViewer from './apps/ImageViewer';
+import Settings from './apps/Settings';
 
 type Props = {
   /** Route change through App's preloader transition (used by "log out"). */
@@ -10,26 +22,74 @@ type Props = {
 /**
  * Computer — root of the /computer virtual desktop.
  *
- * Owns exactly three things: the active OS skin, the wallpaper layer, and the
- * CSS custom properties every child reads. Window management, the filesystem
- * and the apps live in their own modules so this file stays a thin shell.
- *
- * Perf note: the skin is applied as inline custom properties on a single root
- * div rather than on `document.documentElement`. That keeps the main site's
- * theme vars untouched, and means switching OS invalidates style on one
- * subtree instead of the whole document.
+ * Owns the active OS skin, the desktop size, and the window manager. Everything
+ * visual about the five operating systems is data (`os/skins.ts`) written here
+ * as CSS custom properties on ONE root div — not on `document.documentElement`,
+ * so the main site's theme vars are untouched and switching OS invalidates
+ * style on a single subtree.
  */
 export default function Computer({ onNavigate }: Props) {
   const [skinId, setSkinId] = useState<SkinId>(loadSkin);
   const skin = SKINS[skinId];
+
+  const { windows, topZ, open, close, focus, minimize, toggleMax, commit } = useWindows();
 
   /* Persist the OS choice whenever it changes. */
   useEffect(() => {
     saveSkin(skinId);
   }, [skinId]);
 
-  /* The skin as CSS custom properties. Memoised so an unrelated re-render does
-     not hand React a fresh style object and force a style recalc. */
+  /* ------------------------------------------------------- desktop bounds */
+
+  /**
+   * Windows are positioned in pixels, so the manager needs the live desktop
+   * size. Measured with a ResizeObserver rather than a window resize listener
+   * so panel/menubar height changes (which happen when the skin switches) are
+   * picked up too.
+   */
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [desktop, setDesktop] = useState({ w: 1280, h: 720 });
+
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setDesktop({ w: Math.round(width), h: Math.round(height) });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  /* ------------------------------------------------------------ opening */
+
+  const handleOpen = useCallback(
+    (node: FileNode) => {
+      /* External shortcuts (`.url`, resume.pdf) are real links — open a tab
+         instead of faking a browser we don't have. */
+      if (node.href) {
+        window.open(node.href, '_blank', 'noopener,noreferrer');
+        return;
+      }
+      open(node, desktop);
+    },
+    [open, desktop],
+  );
+
+  const handleOpenApp = useCallback(
+    (app: 'files' | 'settings') => {
+      const path = app === 'files' ? '/home/aneesh/Desktop' : '/home/aneesh/Desktop/settings';
+      const node = lookup(path);
+      if (node) {
+        handleOpen(node);
+      }
+    },
+    [handleOpen],
+  );
+
+  /* The skin as CSS custom properties. Memoised so an unrelated re-render (a
+     window gaining focus) doesn't hand React a fresh style object and force a
+     style recalculation on the whole subtree. */
   const skinVars = useMemo(
     () =>
       ({
@@ -43,45 +103,97 @@ export default function Computer({ onNavigate }: Props) {
         '--os-panel-text': skin.panelText,
         fontFamily: skin.font,
       }) as React.CSSProperties,
-    [skin],
+      [skin],
   );
+
+  // Determine active focused window's ID
+  const activeWindowId = useMemo(() => {
+    const active = windows.filter(w => !w.minimized);
+    if (active.length === 0) return null;
+    return active.reduce((top, w) => (w.z > top.z ? w : top), active[0]).id;
+  }, [windows]);
 
   return (
     <div
-      className="fixed inset-0 overflow-hidden select-none"
-      style={{ ...skinVars, background: skin.wallpaper }}
+      className="fixed inset-0 select-none overflow-hidden cursor-default"
+      style={{ ...skinVars, background: skin.wallpaper, backgroundSize: 'cover', backgroundPosition: 'center' }}
     >
-      {/* Desktop, panel and window layers land here in the next phases. */}
-
-      {/* Temporary escape hatch so the route is navigable before the panel
-          exists. Replaced by the skin's real start menu / dock in phase 4. */}
-      <button
-        onClick={() => onNavigate('/')}
-        className="absolute bottom-3 right-3 rounded border px-3 py-1.5 text-xs"
-        style={{
-          borderColor: 'var(--os-border)',
-          background: 'var(--os-panel-bg)',
-          color: 'var(--os-panel-text)',
-        }}
+      {/* Desktop layer — the icon grid sits directly on the wallpaper. The
+          window layer is a sibling above it, so icons never intercept a drag. */}
+      <div
+        ref={rootRef}
+        className={`absolute inset-0 ${
+          skin.panel === 'dock' ? 'top-[25px]' :
+          skin.panel === 'topbar' || skin.panel === 'panel' ? 'top-8' : ''
+        } ${
+          skin.panel === 'taskbar' ? 'bottom-12' :
+          skin.panel === 'dock' ? 'pb-[76px]' :
+          skin.panel === 'bar' ? 'bottom-6' : ''
+        }`}
       >
-        exit to site
-      </button>
+        <Desktop nodes={DESKTOP} onOpen={handleOpen} />
 
-      {/* Temporary skin cycler — same deal, moves into the panel in phase 4. */}
-      <button
-        onClick={() => {
-          const order = Object.keys(SKINS) as SkinId[];
-          setSkinId(order[(order.indexOf(skinId) + 1) % order.length]);
-        }}
-        className="absolute bottom-3 left-3 rounded border px-3 py-1.5 text-xs"
-        style={{
-          borderColor: 'var(--os-border)',
-          background: 'var(--os-panel-bg)',
-          color: 'var(--os-panel-text)',
-        }}
-      >
-        {skin.version}
-      </button>
+        {windows.map((win) => {
+          const file = lookup(win.path);
+          return (
+            <Window
+              key={win.id}
+              win={win}
+              skin={skin}
+              focused={win.id === activeWindowId}
+              desktop={desktop}
+              onFocus={focus}
+              onClose={close}
+              onMinimize={minimize}
+              onToggleMax={toggleMax}
+              onCommit={commit}
+            >
+              {/* Dynamically render application inside window frame */}
+              {win.app === 'files' && (
+                <Files initialPath={win.path} onOpenNode={handleOpen} />
+              )}
+              {win.app === 'reader' && (
+                <Reader
+                  path={win.path}
+                  name={win.title}
+                  body={file?.body}
+                  size={file?.size}
+                />
+              )}
+              {win.app === 'image' && (
+                <ImageViewer name={win.title} src={file?.src} />
+              )}
+              {win.app === 'settings' && (
+                <Settings activeSkinId={skinId} onSkinChange={setSkinId} />
+              )}
+            </Window>
+          );
+        })}
+      </div>
+
+      {/* System Panel (dock/taskbar/topbar) */}
+      <Panel
+        skin={skin}
+        skinId={skinId}
+        onSkinChange={setSkinId}
+        onNavigate={onNavigate}
+        windows={windows}
+        activeWindowId={activeWindowId}
+        onFocusWindow={focus}
+        onMinimizeWindow={minimize}
+        onOpenApp={handleOpenApp}
+      />
+
+      {/* macOS gets its own dedicated animated dock */}
+      {skin.panel === 'dock' && (
+        <MacOSDock
+          onOpenApp={handleOpenApp}
+          windows={windows}
+          activeWindowId={activeWindowId}
+          onFocusWindow={focus}
+          onMinimizeWindow={minimize}
+        />
+      )}
     </div>
   );
 }
