@@ -18,6 +18,7 @@ import winExplorerIcon from '@/assets/image/icons/windows/explorer.png';
 import winHomeIcon from '@/assets/image/icons/windows/home.png';
 import winDocsIcon from '@/assets/image/icons/windows/docs.png';
 import winFolderIcon from '@/assets/image/icons/windows/folder.png';
+import { Skin, SkinId, WindowState } from '@/os/types';
 
 type Props = {
   skin: Skin;
