@@ -172,7 +172,7 @@ export default function Computer({ onNavigate }: Props) {
             >
               {/* Dynamically render application inside window frame */}
               {win.app === 'files' && (
-                <Files initialPath={win.path} onOpenNode={handleOpen} />
+                <Files initialPath={win.path} skinId={skinId} onOpenNode={handleOpen} />
               )}
               {win.app === 'reader' && (
                 <Reader

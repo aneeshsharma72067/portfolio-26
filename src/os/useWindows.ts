@@ -84,7 +84,7 @@ function reducer(state: State, action: Action): State {
             ...size,
             z,
             minimized: false,
-            maximized: node.app === 'files',
+            maximized: false,
           },
         ],
         topZ: z,
