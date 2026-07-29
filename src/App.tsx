@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import About from '@/components/About';
@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import Preloader from '@/components/Preloader';
 import EasterEgg from '@/components/EasterEgg';
 import Terminal from '@/components/Terminal';
+import ComputerEgg from '@/components/ComputerEgg';
 import ThemePicker from '@/components/ThemePicker';
 import DevMode from '@/components/DevMode';
 import DarkHour from '@/components/DarkHour';
@@ -19,6 +20,11 @@ import { useKonami } from '@/hooks/useKonami';
 import { useConsoleEggs } from '@/hooks/useConsoleEggs';
 import { useDarkHour } from '@/hooks/useDarkHour';
 import { initAnalytics, trackPageView } from '@/lib/analytics';
+
+/* The virtual desktop is a whole OS worth of code (windows, filesystem, four
+   apps, five skins). Lazy-loading it keeps every byte of it out of the main
+   bundle — visitors who never find the bottom-left egg never download it. */
+const Computer = lazy(() => import('@/components/computer/Computer'));
 
 /**
  * Root layout — supports client-side pathname-based routing for '/cli' vs '/'.
@@ -133,6 +139,17 @@ const App = () => {
       return <Terminal onNavigate={navigateTo} />;
     }
 
+    if (route === '/computer') {
+      /* The fallback is a plain dark fill, not a spinner: the pixel preloader is
+         already covering the screen during the transition, so anything visible
+         here would only flash if the chunk outlives the animation. */
+      return (
+        <Suspense fallback={<div className="fixed inset-0 bg-[#04162a]" />}>
+          <Computer onNavigate={navigateTo} />
+        </Suspense>
+      );
+    }
+
     return (
       <div id="top" className="relative min-h-screen overflow-x-hidden">
         {/* Ambient glow — restrained accent bloom near the top (follows theme) */}
@@ -162,6 +179,9 @@ const App = () => {
 
         {/* Easter egg in bottom right corner triggers the popup to /cli */}
         <EasterEgg onNavigate={navigateTo} />
+
+        {/* Its bottom-left twin: boots the virtual desktop at /computer */}
+        <ComputerEgg onNavigate={navigateTo} />
       </div>
     );
   };
