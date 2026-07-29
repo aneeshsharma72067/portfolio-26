@@ -12,8 +12,12 @@ import {
   Battery,
   Apple,
 } from 'lucide-react';
-import type { Skin, SkinId, WindowState } from '@/os/types';
 import { resolveIcon } from '@/os/icons';
+
+import winExplorerIcon from '@/assets/image/icons/windows/explorer.png';
+import winHomeIcon from '@/assets/image/icons/windows/home.png';
+import winDocsIcon from '@/assets/image/icons/windows/docs.png';
+import winFolderIcon from '@/assets/image/icons/windows/folder.png';
 
 type Props = {
   skin: Skin;
@@ -24,7 +28,7 @@ type Props = {
   activeWindowId: string | null;
   onFocusWindow: (id: string) => void;
   onMinimizeWindow: (id: string) => void;
-  onOpenApp: (app: 'files' | 'settings' | 'photos') => void;
+  onOpenApp: (app: 'files' | 'settings' | 'photos' | 'notes') => void;
 };
 
 // Simple Clock hook to avoid duplicate timers
@@ -134,105 +138,249 @@ export default function Panel({
   // ------------------------------------------------------------- WINDOWS 11
   if (skin.panel === 'taskbar') {
     return (
-      <div className="absolute bottom-0 left-0 right-0 h-12 flex items-center justify-between px-3 z-[9998] select-none backdrop-blur-md"
-        style={{ background: 'var(--os-panel-bg)', borderTop: '1px solid var(--os-border)', color: 'var(--os-panel-text)' }}>
-        
-        {/* Left Side */}
-        <div className="w-32 flex items-center gap-2">
-          <div className="hidden sm:flex items-center gap-1.5 text-xs opacity-70 hover:opacity-100 cursor-pointer">
-            <span className="text-[14px]">⛅</span>
-            <span>72°F</span>
+      <div
+        className="absolute bottom-0 left-0 right-0 h-12 flex items-center justify-between px-3 z-[9998] select-none backdrop-blur-2xl"
+        style={{
+          background: 'rgba(28, 30, 38, 0.85)',
+          borderTop: '0.5px solid rgba(255, 255, 255, 0.14)',
+          boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.3)',
+          color: '#ffffff',
+          fontFamily: "'Segoe UI VF', 'Segoe UI', sans-serif"
+        }}
+      >
+        {/* Left Side: Weather Widget */}
+        <div className="w-36 flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2 px-2 py-1 text-xs opacity-80 hover:opacity-100 hover:bg-white/10 rounded transition-colors cursor-default">
+            <span className="text-[16px]">⛅</span>
+            <div className="flex flex-col text-[11px] leading-tight">
+              <span className="font-medium">72°F</span>
+              <span className="text-[9.5px] opacity-60">Mostly Sunny</span>
+            </div>
           </div>
         </div>
 
-        {/* Center: Pinned + Running Apps */}
+        {/* Center: Windows Start + Pinned & Running Apps */}
         <div className="flex items-center gap-1">
-          {/* Start Button */}
+          {/* Windows Start Button */}
           <button
             onClick={() => setStartOpen(!startOpen)}
-            className={`p-2 rounded hover:bg-white/10 transition-colors flex items-center justify-center ${startOpen ? 'bg-white/10' : ''}`}
+            className={`p-2.5 rounded-md hover:bg-white/10 active:bg-white/15 transition-all flex items-center justify-center ${startOpen ? 'bg-white/10' : ''}`}
+            title="Start"
           >
-            <WindowsLogo />
+            <img src={winHomeIcon} alt="Start" className="w-6 h-6 object-contain" />
           </button>
 
-          {/* Files Pinned App */}
-          <button onClick={() => onOpenApp('files')} className="p-2 rounded hover:bg-white/10 transition-colors">
-            <Folder className="w-5 h-5 text-yellow-500" />
+          {/* Search Icon */}
+          <button
+            onClick={() => setStartOpen(!startOpen)}
+            className="p-2.5 rounded-md hover:bg-white/10 active:bg-white/15 transition-all flex items-center justify-center text-sky-400"
+            title="Search"
+          >
+            <BsSearch size={16} />
+          </button>
+
+          {/* File Explorer Pinned App */}
+          <button
+            onClick={() => onOpenApp('files')}
+            className={`p-2 rounded-md hover:bg-white/10 active:bg-white/15 transition-all relative flex flex-col items-center justify-center ${
+              windows.some(w => w.app === 'files') ? 'bg-white/5' : ''
+            }`}
+            title="File Explorer"
+          >
+            <img src={winExplorerIcon} alt="File Explorer" className="w-6 h-6 object-contain" />
+            {windows.some(w => w.app === 'files') && (
+              <span className="absolute bottom-0.5 h-0.5 w-3 bg-[#0078d4] rounded-full" />
+            )}
           </button>
 
           {/* Settings Pinned App */}
-          <button onClick={() => onOpenApp('settings')} className="p-2 rounded hover:bg-white/10 transition-colors">
-            <Settings className="w-5 h-5 text-slate-400" />
+          <button
+            onClick={() => onOpenApp('settings')}
+            className={`p-2 rounded-md hover:bg-white/10 active:bg-white/15 transition-all relative flex flex-col items-center justify-center ${
+              windows.some(w => w.app === 'settings') ? 'bg-white/5' : ''
+            }`}
+            title="Settings"
+          >
+            <img src={winDocsIcon} alt="Settings" className="w-6 h-6 object-contain" />
+            {windows.some(w => w.app === 'settings') && (
+              <span className="absolute bottom-0.5 h-0.5 w-3 bg-[#0078d4] rounded-full" />
+            )}
           </button>
 
-          {/* Render Active Windows */}
-          {windows.map((win) => {
-            const Icon = resolveIcon(win.app === 'files' ? 'Folder' : win.app === 'settings' ? 'Settings' : 'FileText');
-            const isActive = win.id === activeWindowId && !win.minimized;
-            return (
-              <button
-                key={win.id}
-                onClick={() => toggleAppWindow(win)}
-                className={`p-2 rounded flex flex-col items-center justify-center relative hover:bg-white/10 transition-all ${
-                  isActive ? 'bg-white/5' : ''
-                }`}
-                title={win.title}
-              >
-                <Icon className={`w-5 h-5 ${win.app === 'files' ? 'text-yellow-500' : 'text-sky-400'}`} />
-                <span className={`absolute bottom-0 h-0.5 rounded-full transition-all ${
-                  isActive ? 'w-3 bg-sky-400' : win.minimized ? 'w-1 bg-white/40' : 'w-1.5 bg-white/70'
-                }`} />
-              </button>
-            );
-          })}
+          {/* Render Other Active Windows */}
+          {windows
+            .filter(w => w.app !== 'files' && w.app !== 'settings')
+            .map((win) => {
+              const isActive = win.id === activeWindowId && !win.minimized;
+              return (
+                <button
+                  key={win.id}
+                  onClick={() => toggleAppWindow(win)}
+                  className={`p-2 rounded-md flex flex-col items-center justify-center relative hover:bg-white/10 active:bg-white/15 transition-all ${
+                    isActive ? 'bg-white/10' : ''
+                  }`}
+                  title={win.title}
+                >
+                  <img src={winDocsIcon} alt={win.title} className="w-6 h-6 object-contain" />
+                  <span className={`absolute bottom-0.5 h-0.5 rounded-full transition-all ${
+                    isActive ? 'w-4 bg-[#0078d4]' : win.minimized ? 'w-1 bg-white/40' : 'w-2 bg-white/70'
+                  }`} />
+                </button>
+              );
+            })}
         </div>
 
         {/* Right Side: System Tray / Date & Time */}
-        <div className="w-32 flex items-center justify-end gap-3 text-right text-xs">
-          <div className="flex items-center gap-1.5 opacity-70">
-            <Wifi size={13} />
-            <Volume2 size={13} />
-            <Battery size={13} />
+        <div className="w-36 flex items-center justify-end gap-2 text-right text-xs">
+          <div className="flex items-center gap-2 opacity-80 hover:opacity-100 hover:bg-white/10 p-1.5 rounded transition-colors cursor-default">
+            <Wifi size={14} />
+            <Volume2 size={14} />
+            <Battery size={14} />
           </div>
-          <div className="flex flex-col text-[11px] leading-tight cursor-pointer hover:bg-white/5 p-1 rounded">
+          <div className="flex flex-col text-[11px] leading-tight cursor-default hover:bg-white/10 px-2 py-1 rounded transition-colors text-right">
             <span>{formattedTime}</span>
-            <span className="text-[9px] opacity-60">{formattedDate}</span>
+            <span className="text-[9.5px] opacity-70">{formattedDate}</span>
           </div>
         </div>
 
-        {/* Start Menu Popup */}
+        {/* Authentic Windows 11 Start Menu Popup */}
         {startOpen && (
-          <div ref={startMenuRef} className="absolute bottom-14 left-1/2 -translate-x-1/2 w-96 rounded-lg p-5 z-[9999] border backdrop-blur-xl shadow-2xl flex flex-col animate-fade-in"
-            style={{ background: 'var(--os-panel-bg)', borderColor: 'var(--os-border)' }}>
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-sky-500/25 grid place-items-center font-bold text-sm text-sky-400">A</div>
-                <div>
-                  <div className="text-xs font-semibold text-white">Aneesh Sharma</div>
-                  <div className="text-[10px] text-white/50">Developer Portfolio</div>
-                </div>
+          <div
+            ref={startMenuRef}
+            className="absolute bottom-14 left-1/2 -translate-x-1/2 w-[520px] max-w-[92vw] rounded-[12px] p-6 z-[9999] backdrop-blur-3xl flex flex-col gap-5 animate-[#startFlyIn]"
+            style={{
+              background: 'rgba(32, 34, 44, 0.85)',
+              border: '0.5px solid rgba(255, 255, 255, 0.16)',
+              boxShadow: '0 24px 70px rgba(0, 0, 0, 0.6), inset 0 0.5px 0.5px rgba(255, 255, 255, 0.25)',
+              fontFamily: "'Segoe UI VF', 'Segoe UI', sans-serif",
+            }}
+          >
+            {/* Top Search Bar */}
+            <div className="relative flex items-center w-full">
+              <input
+                type="text"
+                placeholder="Type here to search..."
+                className="w-full bg-[#1b1c24]/90 border border-white/10 rounded-full px-4 py-2 pl-10 text-xs text-white placeholder-white/40 outline-none focus:border-[#0078d4] focus:ring-1 focus:ring-[#0078d4] transition-all"
+              />
+              <BsSearch className="absolute left-3.5 text-white/40" size={13} />
+            </div>
+
+            {/* Pinned Section Header */}
+            <div>
+              <div className="flex items-center justify-between px-2 mb-3">
+                <span className="text-xs font-semibold text-white/90">Pinned</span>
+                <button className="text-[11px] text-white/50 hover:text-white px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 transition-colors">
+                  All apps &gt;
+                </button>
               </div>
-              <button onClick={() => onNavigate('/')} className="flex items-center gap-1 text-xs text-rose-400 hover:text-rose-300 transition-colors p-1.5 rounded hover:bg-white/5">
-                <LogOut size={13} />
-                <span>Log Out</span>
+
+              {/* Pinned Apps 6-Column Grid */}
+              <div className="grid grid-cols-6 gap-2">
+                <button
+                  onClick={() => { onOpenApp('files'); setStartOpen(false); }}
+                  className="flex flex-col items-center justify-center p-2.5 rounded-lg hover:bg-white/10 transition-all text-center group"
+                >
+                  <img src={winExplorerIcon} alt="File Explorer" className="w-8 h-8 object-contain mb-1.5 transition-transform group-hover:scale-110" />
+                  <span className="text-[11px] text-white/80 truncate w-full">File Explorer</span>
+                </button>
+
+                <button
+                  onClick={() => { onOpenApp('settings'); setStartOpen(false); }}
+                  className="flex flex-col items-center justify-center p-2.5 rounded-lg hover:bg-white/10 transition-all text-center group"
+                >
+                  <img src={winDocsIcon} alt="Settings" className="w-8 h-8 object-contain mb-1.5 transition-transform group-hover:scale-110" />
+                  <span className="text-[11px] text-white/80 truncate w-full">Settings</span>
+                </button>
+
+                <button
+                  onClick={() => { onOpenApp('photos'); setStartOpen(false); }}
+                  className="flex flex-col items-center justify-center p-2.5 rounded-lg hover:bg-white/10 transition-all text-center group"
+                >
+                  <img src={winHomeIcon} alt="Photos" className="w-8 h-8 object-contain mb-1.5 transition-transform group-hover:scale-110" />
+                  <span className="text-[11px] text-white/80 truncate w-full">Photos</span>
+                </button>
+
+                <button
+                  onClick={() => { onOpenApp('notes'); setStartOpen(false); }}
+                  className="flex flex-col items-center justify-center p-2.5 rounded-lg hover:bg-white/10 transition-all text-center group"
+                >
+                  <img src={winDocsIcon} alt="Notes" className="w-8 h-8 object-contain mb-1.5 transition-transform group-hover:scale-110" />
+                  <span className="text-[11px] text-white/80 truncate w-full">Notes</span>
+                </button>
+
+                <button
+                  onClick={() => { window.open('https://github.com/aneeshsharma72067', '_blank'); setStartOpen(false); }}
+                  className="flex flex-col items-center justify-center p-2.5 rounded-lg hover:bg-white/10 transition-all text-center group"
+                >
+                  <img src={winDocsIcon} alt="GitHub" className="w-8 h-8 object-contain mb-1.5 transition-transform group-hover:scale-110" />
+                  <span className="text-[11px] text-white/80 truncate w-full">GitHub</span>
+                </button>
+
+                <button
+                  onClick={() => { onOpenApp('files'); setStartOpen(false); }}
+                  className="flex flex-col items-center justify-center p-2.5 rounded-lg hover:bg-white/10 transition-all text-center group"
+                >
+                  <img src={winFolderIcon} alt="Projects" className="w-8 h-8 object-contain mb-1.5 transition-transform group-hover:scale-110" />
+                  <span className="text-[11px] text-white/80 truncate w-full">Projects</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Recommended Section */}
+            <div>
+              <div className="flex items-center justify-between px-2 mb-2">
+                <span className="text-xs font-semibold text-white/90">Recommended</span>
+                <span className="text-[10px] text-white/40">Recent items</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => { onOpenApp('notes'); setStartOpen(false); }}
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-all text-left group"
+                >
+                  <img src={winDocsIcon} alt="Doc" className="w-6 h-6 object-contain shrink-0" />
+                  <div className="flex flex-col truncate">
+                    <span className="text-[11.5px] font-medium text-white truncate">Portfolio 2026 Roadmap</span>
+                    <span className="text-[9.5px] text-white/40">10:42 AM</span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => { onOpenApp('photos'); setStartOpen(false); }}
+                  className="flex flex-col p-2 rounded-lg hover:bg-white/10 transition-all text-left truncate"
+                >
+                  <div className="flex items-center gap-3 truncate">
+                    <img src={winHomeIcon} alt="Pic" className="w-6 h-6 object-contain shrink-0" />
+                    <div className="flex flex-col truncate">
+                      <span className="text-[11.5px] font-medium text-white truncate">Mountain Vista</span>
+                      <span className="text-[9.5px] text-white/40">Yesterday</span>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* OS Switcher Section */}
+            <div className="pt-1 border-t border-white/10">
+              <div className="text-[10px] font-semibold text-white/40 uppercase tracking-wider mb-2">Switch Desktop Look</div>
+              {renderOsSwitcher()}
+            </div>
+
+            {/* Bottom Footer User Profile & Power Option */}
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-2.5 px-2 py-1 rounded-md hover:bg-white/10 transition-colors cursor-default">
+                <div className="w-7 h-7 rounded-full bg-[#0078d4] text-white font-bold text-xs flex items-center justify-center shadow-md">
+                  A
+                </div>
+                <span className="text-xs font-semibold text-white">Aneesh Sharma</span>
+              </div>
+
+              <button
+                onClick={() => onNavigate('/')}
+                className="p-2 rounded-md hover:bg-rose-500/20 text-white/80 hover:text-rose-300 transition-colors flex items-center gap-1.5"
+                title="Power / Log Out"
+              >
+                <LogOut size={15} />
               </button>
             </div>
-
-            <div className="py-4">
-              <div className="text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-2">Pinned Apps</div>
-              <div className="grid grid-cols-3 gap-2">
-                <button onClick={() => { onOpenApp('files'); setStartOpen(false); }} className="flex flex-col items-center p-2 rounded hover:bg-white/5 text-xs text-white">
-                  <Folder className="w-8 h-8 text-yellow-500 mb-1" />
-                  <span>Files</span>
-                </button>
-                <button onClick={() => { onOpenApp('settings'); setStartOpen(false); }} className="flex flex-col items-center p-2 rounded hover:bg-white/5 text-xs text-white">
-                  <Settings className="w-8 h-8 text-slate-400 mb-1" />
-                  <span>Settings</span>
-                </button>
-              </div>
-            </div>
-
-            {renderOsSwitcher()}
           </div>
         )}
       </div>

@@ -1,13 +1,19 @@
 import { memo, useState } from 'react';
 import { resolveIcon } from '@/os/icons';
-import type { FileNode } from '@/os/types';
+import type { FileNode, SkinId } from '@/os/types';
 
 import macosFolderIcon from '@/assets/image/icons/macos/folder.png';
 import macosSettingsFolderIcon from '@/assets/image/icons/macos/settings-folder.png';
 import macosFileIcon from '@/assets/image/icons/macos/file.png';
 
+import winFolderIcon from '@/assets/image/icons/windows/folder.png';
+import winDocsIcon from '@/assets/image/icons/windows/docs.png';
+import winHomeIcon from '@/assets/image/icons/windows/home.png';
+import winBinIcon from '@/assets/image/icons/windows/bin0.png';
+
 type Props = {
   nodes: FileNode[];
+  skinId?: SkinId;
   /** Open a node — a folder in Files, a file in its app, a `.url` in a new tab. */
   onOpen: (node: FileNode) => void;
 };
@@ -15,10 +21,17 @@ type Props = {
 /**
  * Desktop — the icon grid on the wallpaper.
  */
-const Desktop = memo(function Desktop({ nodes, onOpen }: Props) {
+const Desktop = memo(function Desktop({ nodes, skinId = 'mac', onOpen }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
 
-  const getMacIconSrc = (node: FileNode) => {
+  const getDesktopIconSrc = (node: FileNode) => {
+    if (skinId === 'windows') {
+      if (node.path.includes('settings')) return winDocsIcon;
+      if (node.kind === 'folder') return winFolderIcon;
+      if (node.name.includes('bin') || node.name.includes('trash')) return winBinIcon;
+      return winDocsIcon;
+    }
+
     if (node.path.includes('settings')) return macosSettingsFolderIcon;
     if (node.kind === 'folder') return macosFolderIcon;
     return macosFileIcon;
@@ -42,7 +55,7 @@ const Desktop = memo(function Desktop({ nodes, onOpen }: Props) {
         {nodes.map((node) => {
           const Icon = resolveIcon(node.icon);
           const isSelected = selected === node.path;
-          const imgSrc = getMacIconSrc(node);
+          const imgSrc = getDesktopIconSrc(node);
 
           return (
             <button
@@ -66,7 +79,9 @@ const Desktop = memo(function Desktop({ nodes, onOpen }: Props) {
                 <img
                   src={imgSrc}
                   alt={node.name}
-                  className="h-10 w-10 object-cover overflow-hidden drop-shadow-md pointer-events-none rounded-[22%]"
+                  className={`h-10 w-10 object-contain drop-shadow-md pointer-events-none ${
+                    skinId === 'windows' ? 'rounded-none' : 'rounded-[22%] overflow-hidden'
+                  }`}
                 />
               ) : (
                 <Icon
@@ -78,7 +93,10 @@ const Desktop = memo(function Desktop({ nodes, onOpen }: Props) {
               )}
               <span
                 className="line-clamp-2 w-full break-words px-0.5 text-[10.5px] leading-tight text-white font-medium"
-                style={{ textShadow: '0 1px 3px rgb(0 0 0 / 0.9)', fontFamily: "'SF Pro', -apple-system, sans-serif" }}
+                style={{
+                  textShadow: '0 1px 3px rgb(0 0 0 / 0.9)',
+                  fontFamily: skinId === 'windows' ? "'Segoe UI VF', 'Segoe UI', sans-serif" : "'SF Pro', -apple-system, sans-serif"
+                }}
               >
                 {node.name}
               </span>

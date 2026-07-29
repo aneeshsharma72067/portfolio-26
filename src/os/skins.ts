@@ -11,6 +11,7 @@
  */
 import type { Skin, SkinId } from './types';
 import macosBg from '@/assets/image/macos_bg.png';
+import winBg from '@/assets/image/windows-bg.jpg';
 
 export const SKINS: Record<SkinId, Skin> = {
   /* ------------------------------------------------------------- Windows 11 */
@@ -22,18 +23,17 @@ export const SKINS: Record<SkinId, Skin> = {
     controls: 'right-square',
     menubar: false,
     titleAlign: 'left',
-    // Fluent-style blue bloom, brightest behind the taskbar.
-    wallpaper:
-      'radial-gradient(120% 90% at 50% 110%, #0a3d6b 0%, #072a4d 42%, #04162a 100%), linear-gradient(160deg, #06213d 0%, #0a1a2f 100%)',
-    accentRgb: '96 165 250', // #60a5fa
-    windowBg: '#1f2024',
-    chromeBg: '#2b2c31',
-    chromeText: '#e8eaed',
-    border: 'rgb(255 255 255 / 0.09)',
+    // Use the real Windows 11 wallpaper image.
+    wallpaper: `url(${winBg}) center / cover no-repeat`,
+    accentRgb: '0 120 212', // Windows 11 Fluent Blue #0078d4
+    windowBg: 'rgba(32, 34, 42, 0.85)',
+    chromeBg: 'rgba(24, 26, 32, 0.80)',
+    chromeText: '#ffffff',
+    border: 'rgba(255, 255, 255, 0.12)',
     radius: '8px',
-    font: '"Segoe UI Variable", "Segoe UI", system-ui, sans-serif',
-    panelBg: 'rgb(28 30 36 / 0.78)',
-    panelText: '#e8eaed',
+    font: "'Segoe UI VF', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif",
+    panelBg: 'rgba(28, 30, 38, 0.75)',
+    panelText: '#ffffff',
   },
 
   /* ------------------------------------------------------------- macOS Sonoma */
@@ -46,7 +46,7 @@ export const SKINS: Record<SkinId, Skin> = {
     menubar: true,
     titleAlign: 'center',
     // Use the real macOS wallpaper image.
-    wallpaper: `url(${macosBg})`,
+    wallpaper: `url(${macosBg}) center / cover no-repeat`,
     accentRgb: '10 132 255', // #0a84ff
     windowBg: 'rgba(32, 33, 38, 0.72)',
     chromeBg: 'rgba(42, 43, 50, 0.65)',

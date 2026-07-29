@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useRef } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { Minus, Square, X, Copy } from 'lucide-react';
 import type { Skin, WindowState } from '@/os/types';
 import { useDrag, type Rect, type ResizeEdge } from '@/os/useDrag';
@@ -98,6 +98,15 @@ const Window = memo(function Window({
     [geo.x, geo.y, geo.w, geo.h, win.z, win.maximized, isMobile, focused],
   );
 
+  const [isClosing, setIsClosing] = useState(false);
+
+  const handleAnimatedClose = useCallback(() => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose(win.id);
+    }, 180);
+  }, [onClose, win.id]);
+
   /* macOS puts its pills on the left; everyone else puts glyphs on the right.
      i3 ('none') draws no buttons at all — closing is Esc or the taskbar. */
   const controls = skin.controls;
@@ -106,7 +115,7 @@ const Window = memo(function Window({
     controls === 'left-traffic' ? (
       <div className="flex items-center gap-[7px] px-[14px] group/traffic">
         {[
-          { c: '#ff5f57', hc: '#e33e41', fn: () => onClose(win.id), label: 'Close', glyph: '×' },
+          { c: '#ff5f57', hc: '#e33e41', fn: handleAnimatedClose, label: 'Close', glyph: '×' },
           { c: '#febc2e', hc: '#d4a118', fn: () => onMinimize(win.id), label: 'Minimize', glyph: '−' },
           { c: '#28c840', hc: '#1aab29', fn: () => onToggleMax(win.id), label: 'Zoom', glyph: '+' },
         ].map((b) => (
@@ -148,7 +157,7 @@ const Window = memo(function Window({
         )}
         <button
           aria-label="Close"
-          onClick={() => onClose(win.id)}
+          onClick={handleAnimatedClose}
           className={`grid h-8 place-items-center hover:bg-[#e81123] hover:text-white ${
             controls === 'right-round' ? 'mr-1 w-8 rounded-full hover:bg-white/15' : 'w-11'
           }`}
@@ -166,7 +175,9 @@ const Window = memo(function Window({
       // `hidden` rather than unmounting: a minimized window keeps its scroll
       // position and app state, and restoring costs nothing.
       hidden={win.minimized}
-      className="absolute left-0 top-0 flex flex-col overflow-hidden"
+      className={`absolute left-0 top-0 flex flex-col overflow-hidden ${
+        isClosing ? 'animate-win-pop-out' : 'animate-win-pop'
+      }`}
       style={style}
       // Capture-phase so focusing happens before any inner control's onClick.
       onPointerDownCapture={() => onFocus(win.id)}

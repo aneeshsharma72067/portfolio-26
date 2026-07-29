@@ -132,7 +132,13 @@ export default function Computer({ onNavigate }: Props) {
   return (
     <div
       className="fixed inset-0 select-none overflow-hidden cursor-default"
-      style={{ ...skinVars, background: skin.wallpaper, backgroundSize: 'cover', backgroundPosition: 'center' }}
+      style={{
+        ...skinVars,
+        background: skin.wallpaper,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center center',
+        backgroundRepeat: 'no-repeat',
+      }}
     >
       {/* Desktop layer — the icon grid sits directly on the wallpaper. The
           window layer is a sibling above it, so icons never intercept a drag. */}
@@ -147,7 +153,7 @@ export default function Computer({ onNavigate }: Props) {
           skin.panel === 'bar' ? 'bottom-6' : ''
         }`}
       >
-        <Desktop nodes={DESKTOP} onOpen={handleOpen} />
+        <Desktop nodes={DESKTOP} skinId={skinId} onOpen={handleOpen} />
 
         {windows.map((win) => {
           const file = lookup(win.path);

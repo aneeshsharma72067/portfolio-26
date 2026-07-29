@@ -8,6 +8,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Segoe UI VF';
+  src: url('./assets/fonts/SegoeUIVF.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -71,5 +79,50 @@
   /* Hairline rule */
   .hairline {
     @apply border-outline-variant/60;
+  }
+}
+
+@layer utilities {
+  .animate-win-pop {
+    animation: winPop 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .animate-win-pop-out {
+    animation: winPopOut 0.18s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+  }
+  .animate-[#startFlyIn] {
+    animation: startFlyIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+@keyframes winPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes winPopOut {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.93) translateY(8px);
+  }
+}
+
+@keyframes startFlyIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 18px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
   }
 }
