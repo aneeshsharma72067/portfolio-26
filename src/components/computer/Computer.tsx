@@ -13,6 +13,8 @@ import Files from './apps/Files';
 import Reader from './apps/Reader';
 import ImageViewer from './apps/ImageViewer';
 import Settings from './apps/Settings';
+import Photos from './apps/Photos';
+import Notes from './apps/Notes';
 
 type Props = {
   /** Route change through App's preloader transition (used by "log out"). */
@@ -77,14 +79,28 @@ export default function Computer({ onNavigate }: Props) {
   );
 
   const handleOpenApp = useCallback(
-    (app: 'files' | 'settings') => {
+    (app: 'files' | 'settings' | 'photos' | 'notes') => {
+      if (app === 'notes') {
+        const node = lookup('/home/aneesh/Desktop/README.txt');
+        if (node) {
+          open({ ...node, app: 'notes', title: 'Notes', name: 'Notes' }, desktop);
+        }
+        return;
+      }
+      if (app === 'photos') {
+        const node = lookup('/home/aneesh/Desktop/Gallery');
+        if (node) {
+          open({ ...node, app: 'photos', title: 'Photos', name: 'Photos' }, desktop);
+        }
+        return;
+      }
       const path = app === 'files' ? '/home/aneesh/Desktop' : '/home/aneesh/Desktop/settings';
       const node = lookup(path);
       if (node) {
         handleOpen(node);
       }
     },
-    [handleOpen],
+    [handleOpen, open, desktop],
   );
 
   /* The skin as CSS custom properties. Memoised so an unrelated re-render (a
@@ -165,6 +181,12 @@ export default function Computer({ onNavigate }: Props) {
               )}
               {win.app === 'settings' && (
                 <Settings activeSkinId={skinId} onSkinChange={setSkinId} />
+              )}
+              {win.app === 'photos' && (
+                <Photos />
+              )}
+              {win.app === 'notes' && (
+                <Notes />
               )}
             </Window>
           );

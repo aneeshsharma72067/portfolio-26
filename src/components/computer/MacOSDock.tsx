@@ -7,9 +7,10 @@ import settingsIcon from '@/assets/image/icons/macos/settings.png';
 import photosIcon from '@/assets/image/icons/macos/photos.png';
 import folderIcon from '@/assets/image/icons/macos/folder.png';
 import githubIcon from '@/assets/image/icons/macos/github.png';
+import notesIcon from '@/assets/image/icons/macos/notes.png';
 
 type Props = {
-  onOpenApp: (app: 'files' | 'settings') => void;
+  onOpenApp: (app: 'files' | 'settings' | 'photos' | 'notes') => void;
   windows: WindowState[];
   activeWindowId: string | null;
   onFocusWindow: (id: string) => void;
@@ -22,7 +23,7 @@ type DockApp = {
   iconSrc?: string;
   icon?: React.ReactNode;
   isPinned: boolean;
-  appId?: 'files' | 'settings';
+  appId?: 'files' | 'settings' | 'photos' | 'notes';
   externalUrl?: string;
 };
 
@@ -46,6 +47,14 @@ const PINNED_APPS: DockApp[] = [
     name: 'Photos',
     iconSrc: photosIcon,
     isPinned: true,
+    appId: 'photos',
+  },
+  {
+    id: 'notes_app',
+    name: 'Notes',
+    iconSrc: notesIcon,
+    isPinned: true,
+    appId: 'notes',
   },
   {
     id: 'files_folder',

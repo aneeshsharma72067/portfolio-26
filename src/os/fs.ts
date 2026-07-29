@@ -22,7 +22,6 @@ import img2 from '@/assets/image/gallery/2.webp';
 import img3 from '@/assets/image/gallery/3.webp';
 import img4 from '@/assets/image/gallery/4.webp';
 import img5 from '@/assets/image/gallery/5.webp';
-import profile from '@/assets/image/profile.png';
 import type { FileNode } from './types';
 
 const GALLERY = [img1, img2, img3, img4, img5];
@@ -260,8 +259,6 @@ export const DESKTOP: FileNode[] = [
     size: '182 KB',
     modified: '2026-07-12 18:44',
   },
-
-  image('/home/aneesh/Desktop/profile.png', 'profile.png', profile),
 
   /* Settings is an app, not a document — the desktop shortcut for it. */
   {

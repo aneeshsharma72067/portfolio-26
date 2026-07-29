@@ -90,7 +90,7 @@ export default function Reader({ path, name, body = '', size = '0 KB' }: Props) 
   };
 
   return (
-    <div className="flex flex-col h-full bg-[var(--os-window-bg)]" style={{ color: 'var(--os-chrome-text)' }}>
+    <div className="flex flex-col h-full bg-transparent" style={{ color: 'var(--os-chrome-text)' }}>
       {/* File Info Bar */}
       <div className="h-9 border-b border-[var(--os-border)] px-4 flex items-center justify-between shrink-0 bg-black/10 select-none text-[11px]">
         <div className="flex items-center gap-2">

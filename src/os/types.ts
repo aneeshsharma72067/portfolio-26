@@ -64,7 +64,7 @@ export interface Skin {
 /* ---------------------------------------------------------------- filesystem */
 
 /** Which app opens a given file. Folders are handled by `files` itself. */
-export type AppId = 'files' | 'reader' | 'image' | 'settings';
+export type AppId = 'files' | 'reader' | 'image' | 'settings' | 'photos' | 'notes';
 
 /**
  * One entry in the virtual filesystem. A folder carries `children`; a file

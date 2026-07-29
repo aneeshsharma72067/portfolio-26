@@ -8,6 +8,9 @@ import {
   LogOut,
   ChevronDown,
   Volume2,
+  Wifi,
+  Battery,
+  Apple,
 } from 'lucide-react';
 import type { Skin, SkinId, WindowState } from '@/os/types';
 import { resolveIcon } from '@/os/icons';
@@ -21,7 +24,7 @@ type Props = {
   activeWindowId: string | null;
   onFocusWindow: (id: string) => void;
   onMinimizeWindow: (id: string) => void;
-  onOpenApp: (app: 'files' | 'settings') => void;
+  onOpenApp: (app: 'files' | 'settings' | 'photos') => void;
 };
 
 // Simple Clock hook to avoid duplicate timers

@@ -66,7 +66,7 @@ const Desktop = memo(function Desktop({ nodes, onOpen }: Props) {
                 <img
                   src={imgSrc}
                   alt={node.name}
-                  className="h-10 w-10 object-contain drop-shadow-md pointer-events-none rounded-[18%]"
+                  className="h-10 w-10 object-cover overflow-hidden drop-shadow-md pointer-events-none rounded-[22%]"
                 />
               ) : (
                 <Icon

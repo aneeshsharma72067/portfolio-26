@@ -20,7 +20,7 @@ export default function Settings({ activeSkinId, onSkinChange }: Props) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[var(--os-window-bg)] text-xs select-none" style={{ color: 'var(--os-chrome-text)' }}>
+    <div className="flex flex-col h-full bg-transparent text-xs select-none" style={{ color: 'var(--os-chrome-text)' }}>
       {/* Top Header */}
       <div className="h-9 border-b border-[var(--os-border)] px-4 flex items-center justify-between shrink-0 bg-black/10">
         <div className="flex items-center gap-2">

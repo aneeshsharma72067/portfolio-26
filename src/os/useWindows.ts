@@ -38,16 +38,21 @@ const DEFAULT_SIZE: Record<AppId, { w: number; h: number }> = {
   reader: { w: 620, h: 560 },
   image: { w: 720, h: 520 },
   settings: { w: 560, h: 440 },
+  photos: { w: 780, h: 520 },
+  notes: { w: 740, h: 500 },
 };
 
 /** Cap so a window opened on a small desktop is never born off-screen. */
 const fitToDesktop = (
-  size: { w: number; h: number },
+  size: { w: number; h: number } | undefined,
   desktop: { w: number; h: number },
-) => ({
-  w: Math.min(size.w, Math.max(320, desktop.w - 80)),
-  h: Math.min(size.h, Math.max(200, desktop.h - 120)),
-});
+) => {
+  const fallback = size ?? { w: 680, h: 480 };
+  return {
+    w: Math.min(fallback.w, Math.max(320, desktop.w - 80)),
+    h: Math.min(fallback.h, Math.max(200, desktop.h - 120)),
+  };
+};
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {

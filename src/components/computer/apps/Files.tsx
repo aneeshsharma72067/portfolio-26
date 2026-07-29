@@ -5,14 +5,17 @@ import {
   Search,
   Grid,
   List,
-  Folder,
-  FileText,
   ChevronRight,
-  HardDrive
+  HardDrive,
+  Folder as FolderIcon
 } from 'lucide-react';
 import { ROOT, lookup, search, breadcrumbs } from '@/os/fs';
 import { resolveIcon } from '@/os/icons';
 import type { FileNode } from '@/os/types';
+
+import macosFolderIcon from '@/assets/image/icons/macos/folder.png';
+import macosSettingsFolderIcon from '@/assets/image/icons/macos/settings-folder.png';
+import macosFileIcon from '@/assets/image/icons/macos/file.png';
 
 type Props = {
   initialPath: string;
@@ -59,10 +62,10 @@ export default function Files({ initialPath, onOpenNode }: Props) {
   // Sidebar items
   const sidebarItems = [
     { name: 'Home', path: '/home/aneesh', icon: HardDrive },
-    { name: 'Desktop', path: '/home/aneesh/Desktop', icon: Folder },
-    { name: 'Documents', path: '/home/aneesh/Documents', icon: Folder },
-    { name: 'Links', path: '/home/aneesh/Links', icon: Folder },
-    { name: '.config', path: '/home/aneesh/.config', icon: Folder },
+    { name: 'Desktop', path: '/home/aneesh/Desktop', icon: FolderIcon },
+    { name: 'Documents', path: '/home/aneesh/Documents', icon: FolderIcon },
+    { name: 'Links', path: '/home/aneesh/Links', icon: FolderIcon },
+    { name: '.config', path: '/home/aneesh/.config', icon: FolderIcon },
   ];
 
   // List of files to display (filtered by search if active)
@@ -171,14 +174,52 @@ export default function Files({ initialPath, onOpenNode }: Props) {
         <div className="flex-1 p-3 overflow-y-auto min-h-0 bg-black/5">
           {items.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center opacity-40 py-10">
-              <Folder size={36} className="stroke-1.25 mb-2" />
+              <img src={macosFolderIcon} alt="Empty" className="w-12 h-12 mb-2 opacity-50" />
               <span>This folder is empty.</span>
             </div>
           ) : viewMode === 'grid' ? (
             /* Grid View */
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
               {items.map((node) => {
-                const Icon = resolveIcon(node.icon);
+                const isImage = node.app === 'image' && node.src;
+                const isFolder = node.kind === 'folder';
+                const isSettings = node.path.includes('settings');
+
+                let iconGraphic;
+                if (isImage) {
+                  iconGraphic = (
+                    <img
+                      src={node.src}
+                      alt={node.name}
+                      className="w-10 h-10 object-cover rounded-[22%] border border-white/20 shadow-sm"
+                    />
+                  );
+                } else if (isSettings) {
+                  iconGraphic = (
+                    <img
+                      src={macosSettingsFolderIcon}
+                      alt={node.name}
+                      className="w-10 h-10 object-cover rounded-[22%] drop-shadow-md"
+                    />
+                  );
+                } else if (isFolder) {
+                  iconGraphic = (
+                    <img
+                      src={macosFolderIcon}
+                      alt={node.name}
+                      className="w-10 h-10 object-cover rounded-[22%] drop-shadow-md"
+                    />
+                  );
+                } else {
+                  iconGraphic = (
+                    <img
+                      src={macosFileIcon}
+                      alt={node.name}
+                      className="w-10 h-10 object-cover rounded-[22%] drop-shadow-md"
+                    />
+                  );
+                }
+
                 return (
                   <button
                     key={node.path}
@@ -189,14 +230,10 @@ export default function Files({ initialPath, onOpenNode }: Props) {
                         onOpenNode(node);
                       }
                     }}
-                    className="flex flex-col items-center gap-2 p-2 rounded border border-transparent hover:border-[var(--os-border)] hover:bg-[rgba(var(--os-accent),0.08)] group text-center transition-all min-w-0"
+                    className="flex flex-col items-center gap-2 p-2 rounded-lg border border-transparent hover:border-[var(--os-border)] hover:bg-[rgba(var(--os-accent),0.08)] group text-center transition-all min-w-0"
                   >
                     <div className="p-1 rounded transition-transform group-hover:scale-105">
-                      {node.kind === 'folder' ? (
-                        <Folder className="w-10 h-10 text-yellow-500 fill-yellow-500/10" />
-                      ) : (
-                        <Icon className={`w-10 h-10 ${node.app === 'image' ? 'text-emerald-400' : 'text-sky-400'}`} />
-                      )}
+                      {iconGraphic}
                     </div>
                     <span className="truncate w-full font-medium text-white group-hover:text-[rgba(var(--os-accent),1)]">
                       {node.name}
@@ -207,14 +244,52 @@ export default function Files({ initialPath, onOpenNode }: Props) {
             </div>
           ) : (
             /* List View */
-            <div className="flex flex-col border border-[var(--os-border)] rounded overflow-hidden">
+            <div className="flex flex-col border border-[var(--os-border)] rounded-lg overflow-hidden">
               <div className="flex items-center bg-black/20 font-semibold border-b border-[var(--os-border)] p-2">
                 <span className="w-1/2">Name</span>
                 <span className="w-1/4">Size</span>
                 <span className="w-1/4">Modified</span>
               </div>
               {items.map((node) => {
-                const Icon = resolveIcon(node.icon);
+                const isImage = node.app === 'image' && node.src;
+                const isFolder = node.kind === 'folder';
+                const isSettings = node.path.includes('settings');
+
+                let listIcon;
+                if (isImage) {
+                  listIcon = (
+                    <img
+                      src={node.src}
+                      alt={node.name}
+                      className="w-4 h-4 object-cover rounded-[4px] border border-white/20 shrink-0"
+                    />
+                  );
+                } else if (isSettings) {
+                  listIcon = (
+                    <img
+                      src={macosSettingsFolderIcon}
+                      alt={node.name}
+                      className="w-4 h-4 object-cover rounded-[4px] shrink-0"
+                    />
+                  );
+                } else if (isFolder) {
+                  listIcon = (
+                    <img
+                      src={macosFolderIcon}
+                      alt={node.name}
+                      className="w-4 h-4 object-cover rounded-[4px] shrink-0"
+                    />
+                  );
+                } else {
+                  listIcon = (
+                    <img
+                      src={macosFileIcon}
+                      alt={node.name}
+                      className="w-4 h-4 object-cover rounded-[4px] shrink-0"
+                    />
+                  );
+                }
+
                 return (
                   <button
                     key={node.path}
@@ -227,12 +302,8 @@ export default function Files({ initialPath, onOpenNode }: Props) {
                     }}
                     className="flex items-center text-left p-2 hover:bg-[rgba(var(--os-accent),0.08)] border-b border-[var(--os-border)] last:border-0 text-white/90"
                   >
-                    <span className="w-1/2 flex items-center gap-2 truncate font-medium">
-                      {node.kind === 'folder' ? (
-                        <Folder className="w-4 h-4 text-yellow-500 fill-yellow-500/10 shrink-0" />
-                      ) : (
-                        <Icon className={`w-4 h-4 shrink-0 ${node.app === 'image' ? 'text-emerald-400' : 'text-sky-400'}`} />
-                      )}
+                    <span className="w-1/2 flex items-center gap-2.5 truncate font-medium">
+                      {listIcon}
                       <span className="truncate">{node.name}</span>
                     </span>
                     <span className="w-1/4 text-white/50">{node.size ?? '—'}</span>
