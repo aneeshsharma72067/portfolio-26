@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { SKINS } from '@/os/skins';
-import type { SkinId } from '@/os/types';
 import {
   Search,
   Wifi,
@@ -10,7 +8,6 @@ import {
   Sliders,
   Accessibility,
   Palette,
-  Sparkles,
   Monitor,
   Bell,
   Info,
@@ -18,213 +15,235 @@ import {
   HardDrive,
   ChevronRight,
   User,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
 } from 'lucide-react';
+import { SKINS, SKIN_ORDER } from '@/os/skins';
+import type { SkinId } from '@/os/types';
 
 type Props = {
   activeSkinId: SkinId;
   onSkinChange: (id: SkinId) => void;
 };
 
-export default function MacSettings({ activeSkinId, onSkinChange }: Props) {
-  const [selectedTab, setSelectedTab] = useState<'general' | 'appearance' | 'about'>('general');
+/** Sidebar rows. Only `general` and `appearance` open a real pane. */
+const CATEGORIES = [
+  { id: 'wifi', name: 'Wi-Fi', icon: Wifi, colour: 'bg-blue-500' },
+  { id: 'bluetooth', name: 'Bluetooth', icon: Bluetooth, colour: 'bg-blue-600' },
+  { id: 'network', name: 'Network', icon: Globe, colour: 'bg-sky-500' },
+  { id: 'battery', name: 'Battery', icon: Battery, colour: 'bg-emerald-500' },
+  { id: 'general', name: 'General', icon: Sliders, colour: 'bg-slate-500' },
+  { id: 'appearance', name: 'Appearance', icon: Palette, colour: 'bg-indigo-500' },
+  { id: 'accessibility', name: 'Accessibility', icon: Accessibility, colour: 'bg-blue-500' },
+  { id: 'displays', name: 'Displays', icon: Monitor, colour: 'bg-blue-500' },
+  { id: 'notifications', name: 'Notifications', icon: Bell, colour: 'bg-rose-500' },
+] as const;
 
+type CategoryId = (typeof CATEGORIES)[number]['id'];
+
+/**
+ * MacSettings — macOS System Settings.
+ *
+ * macOS-only: the Windows equivalent (`WinSettings`) is a separate component
+ * with its own layout, so neither has to compromise for the other.
+ */
+export default function MacSettings({ activeSkinId, onSkinChange }: Props) {
+  const [category, setCategory] = useState<CategoryId>('appearance');
+
+  /** Wipes the persisted OS choice and reloads back to the default desktop. */
   const handleClearCache = () => {
     try {
       localStorage.removeItem('portfolio-os-skin');
-      localStorage.removeItem('portfolio-windows-layout');
       window.location.reload();
     } catch {
-      alert('Unable to access storage.');
+      /* storage blocked — nothing to clear, so nothing to report */
     }
   };
 
-  const sidebarCategories = [
-    { id: 'wifi', name: 'Wi-Fi', icon: Wifi, color: 'bg-blue-500' },
-    { id: 'bluetooth', name: 'Bluetooth', icon: Bluetooth, color: 'bg-blue-600' },
-    { id: 'network', name: 'Network', icon: Globe, color: 'bg-sky-500' },
-    { id: 'battery', name: 'Battery', icon: Battery, color: 'bg-emerald-500' },
-    { id: 'general', name: 'General', icon: Sliders, color: 'bg-blue-500', isTab: true },
-    { id: 'accessibility', name: 'Accessibility', icon: Accessibility, color: 'bg-blue-500' },
-    { id: 'appearance', name: 'Appearance', icon: Palette, color: 'bg-indigo-500', isTab: true },
-    { id: 'intelligence', name: 'Apple Intelligence & Siri', icon: Sparkles, color: 'bg-purple-500' },
-    { id: 'control', name: 'Control Center', icon: Sliders, color: 'bg-slate-400' },
-    { id: 'displays', name: 'Displays', icon: Monitor, color: 'bg-blue-500' },
-    { id: 'wallpaper', name: 'Wallpaper', icon: Palette, color: 'bg-cyan-500' },
-    { id: 'notifications', name: 'Notifications', icon: Bell, color: 'bg-rose-500' },
-  ];
+  const active = CATEGORIES.find((c) => c.id === category)!;
+  const hasPane = category === 'general' || category === 'appearance';
 
   return (
-    <div className="flex h-full bg-[#1e1e24]/90 text-xs select-none backdrop-blur-3xl text-white/90" style={{ fontFamily: "'SF Pro', -apple-system, sans-serif" }}>
-      {/* macOS System Settings Left Sidebar */}
-      <div className="w-56 border-r border-white/10 bg-black/20 shrink-0 flex flex-col p-2.5 gap-2 overflow-y-auto">
-        <div className="relative flex items-center mb-1">
+    <div
+      className="flex h-full select-none bg-[#1e1e24]/85 text-xs text-white/90"
+      style={{ fontFamily: "'SF Pro', -apple-system, BlinkMacSystemFont, sans-serif" }}
+    >
+      {/* ══════════════════════════════════════════════ Translucent sidebar */}
+      <div className="flex w-56 shrink-0 flex-col gap-2 overflow-y-auto border-r border-white/10 bg-black/20 p-2.5">
+        <div className="relative mb-1 flex items-center">
           <input
             type="text"
             placeholder="Search"
-            className="w-full bg-black/30 border border-white/10 rounded-md px-2.5 py-1 pl-7 text-[11px] text-white placeholder-white/40 outline-none focus:border-sky-400"
+            className="w-full rounded-md border border-white/10 bg-black/30 px-2.5 py-1 pl-7 text-[11px] text-white placeholder-white/40 outline-none focus:border-sky-400"
           />
           <Search className="absolute left-2 text-white/40" size={12} />
         </div>
 
-        <div className="flex items-center gap-2.5 p-2 rounded-lg bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-600 to-slate-800 border border-white/20 flex items-center justify-center text-white font-bold text-xs shadow-md">
-            <User size={18} className="text-white/80" />
+        <div className="flex items-center gap-2.5 rounded-lg border border-white/5 bg-white/5 p-2">
+          <div className="grid h-9 w-9 place-items-center rounded-full border border-white/20 bg-gradient-to-br from-slate-600 to-slate-800">
+            <User size={17} className="text-white/80" />
           </div>
-          <div className="flex flex-col truncate">
-            <span className="font-semibold text-white truncate text-[12px]">Aneesh Sharma</span>
-            <span className="text-[10px] text-white/50 truncate">Apple Account</span>
+          <div className="flex min-w-0 flex-col">
+            <span className="truncate text-[12px] font-semibold text-white">Aneesh Sharma</span>
+            <span className="truncate text-[10px] text-white/50">Apple Account</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5 text-[11px]">
-          <span className="text-white/80 font-medium truncate">Software Update Available</span>
-          <span className="w-4 h-4 rounded-full bg-rose-500 text-white font-bold text-[10px] flex items-center justify-center shrink-0">1</span>
-        </div>
-
-        <div className="space-y-0.5 mt-1">
-          {sidebarCategories.map((cat) => {
-            const Icon = cat.icon;
-            const isSelected = (cat.isTab && selectedTab === cat.id) || (cat.id === 'general' && selectedTab === 'general');
+        <div className="mt-1 space-y-0.5">
+          {CATEGORIES.map((c) => {
+            const Icon = c.icon;
+            const selected = category === c.id;
             return (
               <button
-                key={cat.id}
-                onClick={() => {
-                  if (cat.id === 'appearance' || cat.id === 'general') {
-                    setSelectedTab(cat.id as 'general' | 'appearance');
-                  }
-                }}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-left transition-all ${
-                  isSelected ? 'bg-[#007aff] text-white font-medium shadow-md' : 'hover:bg-white/10 text-white/80'
+                key={c.id}
+                onClick={() => setCategory(c.id)}
+                className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left transition-all ${
+                  selected ? 'bg-[#0a84ff] font-medium text-white' : 'text-white/80 hover:bg-white/10'
                 }`}
               >
-                <div className={`w-5 h-5 rounded-md ${cat.color} flex items-center justify-center text-white shrink-0 shadow-sm`}>
+                <div
+                  className={`grid h-5 w-5 shrink-0 place-items-center rounded-md ${c.colour} text-white shadow-sm`}
+                >
                   <Icon size={12} />
                 </div>
-                <span className="truncate">{cat.name}</span>
+                <span className="truncate text-[12px]">{c.name}</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Main Settings Detail Panel */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-black/10">
-        <div className="h-9 border-b border-white/10 flex items-center justify-between px-4 shrink-0 bg-black/10 text-xs">
-          <div className="flex items-center gap-1.5 text-white/50">
-            <button className="p-1 rounded hover:bg-white/10 disabled:opacity-30" title="Back">
-              <span>‹</span>
-            </button>
-            <button className="p-1 rounded hover:bg-white/10 disabled:opacity-30" title="Forward">
-              <span>›</span>
-            </button>
+      {/* ══════════════════════════════════════════════ Detail pane */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-black/10">
+        <div className="flex h-9 shrink-0 items-center justify-between border-b border-white/10 px-4 text-[11.5px]">
+          <div className="flex items-center gap-1 text-white/45">
+            <span className="rounded px-1.5 py-0.5 hover:bg-white/10">‹</span>
+            <span className="rounded px-1.5 py-0.5 hover:bg-white/10">›</span>
           </div>
-          <span className="font-semibold text-white/90">General</span>
+          <span className="font-semibold text-white/90">{active.name}</span>
           <div className="w-10" />
         </div>
 
-        <div className="flex-1 p-6 overflow-y-auto space-y-6">
-          <div className="flex flex-col items-center justify-center text-center py-2">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center text-white shadow-xl mb-3 border border-white/20">
-              <SettingsIcon size={36} />
+        <div className="flex-1 space-y-5 overflow-y-auto p-6">
+          {!hasPane ? (
+            <div className="rounded-xl border border-white/10 bg-white/5 p-10 text-center text-[12px] text-white/45">
+              Nothing to configure here on a portfolio.
             </div>
-            <h1 className="text-lg font-bold text-white mb-1">General</h1>
-            <p className="text-[11px] text-white/50 max-w-md leading-relaxed">
-              Manage your overall setup and preferences for Mac, such as software updates, system layouts, device language, AirDrop, and more.
-            </p>
-          </div>
-
-          <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden divide-y divide-white/5">
-            <button
-              onClick={() => setSelectedTab('about')}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-white/5 transition-colors text-left"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-md bg-slate-500 flex items-center justify-center text-white">
-                  <Info size={14} />
+          ) : (
+            <>
+              <div className="flex flex-col items-center py-1 text-center">
+                <div className="mb-3 grid h-16 w-16 place-items-center rounded-2xl border border-white/20 bg-gradient-to-br from-slate-400 to-slate-600 text-white shadow-xl">
+                  {category === 'appearance' ? <Palette size={32} /> : <SettingsIcon size={32} />}
                 </div>
-                <span className="font-medium text-white text-[12.5px]">About</span>
+                <h1 className="mb-1 text-[17px] font-bold text-white">{active.name}</h1>
+                <p className="max-w-md text-[11.5px] leading-relaxed text-white/50">
+                  {category === 'appearance'
+                    ? 'Choose which computer boots, and how this desktop looks.'
+                    : 'Software updates, storage and information about this Mac.'}
+                </p>
               </div>
-              <ChevronRight size={14} className="text-white/40" />
-            </button>
 
-            <button className="w-full flex items-center justify-between p-3.5 hover:bg-white/5 transition-colors text-left">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-md bg-slate-500 flex items-center justify-center text-white">
-                  <RefreshCw size={14} />
+              {category === 'appearance' && (
+                <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+                  <div>
+                    <h2 className="text-[13px] font-semibold text-white">Operating system</h2>
+                    <p className="mt-1 text-[11.5px] leading-relaxed text-white/50">
+                      Each computer is a separate desktop with its own shell, file manager and
+                      window style. Switching restarts it, so open windows are closed.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                    {SKIN_ORDER.map((id) => {
+                      const skin = SKINS[id];
+                      const selected = activeSkinId === id;
+                      return (
+                        <button
+                          key={id}
+                          onClick={() => onSkinChange(id)}
+                          className={`flex flex-col items-start rounded-lg border p-3 text-left transition-all ${
+                            selected
+                              ? 'border-[#0a84ff] bg-[#0a84ff]/20 ring-1 ring-[#0a84ff]'
+                              : 'border-white/10 bg-black/20 hover:border-white/25 hover:bg-white/10'
+                          }`}
+                        >
+                          <div className="mb-1 flex w-full items-center justify-between">
+                            <span className="text-[12.5px] font-semibold text-white">
+                              {skin.label}
+                            </span>
+                            {selected && (
+                              <span className="rounded-full bg-[#0a84ff] px-2 py-0.5 text-[9.5px] font-bold text-white">
+                                Running
+                              </span>
+                            )}
+                          </div>
+                          <span className="mb-2.5 text-[10.5px] text-white/45">{skin.version}</span>
+                          <div
+                            className="h-8 w-full rounded-md border border-white/10 shadow-inner"
+                            style={{ background: skin.wallpaper }}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <span className="font-medium text-white text-[12.5px]">Software Update</span>
-              </div>
-              <ChevronRight size={14} className="text-white/40" />
-            </button>
+              )}
 
-            <button className="w-full flex items-center justify-between p-3.5 hover:bg-white/5 transition-colors text-left">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-md bg-slate-500 flex items-center justify-center text-white">
-                  <HardDrive size={14} />
-                </div>
-                <span className="font-medium text-white text-[12.5px]">Storage</span>
-              </div>
-              <ChevronRight size={14} className="text-white/40" />
-            </button>
-          </div>
+              {category === 'general' && (
+                <>
+                  <div className="divide-y divide-white/5 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                    <Row icon={Info} title="About" detail={SKINS[activeSkinId].version} />
+                    <Row icon={RefreshCw} title="Software Update" detail="Up to date" />
+                    <Row icon={HardDrive} title="Storage" detail="112 GB of 512 GB used" />
+                  </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3">
-            <div className="flex items-center gap-2 mb-1">
-              <Palette size={16} className="text-sky-400" />
-              <h2 className="font-semibold text-white text-[13px]">Operating System Layouts</h2>
-            </div>
-            <p className="text-[11px] text-white/50 leading-normal">
-              Select your active simulated OS desktop environment. Switches wallpapers, panels, dock configurations, and window chrome.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-              {(Object.keys(SKINS) as SkinId[]).map((id) => {
-                const skin = SKINS[id];
-                const isSelected = activeSkinId === id;
-                return (
-                  <button
-                    key={id}
-                    onClick={() => onSkinChange(id)}
-                    className={`flex flex-col items-start text-left p-3 rounded-lg border transition-all ${
-                      isSelected
-                        ? 'bg-[#007aff]/20 border-[#007aff] text-white ring-1 ring-[#007aff]'
-                        : 'bg-black/20 border-white/10 hover:bg-white/10 hover:border-white/20 text-white/80'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between w-full mb-1">
-                      <span className="font-semibold text-white capitalize text-[12px]">{skin.label}</span>
-                      {isSelected && (
-                        <span className="text-[9.5px] px-2 py-0.5 rounded-full bg-[#007aff] text-white font-bold">
-                          Active
-                        </span>
-                      )}
+                  <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-4">
+                    <div className="flex min-w-0 flex-col pr-4">
+                      <span className="mb-0.5 text-[12.5px] font-semibold text-white">
+                        Erase All Content and Settings
+                      </span>
+                      <span className="text-[11px] leading-relaxed text-white/50">
+                        Clears the saved OS choice and reloads the desktop from defaults.
+                      </span>
                     </div>
-                    <span className="text-[10px] text-white/40 mb-2">{skin.version}</span>
-                    <div
-                      className="h-2 w-full rounded-md shadow-inner"
-                      style={{ background: skin.wallpaper }}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="font-semibold text-white text-[12.5px] mb-0.5">System Maintenance</span>
-              <span className="text-[10.5px] text-white/50">Clear virtual cache to restore window bounds and desktop defaults.</span>
-            </div>
-            <button
-              onClick={handleClearCache}
-              className="px-3.5 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 hover:bg-rose-500/40 hover:text-white transition-all text-[11px] font-semibold shrink-0"
-            >
-              Reset Cache
-            </button>
-          </div>
+                    <button
+                      onClick={handleClearCache}
+                      className="shrink-0 rounded-lg border border-rose-500/40 bg-rose-500/20 px-3.5 py-1.5 text-[11px] font-semibold text-rose-300 transition-all hover:bg-rose-500/40 hover:text-white"
+                    >
+                      Erase…
+                    </button>
+                  </div>
+                </>
+              )}
+            </>
+          )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** One inert settings row — macOS's standard grouped list item. */
+function Row({
+  icon: Icon,
+  title,
+  detail,
+}: {
+  icon: typeof Info;
+  title: string;
+  detail: string;
+}) {
+  return (
+    <div className="flex items-center justify-between p-3.5 transition-colors hover:bg-white/5">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-slate-500 text-white">
+          <Icon size={13} />
+        </div>
+        <div className="flex min-w-0 flex-col">
+          <span className="truncate text-[12.5px] font-medium text-white">{title}</span>
+          <span className="truncate text-[10.5px] text-white/45">{detail}</span>
+        </div>
+      </div>
+      <ChevronRight size={14} className="shrink-0 text-white/35" />
     </div>
   );
 }

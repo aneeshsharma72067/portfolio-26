@@ -7,42 +7,28 @@
 
 /* ------------------------------------------------------------------ skins */
 
-/** The five selectable operating-system looks. */
-export type SkinId = 'windows' | 'mac' | 'fedora' | 'kali' | 'arch';
-
-/** Where a skin puts its primary chrome bar. */
-export type PanelKind =
-  | 'taskbar' // Windows 11: centred icon strip pinned to the bottom
-  | 'dock' // macOS: floating magnified dock + a thin top menubar
-  | 'topbar' // Fedora/GNOME: single top bar, "Activities" on the left
-  | 'panel' // Kali/XFCE: dense dark bar with a launcher menu
-  | 'bar'; // Arch/i3: hairline status bar with workspace numbers
-
-/** Window button style — decides both glyphs and which side they sit on. */
-export type ControlStyle =
-  | 'right-square' // Windows: ─ □ ✕ on the right, square hit areas
-  | 'left-traffic' // macOS: red/amber/green pills on the left
-  | 'right-round' // GNOME: a single round ✕
-  | 'right-xfce' // XFCE: small square ─ □ ✕
-  | 'none'; // i3: no decorations at all, keyboard-driven
+/**
+ * The selectable operating systems.
+ *
+ * Each one is a SEPARATE shell component (`computer/windows/WindowsOS`,
+ * `computer/mac/MacOS`) — not a skinned copy of a shared chrome. Only one is
+ * mounted at a time, so their layouts, panels and window frames can never
+ * conflict with each other. The Linux distros that used to live here were
+ * removed rather than left half-finished.
+ */
+export type SkinId = 'windows' | 'mac';
 
 /**
- * A skin is pure data — never a component tree. Everything visual is expressed
- * as CSS values that `Computer` writes onto its root as custom properties, so
- * switching OS is one state change and zero window-content re-renders.
+ * The per-OS *theme* values. Purely the paint: surfaces, radius, fonts. Layout
+ * and chrome structure live in each OS's own components, so nothing here
+ * describes "where the panel goes" any more.
  */
 export interface Skin {
   id: SkinId;
   label: string;
   /** Shown in Settings / the about dialog, e.g. "Windows 11". */
   version: string;
-  panel: PanelKind;
-  controls: ControlStyle;
-  /** macOS-style global menubar above everything else. */
-  menubar: boolean;
-  /** Title text alignment inside the window titlebar. */
-  titleAlign: 'left' | 'center';
-  /** Full CSS `background` shorthand — gradients only, so it costs 0 bytes. */
+  /** Full CSS `background` shorthand for the wallpaper. */
   wallpaper: string;
   /** Accent as "R G B" channels so it can drive the existing --primary var. */
   accentRgb: string;

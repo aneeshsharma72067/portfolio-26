@@ -10,6 +10,10 @@ import type { Rect } from './useDrag';
  * appends AND focuses). One transition function keeps those invariants in a
  * single readable place.
  *
+ * Each OS shell (Windows / macOS) instantiates its OWN manager, so their window
+ * stacks are completely independent — switching OS starts from a clean desktop
+ * and no geometry or z-order leaks across.
+ *
  * Geometry committed here is the resting position only. While a drag is in
  * flight `useDrag` writes transforms directly to the DOM and dispatches nothing,
  * so a 3-second drag produces exactly one dispatch.
@@ -30,6 +34,11 @@ interface State {
   topZ: number;
   /** How many windows have been opened this session, for cascade offsets. */
   opened: number;
+  /**
+   * Whether a freshly opened window starts maximized. Windows 11 opens apps
+   * filling the work area; macOS opens them as floating, cascaded windows.
+   */
+  openMaximized: boolean;
 }
 
 /** Default size per app — a file listing wants width, a document wants height. */
@@ -70,6 +79,7 @@ function reducer(state: State, action: Action): State {
       const z = state.topZ + 1;
 
       return {
+        ...state,
         windows: [
           ...state.windows,
           {
@@ -79,12 +89,14 @@ function reducer(state: State, action: Action): State {
             app: node.app,
             title: node.name,
             path: node.path,
+            // The stored rect is what un-maximizing restores to, so it is filled
+            // in even when the window is born maximized.
             x: Math.max(0, Math.round((desktop.w - size.w) / 2 - 60) + step),
             y: Math.max(0, Math.round((desktop.h - size.h) / 2 - 40) + step),
             ...size,
             z,
             minimized: false,
-            maximized: false,
+            maximized: state.openMaximized,
           },
         ],
         topZ: z,
@@ -133,7 +145,9 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         windows: state.windows.map((w) =>
-          w.id === action.id ? { ...w, ...action.rect } : w,
+          // Committing geometry always means the window is floating: a drag or
+          // resize can only happen once it has left the maximized state.
+          w.id === action.id ? { ...w, ...action.rect, maximized: false } : w,
         ),
       };
 
@@ -142,10 +156,16 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-const EMPTY: State = { windows: [], topZ: 10, opened: 0 };
-
-export function useWindows() {
-  const [state, dispatch] = useReducer(reducer, EMPTY);
+/**
+ * @param openMaximized true on Windows (apps fill the work area), false on macOS.
+ */
+export function useWindows(openMaximized = false) {
+  const [state, dispatch] = useReducer(reducer, {
+    windows: [],
+    topZ: 10,
+    opened: 0,
+    openMaximized,
+  });
 
   /* Stable action creators so children memoised with React.memo don't re-render
      just because the parent re-rendered. `dispatch` is already stable. */

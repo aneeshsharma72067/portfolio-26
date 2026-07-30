@@ -83,46 +83,41 @@
 }
 
 @layer utilities {
+  /* Window / menu open animation.
+     IMPORTANT: it must NOT animate `transform`. Windows are positioned with an
+     inline `transform: translate3d(...)` that the drag layer rewrites on every
+     frame, and a running animation (or one with `forwards` fill) beats inline
+     styles in the cascade — animating transform here pinned every window to the
+     top-left corner and made dragging look broken. Opacity + a clipped grow
+     give the same "pop" without touching the property that carries position. */
   .animate-win-pop {
-    animation: winPop 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: winPop 0.16s ease-out;
   }
-  .animate-win-pop-out {
-    animation: winPopOut 0.18s cubic-bezier(0.7, 0, 0.84, 0) forwards;
-  }
-  .animate-[#startFlyIn] {
-    animation: startFlyIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* macOS dock icon bounce on launch. Safe to use transform: the bouncing
+     element is a wrapper that carries no positioning of its own. */
+  .animate-dock-bounce {
+    animation: dockBounce 0.7s ease-in-out;
   }
 }
 
 @keyframes winPop {
   0% {
     opacity: 0;
-    transform: scale(0.95) translateY(10px);
   }
   100% {
     opacity: 1;
-    transform: scale(1) translateY(0);
   }
 }
 
-@keyframes winPopOut {
-  0% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+@keyframes dockBounce {
+  0%,
   100% {
-    opacity: 0;
-    transform: scale(0.93) translateY(8px);
+    transform: translateY(0);
   }
-}
-
-@keyframes startFlyIn {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, 18px) scale(0.94);
+  35% {
+    transform: translateY(-15px);
   }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, 0) scale(1);
+  70% {
+    transform: translateY(-6px);
   }
 }

@@ -1,13 +1,15 @@
 /**
- * The five OS skins, expressed purely as data.
+ * Theme values for the two supported operating systems.
  *
- * Every visual difference between Windows / macOS / Fedora / Kali / Arch is a
- * value in this table — not a separate component tree. `Computer` writes the
- * active skin onto its root element as CSS custom properties, so switching the
- * OS re-paints the chrome without re-rendering any window content.
+ * This table is ONLY the paint — surfaces, radius, accent, native font stack,
+ * wallpaper. Layout and chrome structure (taskbar vs dock, titlebar button
+ * order, window frame) belong to each OS's own component tree under
+ * `components/computer/windows` and `components/computer/mac`, so the two never
+ * share a code path and can't break each other.
  *
- * Wallpapers are CSS gradients on purpose: they add zero bytes to the bundle,
- * decode instantly and retint with the theme instead of fighting it.
+ * The active theme is written as CSS custom properties onto one root element by
+ * the OS shell, so switching OS re-paints the chrome without touching the main
+ * site's theme vars.
  */
 import type { Skin, SkinId } from './types';
 import macosBg from '@/assets/image/macos_bg.png';
@@ -19,11 +21,6 @@ export const SKINS: Record<SkinId, Skin> = {
     id: 'windows',
     label: 'Windows',
     version: 'Windows 11 Pro',
-    panel: 'taskbar',
-    controls: 'right-square',
-    menubar: false,
-    titleAlign: 'left',
-    // Use the real Windows 11 wallpaper image.
     wallpaper: `url(${winBg}) center / cover no-repeat`,
     accentRgb: '0 120 212', // Windows 11 Fluent Blue #0078d4
     windowBg: 'rgba(32, 34, 42, 0.85)',
@@ -41,11 +38,6 @@ export const SKINS: Record<SkinId, Skin> = {
     id: 'mac',
     label: 'macOS',
     version: 'macOS Sonoma 14.5',
-    panel: 'dock',
-    controls: 'left-traffic',
-    menubar: true,
-    titleAlign: 'center',
-    // Use the real macOS wallpaper image.
     wallpaper: `url(${macosBg}) center / cover no-repeat`,
     accentRgb: '10 132 255', // #0a84ff
     windowBg: 'rgba(32, 33, 38, 0.72)',
@@ -57,83 +49,15 @@ export const SKINS: Record<SkinId, Skin> = {
     panelBg: 'rgb(40 40 46 / 0.62)',
     panelText: '#f2f2f5',
   },
-
-  /* ------------------------------------------------------------ Fedora / GNOME */
-  fedora: {
-    id: 'fedora',
-    label: 'Fedora',
-    version: 'Fedora Workstation 40',
-    panel: 'topbar',
-    controls: 'right-round',
-    menubar: false,
-    titleAlign: 'center',
-    // Fedora's flat "blue slate" default, warmed slightly toward the bottom.
-    wallpaper:
-      'linear-gradient(180deg, #2a5b8c 0%, #1c4269 45%, #16324f 100%), radial-gradient(60% 40% at 50% 0%, #3d78ad 0%, transparent 70%)',
-    accentRgb: '81 162 255', // Fedora blue #51a2ff
-    windowBg: '#242424',
-    chromeBg: '#303030',
-    chromeText: '#ffffff',
-    border: 'rgb(0 0 0 / 0.5)',
-    radius: '12px',
-    font: 'Cantarell, "Adwaita Sans", system-ui, sans-serif',
-    panelBg: 'rgb(0 0 0 / 0.82)',
-    panelText: '#ffffff',
-  },
-
-  /* -------------------------------------------------------------- Kali / XFCE */
-  kali: {
-    id: 'kali',
-    label: 'Kali',
-    version: 'Kali Linux 2025.2',
-    panel: 'panel',
-    controls: 'right-xfce',
-    menubar: false,
-    titleAlign: 'center',
-    // The signature near-black dragon backdrop, faked with a cyan core glow.
-    wallpaper:
-      'radial-gradient(70% 55% at 50% 45%, #0d3d4a 0%, transparent 65%), linear-gradient(170deg, #05161c 0%, #02090d 100%)',
-    accentRgb: '54 211 233', // #36d3e9
-    windowBg: '#1c1f24',
-    chromeBg: '#14171b',
-    chromeText: '#c8f4ff',
-    border: 'rgb(56 189 248 / 0.22)',
-    radius: '3px',
-    font: '"Ubuntu", "DejaVu Sans", system-ui, sans-serif',
-    panelBg: 'rgb(10 13 16 / 0.9)',
-    panelText: '#9fe8ff',
-  },
-
-  /* ----------------------------------------------------------- Arch / i3-gaps */
-  arch: {
-    id: 'arch',
-    label: 'Arch',
-    version: 'Arch Linux (i3-gaps)',
-    panel: 'bar',
-    controls: 'none',
-    menubar: false,
-    titleAlign: 'left',
-    // Flat, ricer-minimal: Arch cyan on a near-black canvas, no bloom.
-    wallpaper: 'linear-gradient(135deg, #0b1118 0%, #0d1721 55%, #0a1016 100%)',
-    accentRgb: '23 147 209', // Arch blue #1793d1
-    windowBg: '#12161c',
-    chromeBg: '#12161c',
-    chromeText: '#8fb6cf',
-    border: '#1793d1',
-    radius: '0px',
-    font: '"JetBrains Mono", "Fira Code", ui-monospace, monospace',
-    panelBg: '#0a0e13',
-    panelText: '#7fb3cc',
-  },
 };
 
 /** Stable render order for the OS switcher UI. */
-export const SKIN_ORDER: SkinId[] = ['windows', 'mac', 'fedora', 'kali', 'arch'];
+export const SKIN_ORDER: SkinId[] = ['windows', 'mac'];
 
 /** Where the chosen OS is remembered between visits. */
 const STORAGE_KEY = 'portfolio-os-skin';
 
-/** Last chosen skin if still valid, else Windows (the most familiar default). */
+/** Last chosen OS if still valid, else Windows (the most familiar default). */
 export const loadSkin = (): SkinId => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -144,7 +68,7 @@ export const loadSkin = (): SkinId => {
   return 'windows';
 };
 
-/** Persist the chosen skin; failure is silent since the live UI already switched. */
+/** Persist the chosen OS; failure is silent since the live UI already switched. */
 export const saveSkin = (id: SkinId) => {
   try {
     localStorage.setItem(STORAGE_KEY, id);

@@ -58,6 +58,8 @@ export function useDrag({ getRect, onCommit, bounds, minW = 320, minH = 200 }: O
     /** Latest computed rect; read by the rAF callback and by pointerup. */
     current: Rect;
     frame: number;
+    /** False until the pointer actually travels — a bare click commits nothing. */
+    moved: boolean;
   } | null>(null);
 
   /** Apply a rect to the DOM without touching React. */
@@ -78,6 +80,11 @@ export function useDrag({ getRect, onCommit, bounds, minW = 320, minH = 200 }: O
       const dy = e.clientY - g.startY;
       const b = bounds();
       const s = g.start;
+
+      /* 3px of slop: a click that wobbles must not count as a gesture, or every
+         titlebar click would commit geometry (and un-maximize the window). */
+      if (!g.moved && Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
+      g.moved = true;
 
       if (!g.edge) {
         /* Move. Clamp so at least a strip of titlebar stays grabbable: the
@@ -136,8 +143,9 @@ export function useDrag({ getRect, onCommit, bounds, minW = 320, minH = 200 }: O
         /* capture may already be gone if the pointer was cancelled */
       }
 
-      // The single React update for the whole gesture.
-      onCommit(g.current);
+      // The single React update for the whole gesture. Skipped entirely for a
+      // click that never moved, so double-click-to-maximize still works.
+      if (g.moved) onCommit(g.current);
     },
     [onCommit],
   );
@@ -158,6 +166,7 @@ export function useDrag({ getRect, onCommit, bounds, minW = 320, minH = 200 }: O
         start: rect,
         current: rect,
         frame: 0,
+        moved: false,
       };
       if (nodeRef.current) nodeRef.current.style.willChange = 'transform';
       (e.target as Element).setPointerCapture(e.pointerId);

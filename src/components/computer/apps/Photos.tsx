@@ -272,7 +272,7 @@ export default function Photos() {
       {/* ══════════════════════════════════════════════ Photo Lightbox Modal */}
       {selectedPhoto && (
         <div
-          className="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-xl flex flex-col items-center justify-center p-6 animate-fade-in"
+          className="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-xl flex flex-col items-center justify-center p-6 animate-win-pop"
           onClick={() => setSelectedPhoto(null)}
         >
           <div
