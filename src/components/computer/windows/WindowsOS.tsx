@@ -11,8 +11,8 @@ import WinExplorer from '../apps/WinExplorer';
 import WinSettings from '../apps/WinSettings';
 import Reader from '../apps/Reader';
 import ImageViewer from '../apps/ImageViewer';
-import Photos from '../apps/Photos';
-import Notes from '../apps/Notes';
+import WinPhotos from '../apps/WinPhotos';
+import WinNotepad from '../apps/WinNotepad';
 
 /** Apps that can be launched from the taskbar / Start menu (not from a file). */
 export type LaunchableApp = Extract<AppId, 'files' | 'settings' | 'photos' | 'notes'>;
@@ -49,9 +49,9 @@ function WinAppContent({
     case 'image':
       return <ImageViewer name={win.title} src={file?.src} />;
     case 'photos':
-      return <Photos />;
+      return <WinPhotos />;
     case 'notes':
-      return <Notes />;
+      return <WinNotepad />;
     default:
       return null;
   }
