@@ -18,6 +18,9 @@ import binIcon from '@/assets/image/icons/windows/bin0.png';
 import infoIcon from '@/assets/image/icons/windows/info.png';
 import appsIcon from '@/assets/image/icons/windows/Apps.webp';
 import thisPcIcon from '@/assets/image/icons/windows/thispc-sm.png';
+import calcIcon from '@/assets/image/icons/windows/calculator.png';
+import cmdIcon from '@/assets/image/icons/windows/cmd.png';
+import taskIcon from '@/assets/image/icons/windows/task.png';
 
 export const WIN_ICONS = {
   explorer: explorerIcon,
@@ -29,14 +32,13 @@ export const WIN_ICONS = {
   info: infoIcon,
   apps: appsIcon,
   thisPc: thisPcIcon,
+  calc: calcIcon,
+  cmd: cmdIcon,
+  task: taskIcon,
 };
 
 /**
  * Icon for a running/pinned app, used by the taskbar and Start menu.
- *
- * The apps without bespoke Windows artwork (Terminal, Task Manager, Calculator)
- * reuse the closest stock glyph rather than shipping a wrong-looking PNG; the
- * taskbar draws those with a coloured tile instead — see `WinTaskbar`.
  */
 export const winAppIcon = (app: AppId): string => {
   switch (app) {
@@ -52,10 +54,11 @@ export const winAppIcon = (app: AppId): string => {
     case 'trash':
       return binIcon;
     case 'taskmgr':
-      return thisPcIcon;
+      return taskIcon;
     case 'terminal':
+      return cmdIcon;
     case 'calc':
-      return appsIcon;
+      return calcIcon;
     default:
       return docsIcon;
   }

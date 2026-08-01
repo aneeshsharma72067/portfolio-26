@@ -281,7 +281,7 @@ export default function WinTaskbar({
                   <button
                     onClick={() => {
                       window.open(
-                        'https://github.com/aneeshsharma72067',
+                        'https://github.com/jiffyaneesh',
                         '_blank',
                         'noopener,noreferrer',
                       );

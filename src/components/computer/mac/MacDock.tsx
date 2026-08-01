@@ -28,31 +28,20 @@ type DockItem = {
  */
 const PINNED: DockItem[] = [
   { key: 'finder', name: 'Finder', app: 'files' },
-  {
-    key: 'terminal',
-    name: 'Terminal',
-    app: 'terminal',
-    tile: { glyph: '>_', from: '#3a3a3c', to: '#1c1c1e' },
-  },
+  { key: 'terminal', name: 'Terminal', app: 'terminal' },
   { key: 'notes', name: 'Notes', app: 'notes' },
   { key: 'photos', name: 'Photos', app: 'photos' },
-  {
-    key: 'calc',
-    name: 'Calculator',
-    app: 'calc',
-    tile: { glyph: '=', from: '#8e8e93', to: '#48484a' },
-  },
+  { key: 'calc', name: 'Calculator', app: 'calc' },
   {
     key: 'taskmgr',
     name: 'Activity Monitor',
     app: 'taskmgr',
-    tile: { glyph: '📊', from: '#2c2c2e', to: '#1c1c1e' },
   },
   { key: 'settings', name: 'System Settings', app: 'settings' },
   {
     key: 'github',
     name: 'GitHub',
-    href: 'https://github.com/aneeshsharma72067',
+    href: 'https://github.com/jiffyaneesh',
   },
 ];
 

@@ -16,6 +16,9 @@ import notesIcon from '@/assets/image/icons/macos/notes.png';
 import folderIcon from '@/assets/image/icons/macos/folder.png';
 import fileIcon from '@/assets/image/icons/macos/file.png';
 import githubIcon from '@/assets/image/icons/macos/github.png';
+import calcIcon from '@/assets/image/icons/macos/calculator.png';
+import termIcon from '@/assets/image/icons/macos/iterm.png';
+import activityIcon from '@/assets/image/icons/macos/activity.png';
 
 export const MAC_ICONS = {
   finder: finderIcon,
@@ -25,15 +28,13 @@ export const MAC_ICONS = {
   folder: folderIcon,
   file: fileIcon,
   github: githubIcon,
+  calc: calcIcon,
+  terminal: termIcon,
+  activity: activityIcon,
 };
 
 /**
  * Icon for a running/pinned app, used by the dock.
- *
- * Terminal, Activity Monitor, Calculator and Trash have no stock PNG here, so
- * the dock draws them as CSS tiles instead of forcing a wrong-looking image —
- * see `MacDock`. This resolver returns the generic file icon for those, which
- * is only ever used as a fallback.
  */
 export const macAppIcon = (app: AppId): string => {
   switch (app) {
@@ -46,14 +47,20 @@ export const macAppIcon = (app: AppId): string => {
       return photosIcon;
     case 'notes':
       return notesIcon;
+    case 'terminal':
+      return termIcon;
+    case 'calc':
+      return calcIcon;
+    case 'taskmgr':
+      return activityIcon;
     default:
       return fileIcon;
   }
 };
 
-/** True when the dock/desktop should draw a CSS tile rather than a PNG. */
+/** True when the dock/desktop should draw a PNG icon rather than a generic CSS tile fallback. */
 export const macHasArtwork = (app: AppId): boolean =>
-  ['files', 'settings', 'photos', 'image', 'notes'].includes(app);
+  ['files', 'settings', 'photos', 'image', 'notes', 'terminal', 'calc', 'taskmgr'].includes(app);
 
 /** Icon for a filesystem node, used by the desktop and Finder. */
 export const macNodeIcon = (node: FileNode): string => {
