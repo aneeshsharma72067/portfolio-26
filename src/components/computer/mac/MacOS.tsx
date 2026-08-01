@@ -1,30 +1,27 @@
-import { lookup } from '@/os/fs';
-import type { AppId, FileNode, SkinId, WindowState } from '@/os/types';
-import { useOsShell } from '../shared/useOsShell';
-import DesktopIcons from '../shared/DesktopIcons';
-import WindowFrame from '../shared/WindowFrame';
-import MacTitlebar from './MacTitlebar';
+import { useCallback, useEffect, useState } from 'react';
+import type { AppId, SkinId, WindowState } from '@/os/types';
+import { useOsShell } from '@/os/useOsShell';
+import MacDesktop from './MacDesktop';
+import MacWindow from './MacWindow';
 import MacMenuBar from './MacMenuBar';
 import MacDock from './MacDock';
-import { macNodeIcon } from './macIcons';
+import MacSpotlight from './MacSpotlight';
 
-import MacFinder from '../apps/MacFinder';
-import MacSettings from '../apps/MacSettings';
-import Reader from '../apps/Reader';
-import ImageViewer from '../apps/ImageViewer';
-import Photos from '../apps/Photos';
-import Notes from '../apps/Notes';
-
-/** Apps that can be launched from the dock / Apple menu (not from a file). */
-export type LaunchableApp = Extract<AppId, 'files' | 'settings' | 'photos' | 'notes'>;
+import MacFinder from './MacFinder';
+import MacTerminal from './MacTerminal';
+import MacActivityMonitor from './MacActivityMonitor';
+import MacCalculator from './MacCalculator';
+import MacTrash from './MacTrash';
+import MacSettings from './MacSettings';
+import MacPhotos from './MacPhotos';
+import MacNotes from './MacNotes';
+import MacTextEdit from './MacTextEdit';
+import MacPreview from './MacPreview';
 
 type Props = {
   onSkinChange: (id: SkinId) => void;
   onNavigate: (path: string) => void;
 };
-
-/** Desktop icon cell. macOS labels are wider and the rows taller than Windows'. */
-const CELL = { w: 92, h: 96 };
 
 /** The name macOS shows in the menubar for each app. */
 const APP_NAMES: Record<AppId, string> = {
@@ -34,74 +31,127 @@ const APP_NAMES: Record<AppId, string> = {
   notes: 'Notes',
   reader: 'TextEdit',
   image: 'Preview',
+  terminal: 'Terminal',
+  taskmgr: 'Activity Monitor',
+  trash: 'Finder',
+  calc: 'Calculator',
 };
-
-/** Routes a window to its macOS-flavoured app. Finder and Settings are
- *  macOS-only components; the document viewers are chrome-light enough to be
- *  shared without either OS's look leaking into the other. */
-function MacAppContent({
-  win,
-  onOpenNode,
-  onSkinChange,
-}: {
-  win: WindowState;
-  onOpenNode: (node: FileNode) => void;
-  onSkinChange: (id: SkinId) => void;
-}) {
-  const file = lookup(win.path);
-
-  switch (win.app) {
-    case 'files':
-      return <MacFinder initialPath={win.path} onOpenNode={onOpenNode} />;
-    case 'settings':
-      return <MacSettings activeSkinId="mac" onSkinChange={onSkinChange} />;
-    case 'reader':
-      return <Reader path={win.path} name={win.title} body={file?.body} size={file?.size} />;
-    case 'image':
-      return <ImageViewer name={win.title} src={file?.src} />;
-    case 'photos':
-      return <Photos />;
-    case 'notes':
-      return <Notes />;
-    default:
-      return null;
-  }
-}
 
 /**
  * MacOS — the complete macOS Sonoma desktop, mounted only while macOS is the
  * selected OS.
  *
- * Nothing in here is shared with `WindowsOS` beyond three deliberately
- * non-visual pieces: `useOsShell` (window manager + work-area measurement),
- * `WindowFrame` (drag/resize geometry) and `DesktopIcons` (drag positioning).
- * Every pixel — menubar, dock, titlebar, icon treatment, Finder, Settings — is
- * macOS-only.
+ * Nothing in here is shared with `WindowsOS` at the component level. Menubar,
+ * dock, Spotlight, window frame, titlebar, icon layer, Finder, Terminal,
+ * Activity Monitor, Calculator, Trash — all macOS-only. The shared code lives
+ * in `src/os/` and is strictly non-visual (window manager, drag maths,
+ * filesystem, shell interpreter, process sampler, calculator arithmetic).
  *
- * macOS-specific behaviour: apps open **floating and cascaded**, never
- * maximized (`useOsShell(_, false)`), matching how macOS launches apps.
+ * macOS-specific behaviour:
+ *  · apps open FLOATING and CASCADED, never maximized (`useOsShell(_, false)`)
+ *  · windows spring in with a slight overshoot rather than Windows' flat curve
+ *  · ⌘-Space opens Spotlight — a centred panel that dims the desktop, which is
+ *    structurally nothing like Windows' Start flyout
+ *  · the work area sits below the 26px menubar and above the dock's footprint,
+ *    so zooming never covers either
  */
 export default function MacOS({ onSkinChange, onNavigate }: Props) {
   const {
     skin,
+    disk,
     nodes,
     areaRef,
     desktop,
     skinVars,
     windows,
     activeWindowId,
+    nodeFor,
+    visibleChildren,
     openNode,
     openApp,
     close,
+    settle,
     focus,
     minimize,
     toggleMax,
     commit,
+    trashed,
+    moveToTrash,
+    restoreFromTrash,
+    emptyTrash,
   } = useOsShell('mac', false);
+
+  const [spotlightOpen, setSpotlightOpen] = useState(false);
+
+  /* ⌘-Space opens Spotlight; ⌘-K is offered too, because a browser may well
+     have swallowed ⌘-Space before it reaches us. */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.code === 'Space' || e.key === 'k')) {
+        e.preventDefault();
+        setSpotlightOpen((v) => !v);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  const openByPath = useCallback(
+    (path: string) => {
+      const node = nodeFor(path);
+      if (node) openNode(node);
+    },
+    [nodeFor, openNode],
+  );
 
   /* The menubar names the frontmost app; with nothing open, macOS shows Finder. */
   const front = windows.find((w) => w.id === activeWindowId);
   const activeApp = front ? APP_NAMES[front.app] : 'Finder';
+
+  /** Routes a window to its macOS app. */
+  const renderApp = (win: WindowState) => {
+    const file = nodeFor(win.path);
+
+    switch (win.app) {
+      case 'files':
+        return (
+          <MacFinder
+            initialPath={win.path}
+            onOpenNode={openNode}
+            visibleChildren={visibleChildren}
+            onDelete={moveToTrash}
+          />
+        );
+      case 'terminal':
+        return (
+          <MacTerminal
+            initialCwd={disk.paths.home}
+            onOpenPath={openByPath}
+            onExit={() => close(win.id)}
+          />
+        );
+      case 'taskmgr':
+        return <MacActivityMonitor windows={windows} onEndTask={close} />;
+      case 'calc':
+        return <MacCalculator />;
+      case 'trash':
+        return (
+          <MacTrash items={trashed} onRestore={restoreFromTrash} onEmpty={emptyTrash} />
+        );
+      case 'settings':
+        return <MacSettings activeSkinId="mac" onSkinChange={onSkinChange} />;
+      case 'photos':
+        return <MacPhotos />;
+      case 'notes':
+        return <MacNotes />;
+      case 'reader':
+        return <MacTextEdit name={win.title} body={file?.body} size={file?.size} />;
+      case 'image':
+        return <MacPreview name={win.title} src={file?.src} />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div
@@ -114,63 +164,30 @@ export default function MacOS({ onSkinChange, onNavigate }: Props) {
        * titlebar can never hide under the menubar.
        */}
       <div ref={areaRef} className="absolute inset-x-0 bottom-[84px] top-[26px]">
-        <DesktopIcons
+        <MacDesktop
           nodes={nodes}
           desktop={desktop}
-          cell={CELL}
-          origin="top-right"
           onOpen={openNode}
-          renderIcon={(node, selected) => (
-            <div
-              className={`flex h-full w-full flex-col items-center justify-start gap-1.5 rounded-lg p-1.5 pt-1.5 text-center transition-colors ${
-                selected ? 'bg-white/25' : 'hover:bg-white/10'
-              }`}
-            >
-              <img
-                src={macNodeIcon(node)}
-                alt=""
-                className="pointer-events-none h-[46px] w-[46px] rounded-[22%] object-contain drop-shadow-md"
-              />
-              <span
-                className={`pointer-events-none line-clamp-2 w-full break-words rounded px-1 text-[11.5px] font-medium leading-tight text-white ${
-                  selected ? 'bg-[#0a84ff]' : ''
-                }`}
-                style={{
-                  textShadow: selected ? 'none' : '0 1px 3px rgb(0 0 0 / 0.85)',
-                  fontFamily: "'SF Pro', -apple-system, sans-serif",
-                }}
-              >
-                {node.name}
-              </span>
-            </div>
-          )}
+          onDelete={moveToTrash}
+          onOpenTerminal={() => openApp('terminal', 'Terminal')}
+          onOpenSettings={() => openApp('settings', 'System Settings')}
         />
 
         {windows.map((win) => (
-          <WindowFrame
+          <MacWindow
             key={win.id}
             win={win}
             focused={win.id === activeWindowId}
             desktop={desktop}
-            radius="12px"
-            background="rgba(30, 30, 34, 0.80)"
-            border="rgba(255,255,255,0.16)"
             onFocus={focus}
             onCommit={commit}
             onToggleMax={toggleMax}
-            titlebar={(dragProps) => (
-              <MacTitlebar
-                win={win}
-                focused={win.id === activeWindowId}
-                dragProps={dragProps}
-                onMinimize={minimize}
-                onToggleMax={toggleMax}
-                onClose={close}
-              />
-            )}
+            onMinimize={minimize}
+            onClose={close}
+            onSettled={settle}
           >
-            <MacAppContent win={win} onOpenNode={openNode} onSkinChange={onSkinChange} />
-          </WindowFrame>
+            {renderApp(win)}
+          </MacWindow>
         ))}
       </div>
 
@@ -179,6 +196,7 @@ export default function MacOS({ onSkinChange, onNavigate }: Props) {
         onOpenApp={openApp}
         onSkinChange={onSkinChange}
         onNavigate={onNavigate}
+        onOpenSpotlight={() => setSpotlightOpen(true)}
       />
 
       <MacDock
@@ -187,6 +205,14 @@ export default function MacOS({ onSkinChange, onNavigate }: Props) {
         onOpenApp={openApp}
         onFocusWindow={focus}
         onMinimizeWindow={minimize}
+        trashCount={trashed.length}
+      />
+
+      <MacSpotlight
+        open={spotlightOpen}
+        onClose={() => setSpotlightOpen(false)}
+        onOpenNode={openNode}
+        onOpenApp={openApp}
       />
     </div>
   );

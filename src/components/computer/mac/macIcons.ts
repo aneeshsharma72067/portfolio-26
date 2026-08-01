@@ -1,8 +1,10 @@
 /**
  * macOS icon artwork, resolved in one place.
  *
- * Kept out of the components so the dock, the desktop and Finder all show the
- * same picture for the same thing.
+ * Kept out of the components so the dock, the desktop, Spotlight and Finder all
+ * show the same picture for the same thing.
+ *
+ * macOS-ONLY — Windows resolves its own art in `windows/winIcons.ts`.
  */
 import type { AppId, FileNode } from '@/os/types';
 
@@ -25,7 +27,14 @@ export const MAC_ICONS = {
   github: githubIcon,
 };
 
-/** Icon for a running/pinned app, used by the dock. */
+/**
+ * Icon for a running/pinned app, used by the dock.
+ *
+ * Terminal, Activity Monitor, Calculator and Trash have no stock PNG here, so
+ * the dock draws them as CSS tiles instead of forcing a wrong-looking image —
+ * see `MacDock`. This resolver returns the generic file icon for those, which
+ * is only ever used as a fallback.
+ */
 export const macAppIcon = (app: AppId): string => {
   switch (app) {
     case 'files':
@@ -42,9 +51,37 @@ export const macAppIcon = (app: AppId): string => {
   }
 };
 
+/** True when the dock/desktop should draw a CSS tile rather than a PNG. */
+export const macHasArtwork = (app: AppId): boolean =>
+  ['files', 'settings', 'photos', 'image', 'notes'].includes(app);
+
 /** Icon for a filesystem node, used by the desktop and Finder. */
 export const macNodeIcon = (node: FileNode): string => {
-  if (node.app === 'settings') return settingsFolderIcon;
   if (node.kind === 'folder') return folderIcon;
+  if (node.ext === 'exe') return node.app === 'settings' ? settingsFolderIcon : macAppIcon(node.app);
+  if (node.ext === 'image') return photosIcon;
   return fileIcon;
+};
+
+/** Human label for Finder's "Kind" column. */
+export const macKindLabel = (node: FileNode): string => {
+  if (node.kind === 'folder') return 'Folder';
+  switch (node.ext) {
+    case 'exe':
+      return 'Application';
+    case 'dll':
+      return 'Dynamic library';
+    case 'image':
+      return 'WebP image';
+    case 'link':
+      return 'Web internet location';
+    case 'pdf':
+      return 'PDF document';
+    case 'md':
+      return 'Markdown text';
+    case 'vcf':
+      return 'vCard';
+    default:
+      return 'Plain text document';
+  }
 };

@@ -1,43 +1,79 @@
 import { Fragment, useCallback, useRef, useState } from 'react';
-import type { WindowState } from '@/os/types';
-import { MAC_ICONS, macAppIcon } from './macIcons';
-import type { LaunchableApp } from './MacOS';
+import type { LaunchableApp, WindowState } from '@/os/types';
+import { MAC_ICONS, macAppIcon, macHasArtwork } from './macIcons';
 
 type Props = {
   windows: WindowState[];
   activeWindowId: string | null;
-  onOpenApp: (app: LaunchableApp) => void;
+  onOpenApp: (app: LaunchableApp, title?: string) => void;
   onFocusWindow: (id: string) => void;
   onMinimizeWindow: (id: string) => void;
+  /** Trash tile: how many items are in it, and how to open it. */
+  trashCount: number;
 };
 
 type DockItem = {
   key: string;
   name: string;
-  icon: string;
   /** Set for app launchers; absent for a plain link. */
   app?: LaunchableApp;
   href?: string;
+  /** A CSS tile for apps with no PNG artwork — see `tile` below. */
+  tile?: { glyph: string; from: string; to: string };
 };
 
+/**
+ * The dock's contents. Apps with real artwork use it; the rest get a gradient
+ * tile with a glyph, which reads far better than a wrong-looking stock PNG.
+ */
 const PINNED: DockItem[] = [
-  { key: 'finder', name: 'Finder', icon: MAC_ICONS.finder, app: 'files' },
-  { key: 'settings', name: 'System Settings', icon: MAC_ICONS.settings, app: 'settings' },
-  { key: 'photos', name: 'Photos', icon: MAC_ICONS.photos, app: 'photos' },
-  { key: 'notes', name: 'Notes', icon: MAC_ICONS.notes, app: 'notes' },
-  { key: 'github', name: 'GitHub', icon: MAC_ICONS.github, href: 'https://github.com/aneeshsharma72067' },
+  { key: 'finder', name: 'Finder', app: 'files' },
+  {
+    key: 'terminal',
+    name: 'Terminal',
+    app: 'terminal',
+    tile: { glyph: '>_', from: '#3a3a3c', to: '#1c1c1e' },
+  },
+  { key: 'notes', name: 'Notes', app: 'notes' },
+  { key: 'photos', name: 'Photos', app: 'photos' },
+  {
+    key: 'calc',
+    name: 'Calculator',
+    app: 'calc',
+    tile: { glyph: '=', from: '#8e8e93', to: '#48484a' },
+  },
+  {
+    key: 'taskmgr',
+    name: 'Activity Monitor',
+    app: 'taskmgr',
+    tile: { glyph: '📊', from: '#2c2c2e', to: '#1c1c1e' },
+  },
+  { key: 'settings', name: 'System Settings', app: 'settings' },
+  {
+    key: 'github',
+    name: 'GitHub',
+    href: 'https://github.com/aneeshsharma72067',
+  },
 ];
 
 const BASE = 52; // px — resting icon size
-const PEAK = 74; // px — size directly under the cursor
+const PEAK = 76; // px — size directly under the cursor
 const FALLOFF = 0.16; // how fast magnification decays with distance
 
 /**
  * MacDock — the floating magnifying dock.
  *
- * Magnification is written straight to the DOM in a rAF from `pointermove`: at
- * 120 Hz a state-driven version would be ~120 React renders a second for a
- * purely visual effect. `will-change` is only set while the cursor is inside.
+ * macOS-ONLY. Windows' taskbar is a completely separate component: a flat
+ * centred strip with no magnification, underline indicators instead of dots,
+ * and a Start flyout. Nothing here is shared with it.
+ *
+ * macOS details that matter:
+ *  · MAGNIFICATION — written straight to the DOM in a rAF from `pointermove`,
+ *    because at 120 Hz a state-driven version would be ~120 React renders a
+ *    second for a purely visual effect
+ *  · a launch BOUNCE on the icon when an app opens
+ *  · the running dot under each open app
+ *  · Trash pinned at the far right behind a separator, showing full or empty
  */
 export default function MacDock({
   windows,
@@ -45,19 +81,26 @@ export default function MacDock({
   onOpenApp,
   onFocusWindow,
   onMinimizeWindow,
+  trashCount,
 }: Props) {
   const iconRefs = useRef<(HTMLDivElement | null)[]>([]);
   const frame = useRef(0);
   const [hovered, setHovered] = useState<number | null>(null);
   const [bouncing, setBouncing] = useState<string | null>(null);
 
-  /* Any window whose app isn't pinned gets its own dock tile, like real macOS. */
-  const pinnedApps = new Set(PINNED.map((p) => p.app).filter(Boolean));
-  const extras: DockItem[] = windows
-    .filter((w) => !pinnedApps.has(w.app as LaunchableApp))
-    .map((w) => ({ key: w.id, name: w.title, icon: macAppIcon(w.app) }));
+  /* The Trash tile always sits last, after a separator — as it does for real. */
+  const trashItem: DockItem = {
+    key: 'trash',
+    name: trashCount > 0 ? `Trash — ${trashCount} items` : 'Trash',
+    app: 'trash',
+    tile: {
+      glyph: trashCount > 0 ? '🗑' : '🗑',
+      from: trashCount > 0 ? '#5a5a5e' : '#3a3a3c',
+      to: '#2c2c2e',
+    },
+  };
 
-  const items = [...PINNED, ...extras];
+  const items = [...PINNED, trashItem];
 
   const handleMove = useCallback((e: React.PointerEvent) => {
     const x = e.clientX;
@@ -89,33 +132,25 @@ export default function MacDock({
   }, []);
 
   const handleClick = (item: DockItem) => {
-    setBouncing(item.key);
-    setTimeout(() => setBouncing(null), 700);
-
     if (item.href) {
       window.open(item.href, '_blank', 'noopener,noreferrer');
       return;
     }
+    if (!item.app) return;
 
-    if (item.app) {
-      /* An already-open app is focused (or hidden if it's frontmost) rather than
-         opened twice — matching how clicking a dock icon behaves. */
-      const running = windows.filter((w) => w.app === item.app);
-      if (running.length === 0) {
-        onOpenApp(item.app);
-        return;
-      }
-      const front = running.find((w) => w.id === activeWindowId && !w.minimized);
-      if (front) onMinimizeWindow(front.id);
-      else onFocusWindow(running[0].id);
+    /* An already-open app is focused (or hidden if it's frontmost) rather than
+       opened twice — matching how clicking a dock icon behaves. */
+    const running = windows.filter((w) => w.app === item.app && w.phase !== 'closing');
+    if (running.length === 0) {
+      // The bounce belongs to a LAUNCH only; focusing an open app doesn't bounce.
+      setBouncing(item.key);
+      setTimeout(() => setBouncing(null), 700);
+      onOpenApp(item.app, item.name);
       return;
     }
-
-    // Extra (unpinned) tile: it maps directly to one window.
-    const win = windows.find((w) => w.id === item.key);
-    if (!win) return;
-    if (win.id === activeWindowId && !win.minimized) onMinimizeWindow(win.id);
-    else onFocusWindow(win.id);
+    const front = running.find((w) => w.id === activeWindowId && !w.minimized);
+    if (front) onMinimizeWindow(front.id);
+    else onFocusWindow(running[0].id);
   };
 
   return (
@@ -133,17 +168,22 @@ export default function MacDock({
         }}
       >
         {items.map((item, i) => {
-          const separator = i > 0 && !item.app && !item.href && (items[i - 1].app || items[i - 1].href);
+          // The Trash and any plain link sit behind a separator, as on a real dock.
+          const separator = item.key === 'trash' || item.key === 'github';
           const running = item.app
-            ? windows.some((w) => w.app === item.app)
-            : windows.some((w) => w.id === item.key);
+            ? windows.some((w) => w.app === item.app && w.phase !== 'closing')
+            : false;
           const isFront = item.app
-            ? windows.some((w) => w.app === item.app && w.id === activeWindowId && !w.minimized)
-            : item.key === activeWindowId;
+            ? windows.some(
+                (w) => w.app === item.app && w.id === activeWindowId && !w.minimized,
+              )
+            : false;
 
           return (
             <Fragment key={item.key}>
-              {separator && <div className="mx-1 h-10 w-px self-center rounded-full bg-white/25" />}
+              {separator && (
+                <div className="mx-1 h-10 w-px self-center rounded-full bg-white/25" />
+              )}
 
               <div
                 className="relative flex flex-col items-center"
@@ -167,7 +207,7 @@ export default function MacDock({
                 <button
                   aria-label={item.name}
                   onClick={() => handleClick(item)}
-                  className={bouncing === item.key ? 'animate-dock-bounce' : ''}
+                  className={bouncing === item.key ? 'anim-dock-bounce' : ''}
                 >
                   <div
                     ref={(el) => {
@@ -176,11 +216,34 @@ export default function MacDock({
                     className="grid origin-bottom place-items-center"
                     style={{ width: BASE, height: BASE, willChange: 'width, height' }}
                   >
-                    <img
-                      src={item.icon}
-                      alt=""
-                      className="pointer-events-none h-full w-full rounded-[22%] object-contain drop-shadow-lg"
-                    />
+                    {item.tile ? (
+                      /* CSS tile for apps with no artwork — a squircle with a
+                         glyph, which sits far better next to real macOS icons
+                         than a mismatched stock PNG would. */
+                      <div
+                        className="grid h-full w-full place-items-center rounded-[22%] text-white shadow-lg"
+                        style={{
+                          background: `linear-gradient(160deg, ${item.tile.from}, ${item.tile.to})`,
+                          border: '0.5px solid rgba(255,255,255,0.18)',
+                          fontSize: '55%',
+                          fontFamily: "'SF Mono', ui-monospace, monospace",
+                        }}
+                      >
+                        {item.tile.glyph}
+                      </div>
+                    ) : (
+                      <img
+                        src={
+                          item.key === 'github'
+                            ? MAC_ICONS.github
+                            : item.app && macHasArtwork(item.app)
+                              ? macAppIcon(item.app)
+                              : MAC_ICONS.file
+                        }
+                        alt=""
+                        className="pointer-events-none h-full w-full rounded-[22%] object-contain drop-shadow-lg"
+                      />
+                    )}
                   </div>
                 </button>
 

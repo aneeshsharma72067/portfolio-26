@@ -11,10 +11,22 @@ import {
   Plus
 } from 'lucide-react';
 
+/** The folders a note can live in. "All Notes" is a view, not a folder. */
+type NoteFolder = 'Quick Notes' | 'Personal' | 'Projects' | 'Ideas';
+
+/** Sidebar rows: every folder, plus the catch-all view at the top. */
+const FOLDERS: ('All Notes' | NoteFolder)[] = [
+  'All Notes',
+  'Quick Notes',
+  'Projects',
+  'Personal',
+  'Ideas',
+];
+
 type Note = {
   id: string;
   title: string;
-  folder: 'Quick Notes' | 'Personal' | 'Projects' | 'Ideas';
+  folder: NoteFolder;
   date: string;
   preview: string;
   content: string;
@@ -88,7 +100,7 @@ Key features to finish:
 export default function Notes() {
   const [notes, setNotes] = useState<Note[]>(INITIAL_NOTES);
   const [activeNoteId, setActiveNoteId] = useState<string>('1');
-  const [selectedFolder, setSelectedFolder] = useState<string>('All Notes');
+  const [selectedFolder, setSelectedFolder] = useState<'All Notes' | NoteFolder>('All Notes');
   const [searchQuery, setSearchQuery] = useState('');
 
   const activeNote = notes.find(n => n.id === activeNoteId) || notes[0];
@@ -117,7 +129,7 @@ export default function Notes() {
     const newNote: Note = {
       id: Date.now().toString(),
       title: 'New Note',
-      folder: (selectedFolder !== 'All Notes' ? selectedFolder : 'Quick Notes') as any,
+      folder: selectedFolder === 'All Notes' ? 'Quick Notes' : selectedFolder,
       date: 'Just now',
       pinned: false,
       preview: 'Type something...',
@@ -160,7 +172,7 @@ export default function Notes() {
       <div className="w-44 border-r border-[var(--os-border)] bg-black/10 shrink-0 flex flex-col p-2.5 gap-3 overflow-y-auto">
         <div className="text-[10px] font-bold text-white/40 uppercase tracking-wider px-2">Folders</div>
         <div className="space-y-0.5">
-          {['All Notes', 'Quick Notes', 'Projects', 'Personal', 'Ideas'].map(folder => (
+          {FOLDERS.map(folder => (
             <button
               key={folder}
               onClick={() => setSelectedFolder(folder)}

@@ -1,10 +1,10 @@
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
-import type { FileNode } from '@/os/types';
+import type { FileNode } from './types';
 
 /** One icon's resting position, in work-area pixels. */
-type Pos = { x: number; y: number };
+export type IconPos = { x: number; y: number };
 
-type Props = {
+interface Options {
   nodes: FileNode[];
   /** Live work-area size; the auto-layout wraps to it and drags clamp inside it. */
   desktop: { w: number; h: number };
@@ -12,13 +12,16 @@ type Props = {
   cell: { w: number; h: number };
   /** Which corner the auto-layout starts from: Windows top-left, macOS top-right. */
   origin: 'top-left' | 'top-right';
-  /** Renders one icon's artwork + label; the OS owns the visuals. */
-  renderIcon: (node: FileNode, selected: boolean) => React.ReactNode;
-  onOpen: (node: FileNode) => void;
-};
+}
 
 /**
- * DesktopIcons — freely draggable, absolutely positioned icon layer.
+ * useIconGrid — desktop-icon positions and the drag gesture that moves them.
+ *
+ * ENGINE ONLY. It returns positions and handlers; it renders nothing. Windows
+ * and macOS each draw their own icon markup (different cell size, different
+ * selection treatment, different label style) on top of this, so the two look
+ * nothing alike while the gesture maths — which is genuinely identical and easy
+ * to get subtly wrong — exists once.
  *
  * Icons are *not* in a CSS grid: a grid can only reorder, and the ask is that
  * any icon can be dragged anywhere. So each one carries an (x, y) that starts
@@ -29,17 +32,10 @@ type Props = {
  * commits to state once, on release — the same "no React work per pointermove"
  * approach `useDrag` takes for windows.
  */
-export default function DesktopIcons({
-  nodes,
-  desktop,
-  cell,
-  origin,
-  renderIcon,
-  onOpen,
-}: Props) {
-  const [selected, setSelected] = useState<string | null>(null);
+export function useIconGrid({ nodes, desktop, cell, origin }: Options) {
   /** path → committed position. Absent until laid out or dragged. */
-  const [positions, setPositions] = useState<Record<string, Pos>>({});
+  const [positions, setPositions] = useState<Record<string, IconPos>>({});
+  const [selected, setSelected] = useState<string | null>(null);
 
   /* Auto-layout: fill a column top-to-bottom, then start the next one. Runs only
      for icons that have no position yet, so a dragged icon is never re-flowed by
@@ -70,13 +66,13 @@ export default function DesktopIcons({
     node: HTMLElement;
     startX: number;
     startY: number;
-    from: Pos;
-    to: Pos;
+    from: IconPos;
+    to: IconPos;
     moved: boolean;
     frame: number;
   } | null>(null);
 
-  const handlePointerDown = useCallback(
+  const onPointerDown = useCallback(
     (e: React.PointerEvent, node: FileNode) => {
       if (e.button !== 0) return;
       e.stopPropagation();
@@ -99,7 +95,7 @@ export default function DesktopIcons({
     [positions],
   );
 
-  const handlePointerMove = useCallback(
+  const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
       const d = drag.current;
       if (!d) return;
@@ -128,7 +124,7 @@ export default function DesktopIcons({
     [desktop.w, desktop.h, cell.w, cell.h],
   );
 
-  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+  const onPointerUp = useCallback((e: React.PointerEvent) => {
     const d = drag.current;
     if (!d) return;
     if (d.frame) cancelAnimationFrame(d.frame);
@@ -142,47 +138,15 @@ export default function DesktopIcons({
     if (d.moved) setPositions((prev) => ({ ...prev, [d.path]: d.to }));
   }, []);
 
-  return (
-    <div
-      className="absolute inset-0"
-      // Clicking bare wallpaper clears the selection.
-      onPointerDown={() => setSelected(null)}
-    >
-      {nodes.map((node) => {
-        const pos = positions[node.path];
-        // Skip until laid out, so nothing flashes at (0,0) on first paint.
-        if (!pos) return null;
-        const isSelected = selected === node.path;
+  /** True while a real drag is in flight — lets a tap handler skip "open". */
+  const isDragging = useCallback(() => drag.current?.moved ?? false, []);
 
-        return (
-          <button
-            key={node.path}
-            onPointerDown={(e) => handlePointerDown(e, node)}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
-            onDoubleClick={() => onOpen(node)}
-            // Single tap opens on touch, where there is no double-click.
-            onTouchEnd={(e) => {
-              if (!drag.current?.moved) {
-                e.preventDefault();
-                onOpen(node);
-              }
-            }}
-            className="absolute left-0 top-0 cursor-default active:cursor-grabbing"
-            style={{
-              width: cell.w,
-              height: cell.h,
-              transform: `translate3d(${pos.x}px, ${pos.y}px, 0)`,
-              touchAction: 'none',
-              zIndex: isSelected ? 2 : 1,
-            }}
-            title={node.path}
-          >
-            {renderIcon(node, isSelected)}
-          </button>
-        );
-      })}
-    </div>
-  );
+  return {
+    positions,
+    selected,
+    setSelected,
+    isDragging,
+    /** Spread onto each icon button. */
+    handlers: { onPointerDown, onPointerMove, onPointerUp },
+  };
 }

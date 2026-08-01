@@ -1,17 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
 import { FaApple } from 'react-icons/fa6';
-import { BsWifi, BsSearch, BsSliders } from 'react-icons/bs';
-import type { SkinId } from '@/os/types';
-import type { LaunchableApp } from './MacOS';
+import { BsWifi, BsSearch, BsSliders, BsBatteryFull } from 'react-icons/bs';
+import type { LaunchableApp, SkinId } from '@/os/types';
 
 type Props = {
   /** Name of the frontmost app, shown in bold next to the Apple menu. */
   activeApp: string;
-  onOpenApp: (app: LaunchableApp) => void;
+  onOpenApp: (app: LaunchableApp, title?: string) => void;
   onSkinChange: (id: SkinId) => void;
   onNavigate: (path: string) => void;
+  /** The magnifier opens Spotlight, same as ⌘-Space. */
+  onOpenSpotlight: () => void;
 };
 
+const FONT = "'SF Pro', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif";
+
+/** The frontmost app's own menus. Decorative, but the bar is wrong without them. */
 const MENUS = ['File', 'Edit', 'View', 'Go', 'Window', 'Help'];
 
 /** Live clock. One timer, one re-render a second, scoped to the menubar only. */
@@ -27,13 +31,16 @@ function useClock() {
 /**
  * MacMenuBar — the 26px translucent bar across the top, plus the Apple menu.
  *
- * macOS-only; the Windows taskbar is a completely separate component.
+ * macOS-ONLY. There is no Windows counterpart at all: Windows puts its menus
+ * inside each window and its clock in the taskbar's right corner. That
+ * structural difference is the main reason the two shells share no chrome.
  */
 export default function MacMenuBar({
   activeApp,
   onOpenApp,
   onSkinChange,
   onNavigate,
+  onOpenSpotlight,
 }: Props) {
   const time = useClock();
   const [appleOpen, setAppleOpen] = useState(false);
@@ -51,7 +58,7 @@ export default function MacMenuBar({
   }, [appleOpen]);
 
   const item =
-    'w-full rounded-[5px] px-3 py-[5px] text-left text-[13px] text-white/90 transition-colors hover:bg-[#0058d0] hover:text-white';
+    'flex w-full items-center justify-between rounded-[5px] px-3 py-[5px] text-left text-[13px] text-white/90 transition-colors hover:bg-[#0058d0] hover:text-white';
 
   return (
     <div
@@ -62,7 +69,7 @@ export default function MacMenuBar({
         WebkitBackdropFilter: 'blur(24px) saturate(1.8)',
         borderBottom: '0.5px solid rgba(255,255,255,0.08)',
         color: '#f0f0f5',
-        fontFamily: "'SF Pro', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif",
+        fontFamily: FONT,
         fontSize: 13,
         letterSpacing: '-0.003em',
       }}
@@ -96,11 +103,18 @@ export default function MacMenuBar({
       {/* Right: status icons + clock. */}
       <div className="flex items-center gap-0.5">
         <span className="rounded-[4px] px-1.5 py-[3px] hover:bg-white/[0.10]">
-          <BsWifi className="h-[14px] w-[14px] opacity-90" />
+          <BsBatteryFull className="h-[15px] w-[15px] opacity-90" />
         </span>
         <span className="rounded-[4px] px-1.5 py-[3px] hover:bg-white/[0.10]">
-          <BsSearch className="h-[13px] w-[13px] opacity-90" />
+          <BsWifi className="h-[14px] w-[14px] opacity-90" />
         </span>
+        <button
+          onClick={onOpenSpotlight}
+          title="Spotlight Search (⌘Space)"
+          className="rounded-[4px] px-1.5 py-[3px] hover:bg-white/[0.10]"
+        >
+          <BsSearch className="h-[13px] w-[13px] opacity-90" />
+        </button>
         <span className="rounded-[4px] px-1.5 py-[3px] hover:bg-white/[0.10]">
           <BsSliders className="h-[13px] w-[13px] opacity-90" />
         </span>
@@ -113,11 +127,11 @@ export default function MacMenuBar({
         </span>
       </div>
 
-      {/* Apple dropdown */}
+      {/* ══════════════════════════════════════════════════ Apple dropdown */}
       {appleOpen && (
         <div
           ref={menuRef}
-          className="absolute left-[2px] top-[28px] z-[9999] flex w-[262px] flex-col rounded-[10px] p-[5px]"
+          className="absolute left-[2px] top-[28px] z-[9999] flex w-[262px] flex-col rounded-[10px] p-[5px] anim-mac-menu"
           style={{
             background: 'rgba(40, 40, 44, 0.86)',
             backdropFilter: 'blur(60px) saturate(1.8)',
@@ -135,7 +149,7 @@ export default function MacMenuBar({
           <button
             className={item}
             onClick={() => {
-              onOpenApp('settings');
+              onOpenApp('settings', 'System Settings');
               setAppleOpen(false);
             }}
           >
@@ -144,11 +158,30 @@ export default function MacMenuBar({
           <button
             className={item}
             onClick={() => {
-              onOpenApp('files');
+              onOpenApp('files', 'Finder');
               setAppleOpen(false);
             }}
           >
             Open Finder
+          </button>
+          <button
+            className={item}
+            onClick={() => {
+              onOpenApp('taskmgr', 'Activity Monitor');
+              setAppleOpen(false);
+            }}
+          >
+            Activity Monitor
+          </button>
+          <button
+            className={item}
+            onClick={() => {
+              onOpenApp('terminal', 'Terminal');
+              setAppleOpen(false);
+            }}
+          >
+            Terminal
+            <span className="text-[11px] opacity-45">⌘T</span>
           </button>
 
           <div className="mx-3 my-[4px] border-t border-white/[0.12]" />

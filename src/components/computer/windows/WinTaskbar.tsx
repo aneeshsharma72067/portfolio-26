@@ -1,14 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { LogOut, Power, Volume2, Wifi, BatteryFull, ChevronUp } from 'lucide-react';
-import type { SkinId, WindowState } from '@/os/types';
-import { WIN_ICONS, winAppIcon } from './winIcons';
-import type { LaunchableApp } from './WindowsOS';
+import { search } from '@/os/fs';
+import type { FileNode, LaunchableApp, SkinId, WindowState } from '@/os/types';
+import { WIN_ICONS, winAppIcon, winNodeIcon, winTypeLabel } from './winIcons';
 
 type Props = {
   windows: WindowState[];
   activeWindowId: string | null;
-  onOpenApp: (app: LaunchableApp) => void;
+  onOpenApp: (app: LaunchableApp, title?: string) => void;
+  onOpenNode: (node: FileNode) => void;
   onFocusWindow: (id: string) => void;
   onMinimizeWindow: (id: string) => void;
   /** Switch to the other OS (mounts a different shell entirely). */
@@ -17,12 +18,27 @@ type Props = {
   onNavigate: (path: string) => void;
 };
 
+const FONT = "'Segoe UI VF', 'Segoe UI Variable', 'Segoe UI', sans-serif";
+
 /** Apps pinned to the taskbar, left to right after Start + Search. */
 const PINNED: { app: LaunchableApp; label: string }[] = [
   { app: 'files', label: 'File Explorer' },
-  { app: 'settings', label: 'Settings' },
+  { app: 'terminal', label: 'Terminal' },
   { app: 'photos', label: 'Photos' },
   { app: 'notes', label: 'Notepad' },
+  { app: 'settings', label: 'Settings' },
+];
+
+/** The full Start-menu app grid — more than the taskbar pins. */
+const ALL_APPS: { app: LaunchableApp; label: string }[] = [
+  { app: 'files', label: 'File Explorer' },
+  { app: 'terminal', label: 'Terminal' },
+  { app: 'photos', label: 'Photos' },
+  { app: 'notes', label: 'Notepad' },
+  { app: 'settings', label: 'Settings' },
+  { app: 'calc', label: 'Calculator' },
+  { app: 'taskmgr', label: 'Task Manager' },
+  { app: 'trash', label: 'Recycle Bin' },
 ];
 
 /** Live clock. One timer, one re-render a second, scoped to the taskbar only. */
@@ -38,13 +54,23 @@ function useClock() {
 /**
  * WinTaskbar — Windows 11's centred taskbar, its Start menu and its system tray.
  *
- * Entirely self-contained: nothing here is shared with the macOS dock, so the
- * two can be restyled independently without one breaking the other.
+ * WINDOWS-ONLY. Nothing here is shared with the macOS dock or menubar; the two
+ * can be restyled independently without one breaking the other.
+ *
+ * Windows behaviour this gets right:
+ *  · the Start menu is a FLYOUT anchored above the taskbar (macOS's Spotlight
+ *    is a centred floating panel — deliberately not the same component)
+ *  · search results appear inside that flyout, replacing the pinned grid
+ *  · a running app's taskbar button carries an underline that widens when the
+ *    app is the focused one
+ *  · clicking the focused app's button minimizes it
+ *  · the Windows key opens Start, matching muscle memory
  */
 export default function WinTaskbar({
   windows,
   activeWindowId,
   onOpenApp,
+  onOpenNode,
   onFocusWindow,
   onMinimizeWindow,
   onSkinChange,
@@ -52,7 +78,9 @@ export default function WinTaskbar({
 }: Props) {
   const time = useClock();
   const [startOpen, setStartOpen] = useState(false);
+  const [query, setQuery] = useState('');
   const startRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   /* Click anywhere outside closes the Start menu, the way it behaves for real. */
   useEffect(() => {
@@ -66,21 +94,66 @@ export default function WinTaskbar({
     return () => document.removeEventListener('mousedown', onDown);
   }, [startOpen]);
 
+  /* The Windows key opens Start; Escape closes it. */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Meta' || e.key === 'OS') {
+        e.preventDefault();
+        setStartOpen((v) => !v);
+      } else if (e.key === 'Escape' && startOpen) {
+        setStartOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [startOpen]);
+
+  /* Focus the search box and clear the last query whenever Start opens. */
+  useEffect(() => {
+    if (startOpen) {
+      setQuery('');
+      requestAnimationFrame(() => searchRef.current?.focus());
+    }
+  }, [startOpen]);
+
+  /** Apps rank above files, so Start works as a launcher first. */
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    const apps = ALL_APPS.filter((a) => a.label.toLowerCase().includes(q)).map((a) => ({
+      kind: 'app' as const,
+      key: a.app,
+      title: a.label,
+      subtitle: 'App',
+      app: a.app,
+    }));
+    const files = search('windows', q, 10).map((node) => ({
+      kind: 'file' as const,
+      key: node.path,
+      title: node.name,
+      subtitle: winTypeLabel(node),
+      node,
+    }));
+    return [...apps, ...files].slice(0, 10);
+  }, [query]);
+
   /** Clicking a running app's button focuses it, or minimizes it if it's on top. */
   const toggleWindow = (win: WindowState) => {
     if (win.id === activeWindowId && !win.minimized) onMinimizeWindow(win.id);
     else onFocusWindow(win.id);
   };
 
-  const launch = (app: LaunchableApp) => {
-    onOpenApp(app);
+  const launch = (app: LaunchableApp, label?: string) => {
+    onOpenApp(app, label);
     setStartOpen(false);
   };
 
   /* Windows already pinned get their indicator on the pinned button, so the
      overflow list only shows apps that aren't pinned. */
   const pinnedApps = new Set(PINNED.map((p) => p.app));
-  const extraWindows = windows.filter((w) => !pinnedApps.has(w.app as LaunchableApp));
+  const extraWindows = windows.filter(
+    (w) => !pinnedApps.has(w.app as LaunchableApp) && w.phase !== 'closing',
+  );
 
   const timeLabel = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const dateLabel = time.toLocaleDateString([], {
@@ -91,91 +164,165 @@ export default function WinTaskbar({
 
   return (
     <>
-      {/* ═════════════════════════════════════════════════════ Start menu */}
+      {/* ═════════════════════════════════════════════════════ Start flyout */}
       {startOpen && (
         <div
           ref={startRef}
-          className="absolute bottom-[56px] left-1/2 z-[9999] flex w-[540px] max-w-[94vw] -translate-x-1/2 flex-col gap-4 rounded-[10px] p-5 animate-win-pop"
+          className="absolute bottom-[56px] left-1/2 z-[9999] flex w-[560px] max-w-[94vw] -translate-x-1/2 flex-col gap-4 rounded-[10px] p-5 anim-win-flyout"
           style={{
-            background: 'rgba(43, 43, 43, 0.86)',
+            background: 'rgba(43, 43, 43, 0.88)',
             backdropFilter: 'blur(60px) saturate(1.6)',
             WebkitBackdropFilter: 'blur(60px) saturate(1.6)',
             border: '1px solid rgba(255,255,255,0.10)',
             boxShadow: '0 24px 70px rgba(0,0,0,0.55)',
-            fontFamily: "'Segoe UI VF', 'Segoe UI Variable', 'Segoe UI', sans-serif",
+            fontFamily: FONT,
           }}
         >
+          {/* ───────────────────────────────────────────── search field */}
           <div className="relative flex items-center">
             <input
+              ref={searchRef}
               type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && results[0]) {
+                  const first = results[0];
+                  if (first.kind === 'app') launch(first.app, first.title);
+                  else {
+                    onOpenNode(first.node);
+                    setStartOpen(false);
+                  }
+                }
+              }}
               placeholder="Search for apps, settings and documents"
-              className="w-full rounded-full border border-white/10 bg-black/40 px-4 py-2 pl-9 text-[12px] text-white placeholder-white/40 outline-none transition-colors focus:border-[#0078d4]"
+              className="w-full rounded-full border border-white/10 bg-black/40 px-4 py-2 pl-9 text-[12px] text-white outline-none transition-colors placeholder:text-white/40 focus:border-[#0078d4]"
             />
             <BsSearch className="absolute left-3.5 text-white/40" size={12} />
           </div>
 
-          <div>
-            <div className="mb-3 flex items-center justify-between px-1">
-              <span className="text-[12px] font-semibold text-white">Pinned</span>
-              <span className="rounded bg-white/5 px-2 py-0.5 text-[11px] text-white/50">
-                All apps
-              </span>
+          {query.trim() ? (
+            /* ─────────────────────── search results replace the pinned grid */
+            <div className="max-h-[320px] overflow-y-auto">
+              {results.length === 0 ? (
+                <div className="py-6 text-center text-[12px] text-white/40">
+                  No results for “{query}”
+                </div>
+              ) : (
+                <>
+                  <div className="mb-2 px-1 text-[12px] font-semibold text-white">
+                    Best match
+                  </div>
+                  <div className="space-y-0.5">
+                    {results.map((result) => (
+                      <button
+                        key={result.key}
+                        onClick={() => {
+                          if (result.kind === 'app') launch(result.app, result.title);
+                          else {
+                            onOpenNode(result.node);
+                            setStartOpen(false);
+                          }
+                        }}
+                        className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors hover:bg-white/10"
+                      >
+                        <img
+                          src={
+                            result.kind === 'app'
+                              ? winAppIcon(result.app)
+                              : winNodeIcon(result.node)
+                          }
+                          alt=""
+                          className="h-6 w-6 shrink-0 object-contain"
+                        />
+                        <div className="flex min-w-0 flex-col">
+                          <span className="truncate text-[12px] text-white">
+                            {result.title}
+                          </span>
+                          <span className="truncate text-[10.5px] text-white/45">
+                            {result.subtitle}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
+          ) : (
+            <>
+              {/* ─────────────────────────────────────────── pinned app grid */}
+              <div>
+                <div className="mb-3 flex items-center justify-between px-1">
+                  <span className="text-[12px] font-semibold text-white">Pinned</span>
+                  <span className="rounded bg-white/5 px-2 py-0.5 text-[11px] text-white/50">
+                    All apps
+                  </span>
+                </div>
 
-            <div className="grid grid-cols-6 gap-1">
-              {PINNED.map(({ app, label }) => (
-                <button
-                  key={app}
-                  onClick={() => launch(app)}
-                  className="group flex flex-col items-center gap-1.5 rounded-lg p-2.5 text-center transition-colors hover:bg-white/10"
-                >
-                  <img
-                    src={winAppIcon(app)}
-                    alt=""
-                    className="h-8 w-8 object-contain transition-transform group-hover:scale-105"
-                  />
-                  <span className="w-full truncate text-[11px] text-white/85">{label}</span>
-                </button>
-              ))}
+                <div className="grid grid-cols-6 gap-1">
+                  {ALL_APPS.map(({ app, label }) => (
+                    <button
+                      key={app}
+                      onClick={() => launch(app, label)}
+                      className="group flex flex-col items-center gap-1.5 rounded-lg p-2.5 text-center transition-colors hover:bg-white/10"
+                    >
+                      <img
+                        src={winAppIcon(app)}
+                        alt=""
+                        className="h-8 w-8 object-contain transition-transform group-hover:scale-105"
+                      />
+                      <span className="w-full truncate text-[11px] text-white/85">
+                        {label}
+                      </span>
+                    </button>
+                  ))}
 
-              <button
-                onClick={() => {
-                  window.open('https://github.com/aneeshsharma72067', '_blank', 'noopener,noreferrer');
-                  setStartOpen(false);
-                }}
-                className="group flex flex-col items-center gap-1.5 rounded-lg p-2.5 text-center transition-colors hover:bg-white/10"
-              >
-                <img src={WIN_ICONS.info} alt="" className="h-8 w-8 object-contain transition-transform group-hover:scale-105" />
-                <span className="w-full truncate text-[11px] text-white/85">GitHub</span>
-              </button>
-
-              <button
-                onClick={() => launch('files')}
-                className="group flex flex-col items-center gap-1.5 rounded-lg p-2.5 text-center transition-colors hover:bg-white/10"
-              >
-                <img src={WIN_ICONS.folder} alt="" className="h-8 w-8 object-contain transition-transform group-hover:scale-105" />
-                <span className="w-full truncate text-[11px] text-white/85">Projects</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Switching OS remounts the whole shell — see WindowsOS's docs. */}
-          <div className="border-t border-white/10 pt-3">
-            <div className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-wider text-white/40">
-              Switch computer
-            </div>
-            <button
-              onClick={() => onSkinChange('mac')}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-white/10"
-            >
-              <span className="text-[15px]"></span>
-              <div className="flex flex-col">
-                <span className="text-[12px] font-medium text-white">Boot into macOS</span>
-                <span className="text-[10.5px] text-white/45">Sonoma 14.5 · closes open windows</span>
+                  <button
+                    onClick={() => {
+                      window.open(
+                        'https://github.com/aneeshsharma72067',
+                        '_blank',
+                        'noopener,noreferrer',
+                      );
+                      setStartOpen(false);
+                    }}
+                    className="group flex flex-col items-center gap-1.5 rounded-lg p-2.5 text-center transition-colors hover:bg-white/10"
+                  >
+                    <img
+                      src={WIN_ICONS.info}
+                      alt=""
+                      className="h-8 w-8 object-contain transition-transform group-hover:scale-105"
+                    />
+                    <span className="w-full truncate text-[11px] text-white/85">GitHub</span>
+                  </button>
+                </div>
               </div>
-            </button>
-          </div>
 
+              {/* Switching OS remounts the whole shell — see WindowsOS's docs. */}
+              <div className="border-t border-white/10 pt-3">
+                <div className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-wider text-white/40">
+                  Switch computer
+                </div>
+                <button
+                  onClick={() => onSkinChange('mac')}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-white/10"
+                >
+                  <span className="text-[15px]"></span>
+                  <div className="flex flex-col">
+                    <span className="text-[12px] font-medium text-white">
+                      Boot into macOS
+                    </span>
+                    <span className="text-[10.5px] text-white/45">
+                      Sonoma 14.5 · closes open windows
+                    </span>
+                  </div>
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* ─────────────────────────────────────────────── account row */}
           <div className="flex items-center justify-between border-t border-white/10 pt-3">
             <div className="flex items-center gap-2.5 rounded-md px-2 py-1">
               <div className="grid h-7 w-7 place-items-center rounded-full bg-[#0078d4] text-[11px] font-bold text-white">
@@ -194,16 +341,16 @@ export default function WinTaskbar({
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════════ Taskbar */}
+      {/* ══════════════════════════════════════════════════════════ taskbar */}
       <div
         className="absolute bottom-0 left-0 right-0 z-[9998] flex h-12 select-none items-center px-2"
         style={{
-          background: 'rgba(32, 32, 32, 0.82)',
+          background: 'rgba(32, 32, 32, 0.84)',
           backdropFilter: 'blur(40px) saturate(1.6)',
           WebkitBackdropFilter: 'blur(40px) saturate(1.6)',
           borderTop: '1px solid rgba(255,255,255,0.07)',
           color: '#ffffff',
-          fontFamily: "'Segoe UI VF', 'Segoe UI Variable', 'Segoe UI', sans-serif",
+          fontFamily: FONT,
         }}
       >
         {/* Left: weather widget, hidden when there's no room for it. */}
@@ -238,7 +385,7 @@ export default function WinTaskbar({
           </button>
 
           {PINNED.map(({ app, label }) => {
-            const running = windows.filter((w) => w.app === app);
+            const running = windows.filter((w) => w.app === app && w.phase !== 'closing');
             const isActive = running.some((w) => w.id === activeWindowId && !w.minimized);
             return (
               <button
@@ -248,7 +395,7 @@ export default function WinTaskbar({
                   /* Clicking a pinned app with a window open behaves like the
                      real taskbar: focus it, or minimize if already on top. */
                   if (running.length > 0) toggleWindow(running[0]);
-                  else onOpenApp(app);
+                  else onOpenApp(app, label);
                 }}
                 className={`relative grid h-10 w-10 place-items-center rounded-md transition-colors hover:bg-white/10 ${
                   isActive ? 'bg-white/10' : ''
@@ -280,7 +427,11 @@ export default function WinTaskbar({
                 <img src={winAppIcon(win.app)} alt="" className="h-6 w-6 object-contain" />
                 <span
                   className={`absolute bottom-0.5 h-[3px] rounded-full transition-all ${
-                    isActive ? 'w-4 bg-[#4cc2ff]' : win.minimized ? 'w-1.5 bg-white/40' : 'w-2.5 bg-white/55'
+                    isActive
+                      ? 'w-4 bg-[#4cc2ff]'
+                      : win.minimized
+                        ? 'w-1.5 bg-white/40'
+                        : 'w-2.5 bg-white/55'
                   }`}
                 />
               </button>

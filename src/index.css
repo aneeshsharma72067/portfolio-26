@@ -82,30 +82,205 @@
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   /computer — OS window and chrome animations
+   ═══════════════════════════════════════════════════════════════════════════
+
+   THE ONE RULE IN HERE: a window's outer element must never be the thing that
+   animates `transform`. Windows are positioned with an inline
+   `transform: translate3d(...)` that the drag layer rewrites every frame, and a
+   running animation beats inline styles in the cascade — animating transform on
+   the frame itself pins every window to the top-left corner and makes dragging
+   look broken.
+
+   So each OS frame renders an inner "animation shell" that carries no
+   positioning of its own. Scaling, bouncing and genie-ing all happen there, and
+   the outer element is left alone to carry position. Everything below is
+   written to be applied to that inner shell (or to chrome like menus and dock
+   icons, which have no drag layer at all).
+
+   Windows and macOS deliberately get DIFFERENT curves and different motion:
+   Windows 11 fades and grows a little from 92% with a soft ease-out; macOS
+   springs up from 88% with a slight overshoot, and minimizes with a scale-down
+   toward the dock. Matching them would be less work and would read as fake.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 @layer utilities {
-  /* Window / menu open animation.
-     IMPORTANT: it must NOT animate `transform`. Windows are positioned with an
-     inline `transform: translate3d(...)` that the drag layer rewrites on every
-     frame, and a running animation (or one with `forwards` fill) beats inline
-     styles in the cascade — animating transform here pinned every window to the
-     top-left corner and made dragging look broken. Opacity + a clipped grow
-     give the same "pop" without touching the property that carries position. */
-  .animate-win-pop {
-    animation: winPop 0.16s ease-out;
+  /* ─────────────────────────────────────────────── Windows 11 window motion */
+
+  /* App launch: a quick fade + subtle grow. Windows 11 is restrained here. */
+  .anim-win-open {
+    animation: winOpen 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  /* macOS dock icon bounce on launch. Safe to use transform: the bouncing
-     element is a wrapper that carries no positioning of its own. */
-  .animate-dock-bounce {
-    animation: dockBounce 0.7s ease-in-out;
+  /* Close: shrinks very slightly while fading — the Fluent "dismiss" curve. */
+  .anim-win-close {
+    animation: winClose 0.18s cubic-bezier(0.4, 0, 1, 1) forwards;
+  }
+  /* Minimize: drops toward the taskbar. */
+  .anim-win-minimize {
+    animation: winMinimize 0.18s cubic-bezier(0.4, 0, 1, 1) forwards;
+  }
+  /* Start menu / flyouts slide up as they fade in. */
+  .anim-win-flyout {
+    animation: winFlyout 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  /* Snap-layout preview and other Fluent reveals. */
+  .anim-win-fade {
+    animation: winFade 0.15s ease-out;
+  }
+
+  /* ───────────────────────────────────────────────── macOS window motion */
+
+  /* App launch: springs up from 88% with a touch of overshoot. */
+  .anim-mac-open {
+    animation: macOpen 0.28s cubic-bezier(0.22, 1.4, 0.36, 1);
+  }
+  /* Close: collapses inward, faster than it opened. */
+  .anim-mac-close {
+    animation: macClose 0.18s cubic-bezier(0.55, 0, 0.9, 0.35) forwards;
+  }
+  /* Minimize: the scale-and-sink toward the dock (a cheap "genie"). */
+  .anim-mac-minimize {
+    animation: macMinimize 0.24s cubic-bezier(0.55, 0, 0.9, 0.35) forwards;
+  }
+  /* Menus drop from the menubar with a short spring. */
+  .anim-mac-menu {
+    animation: macMenu 0.18s cubic-bezier(0.22, 1.2, 0.36, 1);
+    transform-origin: top left;
+  }
+  /* Dock icon bounce on launch. */
+  .anim-dock-bounce {
+    animation: dockBounce 0.66s cubic-bezier(0.28, 0.84, 0.42, 1);
+  }
+  /* Spotlight panel: a fast scale-in from slightly small. */
+  .anim-mac-spotlight {
+    animation: macSpotlight 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* ───────────────────────────────────────────────────── shared chrome bits */
+
+  /* Desktop icon "open" pulse, used by both (each passes its own duration). */
+  .anim-icon-open {
+    animation: iconOpen 0.3s ease-out;
+  }
+  /* Boot / shutdown veil. */
+  .anim-veil {
+    animation: veilFade 0.35s ease-out;
   }
 }
 
-@keyframes winPop {
-  0% {
+/* ───────────────────────────────────────────────────────────── Windows keys */
+
+@keyframes winOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes winClose {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+@keyframes winMinimize {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.7) translateY(40%);
+  }
+}
+
+@keyframes winFlyout {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes winFade {
+  from {
     opacity: 0;
   }
-  100% {
+  to {
     opacity: 1;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────── macOS keys */
+
+@keyframes macOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  70% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes macClose {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+}
+
+@keyframes macMinimize {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.28) translateY(60%);
+  }
+}
+
+@keyframes macMenu {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes macSpotlight {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -115,9 +290,52 @@
     transform: translateY(0);
   }
   35% {
-    transform: translateY(-15px);
+    transform: translateY(-16px);
   }
   70% {
-    transform: translateY(-6px);
+    transform: translateY(-5px);
+  }
+}
+
+/* ────────────────────────────────────────────────────────────── shared keys */
+
+@keyframes iconOpen {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes veilFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Respect the OS-level "reduce motion" setting: keep the fade, drop the travel.
+   A user who asked for less motion should still see *something* change when a
+   window opens, or the desktop reads as broken. */
+@media (prefers-reduced-motion: reduce) {
+  .anim-win-open,
+  .anim-win-close,
+  .anim-win-minimize,
+  .anim-win-flyout,
+  .anim-mac-open,
+  .anim-mac-close,
+  .anim-mac-minimize,
+  .anim-mac-menu,
+  .anim-mac-spotlight,
+  .anim-dock-bounce,
+  .anim-icon-open {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
   }
 }

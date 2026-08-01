@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer } from 'react';
+import { useCallback, useEffect, useReducer, useRef } from 'react';
 import type { AppId, FileNode, WindowState } from './types';
 import type { Rect } from './useDrag';
 
@@ -17,13 +17,25 @@ import type { Rect } from './useDrag';
  * Geometry committed here is the resting position only. While a drag is in
  * flight `useDrag` writes transforms directly to the DOM and dispatches nothing,
  * so a 3-second drag produces exactly one dispatch.
+ *
+ * ── Animation ────────────────────────────────────────────────────────────────
+ * Windows carry a `phase`. Closing is a two-step: `close()` marks the window
+ * `closing` (its frame plays the OS's own exit animation) and a timer removes
+ * it once the animation has had time to run. Without this the element unmounts
+ * on the same frame as the click and no exit animation is ever visible.
  */
 
+/** How long a close animation is given before the window is unmounted. */
+export const CLOSE_MS = 180;
+
 type Action =
-  | { type: 'open'; node: FileNode; desktop: { w: number; h: number } }
-  | { type: 'close'; id: string }
+  | { type: 'open'; node: FileNode; desktop: { w: number; h: number }; title?: string }
+  | { type: 'startClose'; id: string }
+  | { type: 'remove'; id: string }
+  | { type: 'settle'; id: string }
   | { type: 'focus'; id: string }
   | { type: 'minimize'; id: string }
+  | { type: 'restore'; id: string }
   | { type: 'toggleMax'; id: string }
   | { type: 'commit'; id: string; rect: Rect }
   | { type: 'closeAll' };
@@ -43,13 +55,20 @@ interface State {
 
 /** Default size per app — a file listing wants width, a document wants height. */
 const DEFAULT_SIZE: Record<AppId, { w: number; h: number }> = {
-  files: { w: 760, h: 480 },
-  reader: { w: 620, h: 560 },
-  image: { w: 720, h: 520 },
-  settings: { w: 560, h: 440 },
-  photos: { w: 780, h: 520 },
-  notes: { w: 740, h: 500 },
+  files: { w: 880, h: 560 },
+  reader: { w: 640, h: 580 },
+  image: { w: 760, h: 560 },
+  settings: { w: 720, h: 520 },
+  photos: { w: 900, h: 600 },
+  notes: { w: 820, h: 540 },
+  terminal: { w: 720, h: 440 },
+  taskmgr: { w: 700, h: 500 },
+  trash: { w: 700, h: 440 },
+  calc: { w: 340, h: 480 },
 };
+
+/** Apps that are a fixed size in the real OS and shouldn't be born maximized. */
+const NEVER_MAXIMIZED: AppId[] = ['calc'];
 
 /** Cap so a window opened on a small desktop is never born off-screen. */
 const fitToDesktop = (
@@ -69,8 +88,11 @@ function reducer(state: State, action: Action): State {
       const { node, desktop } = action;
 
       /* Re-open semantics: if this exact path is already open, focus it rather
-         than stacking a duplicate. Matches every real file manager. */
-      const existing = state.windows.find((w) => w.path === node.path);
+         than stacking a duplicate. Matches every real file manager. A window
+         mid-close doesn't count — reopening it should start a fresh one. */
+      const existing = state.windows.find(
+        (w) => w.path === node.path && w.phase !== 'closing',
+      );
       if (existing) return reducer(state, { type: 'focus', id: existing.id });
 
       const size = fitToDesktop(DEFAULT_SIZE[node.app], desktop);
@@ -87,7 +109,7 @@ function reducer(state: State, action: Action): State {
             // from two places), so pair it with the z counter.
             id: `${node.path}#${z}`,
             app: node.app,
-            title: node.name,
+            title: action.title ?? node.name,
             path: node.path,
             // The stored rect is what un-maximizing restores to, so it is filled
             // in even when the window is born maximized.
@@ -96,7 +118,8 @@ function reducer(state: State, action: Action): State {
             ...size,
             z,
             minimized: false,
-            maximized: state.openMaximized,
+            maximized: state.openMaximized && !NEVER_MAXIMIZED.includes(node.app),
+            phase: 'opening',
           },
         ],
         topZ: z,
@@ -104,8 +127,28 @@ function reducer(state: State, action: Action): State {
       };
     }
 
-    case 'close':
+    /* Mark for close. The frame sees `phase: 'closing'` and plays the exit
+       animation; `remove` lands once the animation has had its time. */
+    case 'startClose':
+      return {
+        ...state,
+        windows: state.windows.map((w) =>
+          w.id === action.id ? { ...w, phase: 'closing' } : w,
+        ),
+      };
+
+    case 'remove':
       return { ...state, windows: state.windows.filter((w) => w.id !== action.id) };
+
+    /* The open animation has finished — drop out of `opening` so a later
+       re-render can't restart it. */
+    case 'settle':
+      return {
+        ...state,
+        windows: state.windows.map((w) =>
+          w.id === action.id && w.phase === 'opening' ? { ...w, phase: 'open' } : w,
+        ),
+      };
 
     case 'closeAll':
       return { ...state, windows: [] };
@@ -132,6 +175,9 @@ function reducer(state: State, action: Action): State {
           w.id === action.id ? { ...w, minimized: true } : w,
         ),
       };
+
+    case 'restore':
+      return reducer(state, { type: 'focus', id: action.id });
 
     case 'toggleMax':
       return {
@@ -167,14 +213,33 @@ export function useWindows(openMaximized = false) {
     openMaximized,
   });
 
+  /* Pending close timers, so unmounting the shell (an OS switch) can't leave a
+     timer firing into a dead reducer. */
+  const closeTimers = useRef<number[]>([]);
+  useEffect(
+    () => () => {
+      closeTimers.current.forEach(clearTimeout);
+      closeTimers.current = [];
+    },
+    [],
+  );
+
   /* Stable action creators so children memoised with React.memo don't re-render
      just because the parent re-rendered. `dispatch` is already stable. */
   const open = useCallback(
-    (node: FileNode, desktop: { w: number; h: number }) =>
-      dispatch({ type: 'open', node, desktop }),
+    (node: FileNode, desktop: { w: number; h: number }, title?: string) =>
+      dispatch({ type: 'open', node, desktop, title }),
     [],
   );
-  const close = useCallback((id: string) => dispatch({ type: 'close', id }), []);
+
+  /** Play the exit animation, then unmount. */
+  const close = useCallback((id: string) => {
+    dispatch({ type: 'startClose', id });
+    const timer = window.setTimeout(() => dispatch({ type: 'remove', id }), CLOSE_MS);
+    closeTimers.current.push(timer);
+  }, []);
+
+  const settle = useCallback((id: string) => dispatch({ type: 'settle', id }), []);
   const focus = useCallback((id: string) => dispatch({ type: 'focus', id }), []);
   const minimize = useCallback((id: string) => dispatch({ type: 'minimize', id }), []);
   const toggleMax = useCallback((id: string) => dispatch({ type: 'toggleMax', id }), []);
@@ -188,8 +253,10 @@ export function useWindows(openMaximized = false) {
      before a full shortcut layer. */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape' || state.windows.length === 0) return;
-      const top = state.windows.reduce((a, b) => (a.z > b.z ? a : b));
+      if (e.key !== 'Escape') return;
+      const live = state.windows.filter((w) => w.phase !== 'closing' && !w.minimized);
+      if (live.length === 0) return;
+      const top = live.reduce((a, b) => (a.z > b.z ? a : b));
       close(top.id);
     };
     window.addEventListener('keydown', onKey);
@@ -201,6 +268,7 @@ export function useWindows(openMaximized = false) {
     topZ: state.topZ,
     open,
     close,
+    settle,
     focus,
     minimize,
     toggleMax,
