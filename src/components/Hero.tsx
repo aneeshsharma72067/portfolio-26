@@ -4,7 +4,7 @@ import { personal } from '@/data/content';
 import Profile from '@/assets/image/gallery/1.webp';
 import AltProfile from '@/assets/image/gallery/3.webp';
 import Landscape from '@/assets/image/banner.jpg';
-import NowPlaying from './NowPlaying';
+import LeetCodeProfile from './LeetCodeProfile';
 import ChessProfile from './ChessProfile';
 import GitHubContributions from './GitHubContributions';
 import { useTranslation } from '@/context/TranslationContext';
@@ -163,9 +163,9 @@ const Hero = () => {
         </Magnetic>
       </div>
 
-      {/* ── Widgets (Spotify + Chess.com) ── */}
+      {/* ── Widgets (LeetCode + Chess.com) ── */}
       <div className="mt-10 grid gap-4 sm:grid-cols-2">
-        <NowPlaying />
+        <LeetCodeProfile />
         <ChessProfile />
       </div>
 
