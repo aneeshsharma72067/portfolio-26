@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Changed
+- **Chess puzzles → 10 mate-in-1s** (`src/lib/chessPuzzles.ts`) — expanded from 3 to 10 (ladder, queen back-rank, Arabian, scholar's, kill box, bishop & rook, corridor + originals). All solutions verified via `chessEngine` checkmate.
+
 - **Corner eggs → icon-only spring reveal** (`CornerEgg.tsx`, `EasterEgg.tsx`, `ComputerEgg.tsx`) — CLI (terminal) and Computer (monitor) triggers are fully hidden until the cursor nears the corner (~110px), then spring in with an elastic overshoot. No peek notch, labels, glow pills, or idle ping/sparkle. Touch devices stay hidden (hover-only easter eggs).
 
 - **Experience → single-role dossier** (`src/components/Experience.tsx`, `src/data/content.ts`) — one tenure: meta rail, oversized company + modest bare mark, serif lead. Scene photo removed from UI (file kept; full-bleed was too heavy / weak). Filmstrip backup at `_backup/ExperienceFilmstrip.tsx`.
