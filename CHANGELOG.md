@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Corner eggs → icon-only spring reveal** (`CornerEgg.tsx`, `EasterEgg.tsx`, `ComputerEgg.tsx`) — CLI (terminal) and Computer (monitor) triggers are fully hidden until the cursor nears the corner (~110px), then spring in with an elastic overshoot. No peek notch, labels, glow pills, or idle ping/sparkle. Touch devices stay hidden (hover-only easter eggs).
+
+- **Experience → single-role dossier** (`src/components/Experience.tsx`, `src/data/content.ts`) — one tenure: meta rail, oversized company + modest bare mark, serif lead. Scene photo removed from UI (file kept; full-bleed was too heavy / weak). Filmstrip backup at `_backup/ExperienceFilmstrip.tsx`.
+
 ### Fixed
 - **Terminal fullscreen FX never ending** (`src/components/TerminalFX.tsx`) — the `sudo rm -rf` blast left the screen blank and `sl` left the train overlay stuck. Root cause: `Terminal`'s once-a-second clock re-renders handed `TerminalFX` a fresh `onDone` identity each tick; since the auto-finish `useEffect` listed `onDone` as a dep, its `setTimeout` was cleared + restarted every second and, for effects longer than 1s (blast 2.6s, train 4.2s), never fired — so `onDone` (which navigates home for the blast) never ran. Fixed by holding `onDone` in a ref and depending only on `effect`, decoupling callback identity from the timer lifecycle.
 

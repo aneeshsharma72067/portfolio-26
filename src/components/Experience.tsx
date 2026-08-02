@@ -1,19 +1,46 @@
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, ImageIcon } from 'lucide-react';
 import { experiences } from '@/data/content';
 import { useReveal } from '@/hooks/useReveal';
 import SectionHeading from './SectionHeading';
 import { useTranslation } from '@/context/TranslationContext';
 
 /**
- * Experience — editorial, box-free layout in the spirit of a print masthead.
- * Each role is a full-bleed row: an oversized ghost index numeral, a large
- * period + status eyebrow, a huge company headline, and a wide serif-lead
- * description. Rows are separated by hairline rules only. Everything fades /
- * slides in with a light stagger on scroll (CSS-only, via useReveal).
+ * Experience — single-role "dossier" spread.
+ *
+ * Built for one current tenure (no timeline, no sticky/parallax). Composition:
+ * a live status rail, oversized company masthead, mark, and serif lead.
+ * Scene photo dropped for now (file kept on disk) — full-bleed was too heavy
+ * for one-role layout.
+ *
+ * Multi-role filmstrip kept at `_backup/ExperienceFilmstrip.tsx` for later.
  */
+
+const AssetSlot = ({
+  label,
+  hint,
+  className = '',
+}: {
+  label: string;
+  hint: string;
+  className?: string;
+}) => (
+  <div
+    className={`relative flex flex-col items-center justify-center gap-2 border border-dashed border-outline-variant/50 bg-on-surface/[0.03] p-6 text-center ${className}`}
+  >
+    <ImageIcon size={20} className="text-on-surface-variant/45" aria-hidden />
+    <span className="font-mono text-[10px] uppercase tracking-label text-primary">{label}</span>
+    <p className="max-w-md font-body text-xs leading-relaxed text-on-surface-variant sm:text-sm">
+      {hint}
+    </p>
+  </div>
+);
+
 const Experience = () => {
   const { ref, visible } = useReveal();
   const { t } = useTranslation();
+  const exp = experiences[0];
+
+  if (!exp) return null;
 
   return (
     <section id="experience" ref={ref} className="mt-28">
@@ -23,84 +50,72 @@ const Experience = () => {
         accent={t('expAccent')}
       />
 
-      {/* Timeline body. A gradient "spine" runs down the left edge and draws
-          itself (scaleY 0→1 from the top) once the section scrolls into view;
-          each role gets a node dot pinned to the spine. */}
-      <div className="relative pl-8">
-        <span
-          aria-hidden
-          className={`pointer-events-none absolute left-[11px] top-2 h-[calc(100%-1rem)] w-px origin-top bg-gradient-to-b from-primary via-primary/40 to-transparent transition-transform duration-[1400ms] ease-out ${
-            visible ? 'scale-y-100' : 'scale-y-0'
-          }`}
-        />
-        {experiences.map((exp, i) => (
-          <article
-            key={`${exp.company}-${exp.period}`}
-            className={`group relative border-t border-outline-variant/40 py-10 transition-all duration-700 first:border-t-0 ${
-              visible ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-            }`}
-            style={{ transitionDelay: `${i * 140}ms` }}
-          >
-            {/* Node dot on the spine — pulses for the current role. Fades in
-                after the spine has begun drawing, staggered per row. */}
-            <span
-              aria-hidden
-              className={`absolute -left-[27px] top-12 flex h-3 w-3 transition-opacity duration-500 ${
-                visible ? 'opacity-100' : 'opacity-0'
-              }`}
-              style={{ transitionDelay: `${400 + i * 160}ms` }}
-            >
-              {exp.current && (
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/70" />
-              )}
-              <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-background bg-primary" />
-            </span>
-
-            {/* Ghost index numeral — oversized, sits behind the content */}
-            <span
-              aria-hidden
-              className="pointer-events-none absolute -top-2 right-0 select-none font-headline text-7xl font-black leading-none text-on-surface/[0.04] sm:text-8xl"
-            >
-              {String(i + 1).padStart(2, '0')}
-            </span>
-
-            {/* Meta row: period + live status */}
-            <div className="flex items-center gap-3">
-              <span className="font-mono text-xs uppercase tracking-label text-on-surface-variant">
-                {exp.period}
-              </span>
-              {exp.current && (
-                <span className="flex items-center gap-1.5">
-                  <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/70" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-                  </span>
-                  <span className="font-label text-[10px] font-bold uppercase tracking-label text-primary">
-                    Present
-                  </span>
+      <article
+        className={`relative transition-all duration-700 ${
+          visible ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
+        }`}
+      >
+        {/* Top meta rail — period · location · live */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-outline-variant/40 py-4">
+          <span className="font-mono text-xs uppercase tracking-label text-on-surface-variant">
+            {exp.period}
+          </span>
+          <span aria-hidden className="meta-dot" />
+          <span className="font-mono text-xs uppercase tracking-label text-on-surface-variant">
+            {exp.location}
+          </span>
+          {exp.current && (
+            <>
+              <span aria-hidden className="meta-dot" />
+              <span className="flex items-center gap-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/70" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
                 </span>
-              )}
-            </div>
+                <span className="font-label text-[10px] font-bold uppercase tracking-label text-primary">
+                  Present
+                </span>
+              </span>
+            </>
+          )}
+        </div>
 
-            {/* Company — the headline moment. Oversized, slides right on hover. */}
-            <h3 className="mt-3 font-headline text-5xl font-black leading-[0.95] tracking-tight text-on-surface transition-transform duration-500 group-hover:translate-x-2 sm:text-6xl">
-              {exp.company}
-              <span className="text-primary">.</span>
-            </h3>
-
-            {/* Role eyebrow */}
-            <p className="mt-4 inline-flex items-center gap-2 font-label text-xs font-bold uppercase tracking-label text-primary">
+        {/* Masthead: mark + giant company */}
+        <div className="mt-10 flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0">
+            <p className="inline-flex items-center gap-2 font-label text-xs font-bold uppercase tracking-label text-primary">
               <ArrowUpRight size={15} />
               {exp.role}
             </p>
+            <h3 className="mt-3 font-headline text-5xl font-black leading-[0.92] tracking-tight text-on-surface sm:text-6xl md:text-7xl">
+              {exp.company}
+              <span className="text-primary">.</span>
+            </h3>
+          </div>
 
-            {/* Description — wide serif lead, offset for an editorial column feel */}
-            <p className="mt-5 max-w-2xl font-body text-xl italic leading-relaxed text-on-surface-variant sm:text-2xl">
-              {exp.description}
-            </p>
-          </article>
-        ))}
-      </div>
+          {/* Company mark — bare logo, modest size */}
+          <div className="shrink-0 self-start sm:self-end">
+            {exp.mark ? (
+              <img
+                src={exp.mark}
+                alt={`${exp.company} mark`}
+                className="h-10 w-auto object-contain sm:h-11 md:h-12"
+              />
+            ) : (
+              <AssetSlot
+                label="mark"
+                hint={exp.markHint}
+                className="h-20 w-32 !gap-1 !p-3"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Serif lead — editorial column */}
+        <p className="mt-10 max-w-2xl font-body text-xl italic leading-relaxed text-on-surface-variant sm:text-2xl">
+          {exp.description}
+        </p>
+      </article>
     </section>
   );
 };

@@ -204,7 +204,7 @@ const EXPERIENCE_MD = `
 ${experiences
   .map(
     (e) => `## ${e.role} — ${e.company}
-${e.period}${e.current ? ' (current)' : ''}
+${e.period}${e.current ? ' (current)' : ''} · ${e.location}
 
 ${e.description}`,
   )

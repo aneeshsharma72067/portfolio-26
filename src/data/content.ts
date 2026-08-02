@@ -8,6 +8,9 @@ import FolioPreview from '@/assets/image/folio.jpeg';
 import RepetoPreview from '@/assets/image/repeto.jpeg';
 import MyBasePreview from '@/assets/image/mybase.png';
 import CryptoPreview from '@/assets/image/crypto.png';
+import ResiliencesoftMark from '@/assets/image/experience/resiliencesoft-mark.webp';
+// Scene kept on disk (`resiliencesoft-scene.png`) but unused — full-bleed
+// dwarfed the one-role dossier. Re-wire when a tighter crop / better still exists.
 
 /* ---------------------------------------------------------------- personal */
 
@@ -126,12 +129,27 @@ export const projects: Project[] = [
 
 /* -------------------------------------------------------------- experience */
 
+/**
+ * Current tenure (single role for now).
+ *
+ * Asset slots — drop under `src/assets/image/experience/`, then import:
+ * - `scene` — wide cinematic still (~2100×900 / 21:9 webp).
+ * - `mark`  — company logo / monogram (mono SVG or webp, ~200–400px).
+ * `null` → labeled placeholder in the UI.
+ *
+ * Multi-role filmstrip: `_backup/ExperienceFilmstrip.tsx` (restore later).
+ */
 export type Experience = {
   company: string;
   role: string;
   period: string;
+  location: string;
   current?: boolean;
   description: string;
+  scene: string | null;
+  mark: string | null;
+  sceneHint: string;
+  markHint: string;
 };
 
 export const experiences: Experience[] = [
@@ -139,9 +157,16 @@ export const experiences: Experience[] = [
     company: 'Resiliencesoft',
     role: 'Software Development Engineer',
     period: 'Feb 2025 — Present',
+    location: 'Remote · India',
     current: true,
     description:
       'Architecting fault-tolerant, cloud-native systems at scale — shipping event-driven microservices, driving observability-first design, and turning ambiguous specs into resilient, low-latency infrastructure that just refuses to fall over.',
+    scene: null,
+    mark: ResiliencesoftMark,
+    sceneHint:
+      'Wide desk still (~16:10 webp). Monitors / terminal glow / office corner — muted so type above stays readable.',
+    markHint:
+      'Resiliencesoft wordmark or glyph. Prefer transparent PNG/SVG (black-backed webp shows a plate).',
   },
 ];
 
