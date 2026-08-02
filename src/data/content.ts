@@ -19,7 +19,7 @@ export const personal = {
   location: 'Bilaspur, India',
   email: 'aneeshsharma1024@gmail.com',
   phone: '+91 72067 34591',
-  resume: '/pdf/Aneesh_Sharma-4.pdf',
+  resume: '/pdf/Aneesh_2026.pdf',
   domain: 'https://aneesh-sharma.me',
   bio: [
     "I am Aneesh Sharma, a dreamy software engineer with an interest in building cool stuff: backend systems, CLI tools, and smooth animated frontends. I started learning to code in college after choosing Engineering (only to not get into agriculture like my family lol). I discovered this stuff was really fun. Before AI came along, I built a lot of stuff and learned a lot about software as well as hardware. Everything I built took time. I started like everyone else with YouTube tutorials and eventually ended up on documentation sites. Now with AI, I try stuff I never really attempted before.",
