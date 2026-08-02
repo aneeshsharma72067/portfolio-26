@@ -4,6 +4,7 @@ import type { SkinId } from '@/os/types';
 import Preloader from '@/components/Preloader';
 import WindowsOS from './windows/WindowsOS';
 import MacOS from './mac/MacOS';
+import NothingOS from './android/NothingOS';
 
 type Props = {
   /** Route change through App's preloader transition (used by "log out"). */
@@ -13,19 +14,21 @@ type Props = {
 /**
  * Computer — the /computer route's only job is choosing which OS to boot.
  *
- * There is no shared chrome here on purpose. `WindowsOS` and `MacOS` are two
- * self-contained desktops; exactly one is mounted at a time, so their taskbars,
- * window frames, icon layouts and file managers can never collide. Switching OS
- * unmounts one shell and mounts the other, which also means each boot starts
- * from a clean desktop — the "different OS loads on selection" behaviour, rather
- * than one desktop wearing a different coat of paint.
- *
- * The switch is hidden behind the site's pixel-dissolve `Preloader`: the swap
- * happens at its midpoint, so the remount is never visible as a flash.
+ * For mobile viewports (< 768px), it mounts NothingOS (Android) to deliver
+ * a tailored, uncluttered, dot-matrix mobile experience.
  */
 export default function Computer({ onNavigate }: Props) {
   const [skinId, setSkinId] = useState<SkinId>(loadSkin);
   const [pendingSkinId, setPendingSkinId] = useState<SkinId | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   /* Persist the OS choice whenever it changes. */
   useEffect(() => {
@@ -46,6 +49,10 @@ export default function Computer({ onNavigate }: Props) {
   }, [pendingSkinId]);
 
   const handleComplete = useCallback(() => setPendingSkinId(null), []);
+
+  if (isMobile) {
+    return <NothingOS onNavigate={onNavigate} />;
+  }
 
   return (
     <>

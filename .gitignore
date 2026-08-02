@@ -29,6 +29,7 @@ dist-ssr
 *.sw?
 
 sessions/
+docs/
 
 .agents/*
 # Cursor editor local config

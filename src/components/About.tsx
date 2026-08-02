@@ -109,6 +109,7 @@ const About = () => {
 
   return (
     <section
+      id="about"
       ref={ref}
       className={`mt-28 transition-all duration-700 ${
         visible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'

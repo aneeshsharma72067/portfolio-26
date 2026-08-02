@@ -66,7 +66,7 @@ const Hero = () => {
   };
 
   return (
-    <section id="about" className="pt-2">
+    <section className="pt-2">
       {/* ── Banner + overlapping avatar ── */}
       <div
         className="relative w-full"
