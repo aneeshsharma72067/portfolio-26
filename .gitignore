@@ -31,3 +31,5 @@ dist-ssr
 sessions/
 
 .agents/*
+# Cursor editor local config
+.cursor/
